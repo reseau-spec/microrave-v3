@@ -1,0 +1,18 @@
+{
+  "name": "microrave-v3",
+  "version": "0.1.0",
+  "description": "Micro Rave V3 — Architecture souveraine",
+  "main": "src/core/index.js",
+  "scripts": {
+    "test:p0:idfactory":   "node tests/p0/IDFACTORY-01.js",
+    "test:p0:webhook":     "node tests/p0/WEBHOOK-RAWBODY-01.js",
+    "test:p0:policyconfig":"node tests/p0/POLICYCONFIG-FAILCLOSED-01.js",
+    "test:p0:all":         "npm run test:p0:idfactory && npm run test:p0:policyconfig",
+    "proxy:start":         "node stripe-webhook-proxy/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "stripe": "^14.0.0"
+  }
+}

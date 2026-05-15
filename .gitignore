@@ -1,0 +1,29 @@
+# ============================================================
+# MICRO RAVE V3 — .gitignore
+# ============================================================
+
+# Variables d'environnement — JAMAIS dans GitHub
+.env
+.env.local
+.env.production
+.env.staging
+
+# Dépendances
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+logs/
+
+# Système
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Build
+dist/
+build/
