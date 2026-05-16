@@ -1,0 +1,121 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="carte04_v4" name="Page-1">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="e3" edge="1" parent="1" source="triple_conf_title" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;" target="prix_rules">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="&lt;b style=&#39;font-size:18px&#39;&gt;QuickPlay — Comment une équipe de talents se propose à un lieu&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;color:#888;font-size:11px&#39;&gt;Carte 04 — QuickPlay · V4_REFONTE · Sections 2.4, 2.5, 2.5.1, 2.5.2&lt;/span&gt;" vertex="1">
+          <mxGeometry height="54" width="1200" x="200" y="14" as="geometry" />
+        </mxCell>
+        <mxCell id="tout_ou_rien" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=14;align=center;strokeWidth=6;shadow=1;" value="&lt;b style=&#39;font-size:20px;color:#b85450&#39;&gt;🚫 RÈGLE ABSOLUE — Tout ou rien. Indivisible.&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:13px&#39;&gt;L&#39;organisateur ne peut pas accepter 3 talents sur 4. C&#39;est l&#39;équipe entière ou rien.&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Cette règle est ce qui différencie QuickPlay d&#39;une liste de candidatures.&lt;br/&gt;Un développeur qui l&#39;ignore détruira la philosophie du lobby. L&#39;EngagementCollectif est indivisible.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="1200" x="200" y="82" as="geometry" />
+        </mxCell>
+        <mxCell id="def" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;strokeWidth=3;" value="&lt;b style=&quot;font-size:14px&quot;&gt;🎮 C&#39;est quoi QuickPlay ? · Section 2.4 — LOI QUICKPLAY-MISSION-01&lt;/b&gt;&lt;br&gt;&lt;i&gt;Au lieu que l&#39;organisateur cherche des talents un par un, c&#39;est UNE ÉQUIPE DE TALENTS qui se forme et propose ses services ensemble.&lt;/i&gt;&lt;br&gt;&lt;span style=&quot;font-size:11px&quot;&gt;Comme une équipe de StarCraft 2 qui se réunit dans le lobby avant de lancer une partie.&lt;br&gt;Règle fondamentale : le lobby ne crée pas seul la mission. Il faut qu&#39;un organisateur ou un checkpoint confirme un besoin réel en acceptant le lobby à son calendrier.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="1200" x="200" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="triple_conf_title" parent="1" style="text;html=1;align=center;strokeColor=#9673a6;fillColor=#e1d5e7;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;✅ La triple confirmation obligatoire — chaque membre doit faire les 3 · section 2.5.2&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Le lobby ne peut pas être soumis si UN SEUL membre n&#39;a pas complété sa triple confirmation&lt;/span&gt;" vertex="1">
+          <mxGeometry height="44" width="1200" x="200" y="308" as="geometry" />
+        </mxCell>
+        <mxCell id="tc1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="&lt;b&gt;① Confirmer le rôle&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#6a0080&#39;&gt;role_confirmé = true&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Je viens comme DJ (pas MC).&lt;br/&gt;Si plusieurs rôles → il choisit lequel activer.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="380" x="200" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="tc2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="&lt;b&gt;② Confirmer le style&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#6a0080&#39;&gt;style_confirmé = true&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;DJ → techno / house / disco&lt;br/&gt;Style = la couleur de sa prestation.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="380" x="610" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="tc3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="&lt;b&gt;③ Confirmer le cachet&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#6a0080&#39;&gt;prix_confirmé = true&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Calculé depuis TalentRolePreference.&lt;br/&gt;Le membre confirme ou ajuste.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="380" x="1020" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="prix_rules" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="&lt;b&gt;💰 Prix total = somme des cachets confirmés&lt;/b&gt;&lt;br&gt;Personne ne voit pas les cachets des autres, ni même le capitaine&amp;nbsp;&amp;nbsp;· Personne ne peut modifier le total&amp;nbsp;&lt;br&gt;&amp;nbsp;Talent multi-rôles : DJ 300$ + Humoriste 200$ = 2 Engagements distincts → 500$ dans le lineup&lt;br&gt;Chacun choisi son propre cachet. Tous peuvent voir le rôle et le style de chacun." vertex="1">
+          <mxGeometry height="70" width="1200" x="200" y="456" as="geometry" />
+        </mxCell>
+        <mxCell id="sep" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;fontSize=12;fontStyle=2;" value="↓  Deux scénarios selon que le lieu a déjà un événement ou non  ↓" vertex="1">
+          <mxGeometry height="30" width="1200" x="200" y="538" as="geometry" />
+        </mxCell>
+        <mxCell id="sc_a_title" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;align=center;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🔵 Scénario A — Le lobby précède l&#39;événement&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#555&#39;&gt;QuickPlay pur — lobby → checkpoint → Event créé en arrière-plan · section 2.5.2&lt;/i&gt;" vertex="1">
+          <mxGeometry height="44" width="580" x="200" y="576" as="geometry" />
+        </mxCell>
+        <mxCell id="sa1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;① L&#39;équipe se forme dans le lobby&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Membres rejoignent selon rôles et styles&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="628" as="geometry" />
+        </mxCell>
+        <mxCell id="sa2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;② Chaque membre fait sa triple confirmation&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;rôle ✓ + style ✓ + cachet ✓ pour chaque membre&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="691" as="geometry" />
+        </mxCell>
+        <mxCell id="sa3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;③ Quand tout le monde a confirmé → lobby soumettable&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Tous présents : role + style + prix = true&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="754" as="geometry" />
+        </mxCell>
+        <mxCell id="sa4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;④ Le capitaine choisit le checkpoint cible&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Peut soumettre même si lobby incomplet (analogie SC2)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="817" as="geometry" />
+        </mxCell>
+        <mxCell id="sa5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;⑤ Le checkpoint reçoit la candidature&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Il voit : rôles + styles + prix total. Pas les cachets individuels.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="sa6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;⑥ Le checkpoint place au calendrier → Event créé en arrière-plan&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Event + MissionSlots + MissionApplication collective&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="943" as="geometry" />
+        </mxCell>
+        <mxCell id="sa7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;⑦ Chaque membre valide la plage horaire&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Délai configurable. Non validé → exclu momentanément, peut rejoindre.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="1006" as="geometry" />
+        </mxCell>
+        <mxCell id="sa8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;align=center;strokeWidth=2;" value="&lt;b&gt;⑧ Tous valident → EngagementCollectif → Engagements individuels&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;ContractSnapshot phase 1 WORM → pipeline standard&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="210" y="1069" as="geometry" />
+        </mxCell>
+        <mxCell id="sc_b_title" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;align=center;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🟢 Scénario B — L&#39;événement existe déjà&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#555&#39;&gt;CreateEvent enrichi par QuickPlay — section 2.4&lt;/i&gt;" vertex="1">
+          <mxGeometry height="44" width="580" x="820" y="576" as="geometry" />
+        </mxCell>
+        <mxCell id="sb1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;① L&#39;organisateur crée la soirée avec des postes ouverts&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Event + MissionSlots ouverts&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="830" y="628" as="geometry" />
+        </mxCell>
+        <mxCell id="sb2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;② Des lobbies QuickPlay cohérents lui sont suggérés&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;En parallèle des candidatures individuelles&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="830" y="691" as="geometry" />
+        </mxCell>
+        <mxCell id="sb3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;③ Il sélectionne un lobby pour remplir des postes&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;MissionApplication collective rattachée aux MissionSlots existants&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="830" y="754" as="geometry" />
+        </mxCell>
+        <mxCell id="sb4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;④ Les membres reçoivent la plage horaire&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Chaque membre valide dans le délai configurable&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="830" y="817" as="geometry" />
+        </mxCell>
+        <mxCell id="sb5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;strokeWidth=2;" value="&lt;b&gt;⑤ Tout ou rien — OUI à toute l&#39;équipe ou NON&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;L&#39;EngagementCollectif est indivisible. Pas de négociation ligne par ligne.&lt;br/&gt;&lt;b style=&#39;color:#b85450&#39;&gt;← Cette règle s&#39;applique aussi dans ce scénario.&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="560" x="830" y="880" as="geometry" />
+        </mxCell>
+        <mxCell id="sb6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;align=center;strokeWidth=2;" value="&lt;b&gt;⑥ Si tous valident → EngagementCollectif → Engagements individuels&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;ContractSnapshot phase 1 WORM → pipeline standard&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="560" x="830" y="1069" as="geometry" />
+        </mxCell>
+        <mxCell id="pipeline" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;strokeWidth=3;" value="&lt;b&gt;🔒 Pipeline standard — identique pour les deux scénarios&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#a05000&#39;&gt;ContractSnapshot WORM phase 1 → pipeline activé&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;dépôt → balance → event_sealed → présence prouvée → SOTS → payout → archive&lt;br/&gt;(Carte 02 — Machine d&#39;état)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="1200" x="200" y="1175" as="geometry" />
+        </mxCell>
+        <mxCell id="capitaine" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=left;spacingLeft=8;" value="&lt;b&gt;🎮 Le capitaine — un statut de lobby, PAS un rôle métier · section 2.5&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;= le premier arrivé dans le lobby. Si il quitte → le suivant prend le statut.&lt;/span&gt;&lt;br/&gt;&lt;b&gt;✅ 3 pouvoirs exclusifs :&lt;/b&gt;&lt;br/&gt;1. Soumettre avant que le lobby soit complet&lt;br/&gt;2. Exclure un membre du lobby&lt;br/&gt;3. Confirmer le checkpoint cible&lt;br/&gt;&lt;b style=&#39;color:#b85450&#39;&gt;🌅 CONDITION DE SUNSET :&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Le statut capitaine disparaît à l&#39;archivage de l&#39;event. Il n&#39;existe pas dans le ReputationLedger. Il ne génère ni bonus ni pénalité. Il est purement opérationnel.&lt;br/&gt;Un développeur qui valorise le rôle capitaine commet une erreur architecturale.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="200" width="565" x="200" y="1273" as="geometry" />
+        </mxCell>
+        <mxCell id="interdits_cap" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;" value="&lt;b&gt;🚫 Interdits absolus du capitaine&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;❌ Aucun MissionSlot ni Engagement &#39;capitaine&#39;&lt;br/&gt;❌ Aucun payout en tant que capitaine&lt;br/&gt;❌ Ne peut pas modifier le cachet confirmé d&#39;un autre membre&lt;br/&gt;❌ Ne peut pas soumettre si un membre n&#39;a pas confirmé&lt;/span&gt;&lt;br/&gt;&lt;b&gt;Le capitaine coordonne. Il ne possède pas l&#39;équipe.&lt;/b&gt;" vertex="1">
+          <mxGeometry height="140" width="565" x="200" y="1483" as="geometry" />
+        </mxCell>
+        <mxCell id="loi_qp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;strokeWidth=2;" value="&lt;b&gt;📏 LOI QUICKPLAY-MISSION-01 :&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Un lobby QuickPlay ne devient jamais une mission sans besoin réel confirmé par un organisateur ou un checkpoint.&lt;br/&gt;Le lobby peut précéder l&#39;Event — mais il ne peut jamais produire un Engagement seul.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="70" width="565" x="835" y="1273" as="geometry" />
+        </mxCell>
+        <mxCell id="lois_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=6;" value="&lt;b&gt;Lois de cette carte :&lt;/b&gt; QUICKPLAY-MISSION-01 · TOUT-OU-RIEN-01 · CAPITAINE-SUNSET-01&lt;br/&gt;&lt;i&gt;Règle Tout ou Rien = point principal de corruption future de QuickPlay. Surveiller à chaque itération.&lt;br/&gt;Voir Carte 06 § interdits 7-11 · Carte 08 pour lois invariantes&lt;/i&gt;" vertex="1">
+          <mxGeometry height="50" width="565" x="835" y="1363" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="tout_ou_rien" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=2;" target="def">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="def" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;" target="triple_conf_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sa" edge="1" parent="1" source="sa7" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=1.5;" target="sa8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sb" edge="1" parent="1" source="sb5" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=1.5;" target="sb6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pa" edge="1" parent="1" source="sa8" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="pipeline">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pb" edge="1" parent="1" source="sb6" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="pipeline">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

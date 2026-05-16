@@ -1,0 +1,76 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="carte07_v4" name="Page-1">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="&lt;b style=&#39;font-size:18px&#39;&gt;Qui collecte les taxes ? Qui les garde ? Qui les remet ?&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;color:#888;font-size:11px&#39;&gt;Carte 07 — Fiscalité · V4_REFONTE · Doctrine A · Parties III et IV&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="1300" x="150" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="doctrine_a" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=13;align=center;strokeWidth=5;shadow=1;" value="&lt;b style=&#39;font-size:18px&#39;&gt;DOCTRINE A — SEED FISCAL · STATUT : HYPOTHÈSE EN COURS DE VALIDATION&lt;/b&gt;&lt;br/&gt;&lt;b style=&#39;color:#b85450;font-size:14px&#39;&gt;⚠️ VALIDATION FISCALISTE REQUISE AVANT LANCEMENT COMMERCIAL RÉEL&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:12px&#39;&gt;Micro Rave mandataire — Talent inscrit TPS/TVQ&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Micro Rave est l&#39;intermédiaire — le courtier. Pas le vendeur.&lt;br/&gt;Le talent est le fournisseur. Les taxes appartiennent au talent.&lt;br/&gt;Micro Rave collecte les taxes au nom du talent et les remet à l&#39;État.&lt;br/&gt;&lt;b style=&#39;color:#b85450&#39;&gt;Ce statut doit être validé avec un fiscaliste avant tout lancement commercial.&lt;br/&gt;La différence entre une décision prise et une hypothèse non testée en justice a des conséquences légales.&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="160" width="1300" x="150" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="dist_title" parent="1" style="text;html=1;align=center;strokeColor=#0050a0;fillColor=#dae8fc;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;📐 Les 6 distinctions fondamentales — section 3.10 · à ne jamais confondre&lt;/b&gt;" vertex="1">
+          <mxGeometry height="32" width="1300" x="150" y="252" as="geometry" />
+        </mxCell>
+        <mxCell id="dist1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;① Base taxable ≠ commission MR&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;La taxe s&#39;applique sur le &lt;b&gt;prix vendu total&lt;/b&gt; (ex. 1 500$).&lt;br/&gt;Pas sur la commission MR (ex. 180$).&lt;br/&gt;La commission est une ventilation interne — pas une assiette fiscale.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="400" x="150" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="dist2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;② Commission économique ≠ fourniture taxable totale&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;La commission de MR est une part du prix.&lt;br/&gt;La fourniture taxable, c&#39;est tout le prix.&lt;br/&gt;Ces deux choses ne sont pas la même chose.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="400" x="600" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="dist3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;③ Montant encaissé ≠ revenu gagné&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Quand l&#39;argent arrive, ce n&#39;est pas encore un revenu.&lt;br/&gt;C&#39;est une obligation de service — le show n&#39;a pas eu lieu.&lt;br/&gt;Le revenu est reconnu seulement à l&#39;archivage (LOI LEDGER-01).&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="400" x="1050" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="dist4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;④ Taxe collectée ≠ revenu&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Les taxes que MR collecte (TPS/TVQ) appartiennent à l&#39;État.&lt;br/&gt;Jamais dans la poche de Micro Rave.&lt;br/&gt;Comptes 4325/4326 → remis à ARC/Revenu Québec.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="400" x="150" y="392" as="geometry" />
+        </mxCell>
+        <mxCell id="dist5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;⑤ Courtier déclaré ≠ mandataire fiscalement reconnu&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Se déclarer courtier ne suffit pas.&lt;br/&gt;Il faut une &lt;b&gt;validation fiscaliste&lt;/b&gt; pour être reconnu comme mandataire.&lt;br/&gt;Ce statut n&#39;est pas automatique.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="400" x="600" y="392" as="geometry" />
+        </mxCell>
+        <mxCell id="dist6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;⑥ Fournisseur fiscal ≠ responsable technique du paiement&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Micro Rave traite le paiement (via Stripe).&lt;br/&gt;Mais le fournisseur fiscal, c&#39;est le &lt;b&gt;talent&lt;/b&gt;.&lt;br/&gt;Traiter le paiement ≠ être le fournisseur.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="400" x="1050" y="392" as="geometry" />
+        </mxCell>
+        <mxCell id="env_title" parent="1" style="text;html=1;align=center;strokeColor=#9673a6;fillColor=#e1d5e7;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;✉️ Les deux enveloppes de taxes — ne jamais les mélanger · section 4.3&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="1300" x="150" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="env_a" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;strokeWidth=2;" value="&lt;b style=&#39;font-size:13px&#39;&gt;✉️ Enveloppe A — Taxes collectées POUR le talent&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#3a7a2a&#39;&gt;Comptes 4325 (TPS/HST) + 4326 (TVQ) — perçues au nom du talent&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;Le client paie des taxes sur la prestation du talent.&lt;br/&gt;Micro Rave ramasse comme un agent — cet argent n&#39;appartient jamais à MR.&lt;br/&gt;Il va à l&#39;État à l&#39;archivage.&lt;br/&gt;&lt;b&gt;Doctrine A événementielle : 4325 bouge. 4326 bouge.&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="630" x="150" y="538" as="geometry" />
+        </mxCell>
+        <mxCell id="env_b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;strokeWidth=2;" value="&lt;b style=&#39;font-size:13px&#39;&gt;✉️ Enveloppe B — Taxes propres de Micro Rave&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#a05000&#39;&gt;Comptes 4410 (TPS MR) + 4420 (TVQ MR) — sur fournitures propres de MR&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;Activée seulement si MR vend en son propre nom :&lt;br/&gt;abonnement SaaS · billetterie · commandite · frais de service MR.&lt;br/&gt;&lt;b&gt;Doctrine A événementielle : 4410 = 0 · 4420 = 0 à l&#39;encaissement.&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="630" x="820" y="538" as="geometry" />
+        </mxCell>
+        <mxCell id="phrase" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;" value="&lt;b&gt;Phrase canonique :&lt;/b&gt;&lt;br/&gt;&lt;i&gt;4325/4326 = taxes collectées pour le talent (Doctrine A). 4410/4420 = taxes propres de Micro Rave sur ses propres fournitures.&lt;br/&gt;Sous Doctrine A événementielle, 4410/4420 restent à zéro à l&#39;encaissement.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="70" width="1300" x="150" y="672" as="geometry" />
+        </mxCell>
+        <mxCell id="jur_title" parent="1" style="text;html=1;align=center;strokeColor=#9673a6;fillColor=#e1d5e7;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;🗺️ La taxe dépend du lieu du show — pas de l&#39;adresse de Micro Rave · section 4.6&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;PlaceOfSupplyRuleConfig · ProvinceTaxRateConfig — tout en database, jamais hardcodé&lt;/span&gt;" vertex="1">
+          <mxGeometry height="40" width="1300" x="150" y="756" as="geometry" />
+        </mxCell>
+        <mxCell id="j_qc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b style=&#39;font-size:15px&#39;&gt;QC&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;GST_QST&lt;br/&gt;TPS 5% → 4325&lt;br/&gt;TVQ 9,975% → 4326&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="240" x="150" y="804" as="geometry" />
+        </mxCell>
+        <mxCell id="j_on" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b style=&#39;font-size:15px&#39;&gt;ON&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;HST 13%&lt;br/&gt;→ 4325 seulement&lt;br/&gt;4326 = 0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="240" x="410" y="804" as="geometry" />
+        </mxCell>
+        <mxCell id="j_nb" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b style=&#39;font-size:15px&#39;&gt;NB&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;HST 15%&lt;br/&gt;→ 4325 seulement&lt;br/&gt;4326 = 0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="240" x="670" y="804" as="geometry" />
+        </mxCell>
+        <mxCell id="j_pe" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b style=&#39;font-size:15px&#39;&gt;PE&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;HST 15%&lt;br/&gt;→ 4325 seulement&lt;br/&gt;4326 = 0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="240" x="930" y="804" as="geometry" />
+        </mxCell>
+        <mxCell id="j_nl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b style=&#39;font-size:15px&#39;&gt;NL&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;HST 15%&lt;br/&gt;→ 4325 seulement&lt;br/&gt;4326 = 0&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="240" x="1190" y="804" as="geometry" />
+        </mxCell>
+        <mxCell id="interdits" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=11;align=left;spacingLeft=8;strokeWidth=2;" value="&lt;b&gt;🚫 Interdits absolus fiscaux&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;❌ TPS = commission_MR × tps_ppm (faux — base taxable = prix vendu total)&lt;br/&gt;❌ DR 6110 / CR 4190 sous doctrine DEBOURS&lt;br/&gt;❌ 4410/4420 à l&#39;encaissement sous Doctrine A événementielle&lt;br/&gt;❌ Modifier TaxConfig sans DualApproval (voir Carte 06)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="630" x="149" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="flux" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;💰 Flux simplifié de l&#39;argent fiscal&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;Client → paye 1 769,63$ (prix + taxes + frais Stripe)&lt;br/&gt;→ Tout entre dans 5200 (Stripe en attente)&lt;br/&gt;→ À l&#39;archivage : Stripe repart (45$) · Taxes à l&#39;État (224,63$) · Talent payé (1 320$) · Commission MR reconnue (180$)&lt;br/&gt;&lt;b&gt;5200 = 0$. Toujours.&lt;/b&gt; (L&#39;Invariant Fondamental — Carte 03)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="630" x="819" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="lois_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=6;" value="&lt;b&gt;Lois de cette carte :&lt;/b&gt; DOCTRINE-A-SEED · LEDGER-01 · LOI-FISCALE-PLACE-OF-SUPPLY&lt;br/&gt;&lt;i&gt;⚠️ DOCTRINE A = HYPOTHÈSE SEED. Statut épistémique : non encore validé par un fiscaliste.&lt;br/&gt;Interdits fiscaux : voir Carte 06 § interdits 4-6 · Carte 03 pour les formules&lt;/i&gt;" vertex="1">
+          <mxGeometry height="50" width="1300" x="150" y="1031" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

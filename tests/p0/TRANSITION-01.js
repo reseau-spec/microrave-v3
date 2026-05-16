@@ -1,21 +1,23 @@
 /**
- * MICRO RAVE V3 — Test P0 : MISSIONCONVERSION-01
+ * MICRO RAVE V3 — Test P0 : TRANSITION-01
  * ============================================================
- * Vérifie que MissionConversionGuard dispatche correctement
- * selon targetState :
- *   - proposed→negotiating : acteurs + roleMetier seulement
- *     (pas de cachet, pas de snapshot)
- *   - proposed→accepted / negotiating→accepted : logique complète
- *     (cachet, taux, tier, idempotency, snapshot)
+ * Vérifie que transitionEngagement() est l'unique porte
+ * et que les violations sont bloquées.
  *
- * Source : OS V10 section 2.7.1 + section 3.2 + section 2.6
- * Pierre de Rosette : DJ Alex Dubois · Le Trèfle · 200$ CAD net
+ * CORRECTIONS V4 :
+ *   - IDFactory.validate() bloque les actors non-souverains
+ *   - balance_pending et payable dans WORM_STATES (W1)
+ *   - sots_window_closed→payable testé (chemin nominal)
+ *   - Transitions alternatives vérifiées dans la table
+ *   - Transitions de sortie de dispute vérifiées
+ *
+ * Source : OS V10 section 16.2 — LOI TRANSITION-01
  * ============================================================
  */
 
 'use strict';
 
-const { validate } = require('../../src/core/guards/MissionConversionGuard');
+const { transitionEngagement, TRANSITION_TABLE, WORM_STATES } = require('../../src/core/transitionEngagement');
 
 let passed = 0;
 let failed = 0;
@@ -32,260 +34,196 @@ async function test(name, fn) {
   }
 }
 
-// ── Contextes de référence ─────────────────────────────────────
-const ACTEURS = {
+const CONTEXTE_NOMINAL = {
   talentUserId:    'USR-TEST-ALEX-000001',
   organizerUserId: 'USR-TEST-TREFLE-0001',
   roleMetier:      'DJ',
+  cachetBrutCents: 20000,
+  tier:            'Freemium',
+  tauxPpm:         120000,
 };
 
-const CONTRAT_COMPLET = {
-  ...ACTEURS,
-  cachetBrutCents: 22_222,
-  tier:            'Freemium',
-  tauxPpm:         120_000,
-};
+const ENG_ID = 'ENG-TEST-TRANS-0001';
+const USR_ID = 'USR-TEST-TRANS-0001';
 
 console.log('═══════════════════════════════════════════════');
-console.log('Test P0 : MISSIONCONVERSION-01');
-console.log('Pierre de Rosette : DJ Alex · Le Trèfle · 200$ CAD net');
+console.log('Test P0 : TRANSITION-01');
 console.log('═══════════════════════════════════════════════\n');
 
 async function run() {
 
-  // ════════════════════════════════════════════════════════
-  // SECTION 1 — proposed → negotiating
-  // Logique légère : acteurs seulement, pas de cachet
-  // ════════════════════════════════════════════════════════
-  console.log('── proposed→negotiating (acteurs seulement) ─\n');
+  // ── Section 1 : Transitions nominales ─────────────────────
+  console.log('── Transitions nominales ─────────────────────\n');
 
-  await test('Ouverture négociation : passe avec acteurs + role seulement', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000001',
-      currentState: 'proposed',
-      targetState:  'negotiating',
-      actor:        'USR-TEST-TREFLE-0001',
-      context:      ACTEURS, // PAS de cachetBrutCents ni tauxPpm
-    });
-    if (!result.passed) throw new Error(`Attendu passed:true — raison: ${result.reason}`);
-    if (result.contractSnapshot) throw new Error('Aucun ContractSnapshot ne doit être créé à negotiating');
-  });
-
-  await test('Ouverture négociation : passe même sans cachetBrutCents', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000002',
-      currentState: 'proposed',
-      targetState:  'negotiating',
-      actor:        'USR-TEST-000001',
-      context: { talentUserId: 'USR-A', organizerUserId: 'USR-B', roleMetier: 'DJ' },
-    });
-    if (!result.passed) throw new Error(`Le cachet ne doit pas être requis à negotiating`);
-  });
-
-  await test('Ouverture négociation : talentUserId manquant → bloqué', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000003',
-      currentState: 'proposed',
-      targetState:  'negotiating',
-      actor:        'USR-TEST-000001',
-      context: { organizerUserId: 'USR-B', roleMetier: 'DJ' },
-    });
-    if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('MISSING_TALENT'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
-  });
-
-  await test('Ouverture négociation : roleMetier manquant → bloqué', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000004',
-      currentState: 'proposed',
-      targetState:  'negotiating',
-      actor:        'USR-TEST-000001',
-      context: { talentUserId: 'USR-A', organizerUserId: 'USR-B' },
-    });
-    if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('MISSING_ROLE'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
-  });
-
-  // ════════════════════════════════════════════════════════
-  // SECTION 2 — proposed → accepted (voie directe)
-  // Logique complète : cachet + taux + tier + snapshot
-  // ════════════════════════════════════════════════════════
-  console.log('\n── proposed→accepted (voie directe) ────────\n');
-
-  await test('Cas nominal : guard passe avec contexte complet', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000010',
+  await test('proposed→accepted retourne success:true', async () => {
+    const result = await transitionEngagement({
+      engagementId: ENG_ID,
       currentState: 'proposed',
       targetState:  'accepted',
-      actor:        'USR-TEST-TREFLE-0001',
-      context:      CONTRAT_COMPLET,
+      actor:        USR_ID,
+      context:      CONTEXTE_NOMINAL,
     });
-    if (!result.passed) throw new Error(`Attendu passed:true — raison: ${result.reason}`);
-    if (!result.contractSnapshot) throw new Error('ContractSnapshot manquant');
-    if (!result.contractSnapshot.systemId.startsWith('CS1-'))
-      throw new Error(`systemId invalide: ${result.contractSnapshot.systemId}`);
-    if (result.contractSnapshot.phase !== 1)
-      throw new Error(`phase attendue: 1, reçue: ${result.contractSnapshot.phase}`);
-    if (result.contractSnapshot.wormLevel !== 'W1')
-      throw new Error(`wormLevel attendu: W1`);
+    if (!result.success) throw new Error('Attendu success:true');
+    if (result.newState !== 'accepted') throw new Error(`newState attendu: accepted`);
   });
 
-  await test('floor() sur commission : MR ne sur-prélève jamais', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000011',
-      currentState: 'proposed',
-      targetState:  'accepted',
-      actor:        'USR-TEST-000001',
-      context:      CONTRAT_COMPLET,
+  await test('sots_window_closed→payable (chemin nominal) retourne success:true', async () => {
+    const result = await transitionEngagement({
+      engagementId: ENG_ID,
+      currentState: 'sots_window_closed',
+      targetState:  'payable',
+      actor:        USR_ID,
+      context:      {},
     });
-    if (!result.passed) throw new Error(result.reason);
-    const expected = Math.floor(22_222 * 120_000 / 1_000_000);
-    if (result.contractSnapshot.commissionMrCents !== expected)
-      throw new Error(`Commission attendue: ${expected}`);
+    if (!result.success) throw new Error('Attendu success:true');
+    if (result.newState !== 'payable') throw new Error(`newState attendu: payable`);
   });
 
-  await test('Standard numérique : talentNetCents est un entier', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000012',
-      currentState: 'proposed',
-      targetState:  'accepted',
-      actor:        'USR-TEST-000001',
-      context:      CONTRAT_COMPLET,
-    });
-    if (!result.passed) throw new Error(result.reason);
-    if (!Number.isInteger(result.contractSnapshot.talentNetCents))
-      throw new Error('talentNetCents doit être un entier');
-    if (!Number.isInteger(result.contractSnapshot.commissionMrCents))
-      throw new Error('commissionMrCents doit être un entier');
-  });
+  // ── Section 2 : Blocages WORM ─────────────────────────────
+  console.log('\n── Blocages WORM ─────────────────────────────\n');
 
-  await test('cachetBrutCents en float → bloqué (INVALID_CACHET)', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000013',
-      currentState: 'proposed',
-      targetState:  'accepted',
-      actor:        'USR-TEST-000001',
-      context: { ...CONTRAT_COMPLET, cachetBrutCents: 222.22 },
-    });
-    if (result.passed) throw new Error('Float accepté — interdit absolu');
-    if (!result.reason.includes('INVALID_CACHET'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
-  });
-
-  await test('tauxPpm en float → bloqué (INVALID_TAUX)', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000014',
-      currentState: 'proposed',
-      targetState:  'accepted',
-      actor:        'USR-TEST-000001',
-      context: { ...CONTRAT_COMPLET, tauxPpm: 0.12 },
-    });
-    if (result.passed) throw new Error('Float taux accepté — interdit absolu');
-    if (!result.reason.includes('INVALID_TAUX'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
-  });
-
-  await test('ContractSnapshot déjà existant → bloqué (IDEMPOTENCY_VIOLATION)', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000015',
-      currentState: 'proposed',
-      targetState:  'accepted',
-      actor:        'USR-TEST-000001',
-      context: { ...CONTRAT_COMPLET, existingContractSnapshotId: 'CS1-EXISTANT-0001' },
-    });
-    if (result.passed) throw new Error('Aurait dû être bloqué pour idempotency');
-    if (!result.reason.includes('IDEMPOTENCY_VIOLATION'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
-  });
-
-  // ════════════════════════════════════════════════════════
-  // SECTION 3 — negotiating → accepted (après négociation)
-  // Même logique complète que proposed→accepted
-  // ════════════════════════════════════════════════════════
-  console.log('\n── negotiating→accepted (après négociation) ─\n');
-
-  await test('Accord après négociation : snapshot créé avec le cachet final', async () => {
-    const cachetNegocié = 18_000; // cachet arrêté pendant la négociation
-    const result = await validate({
-      engagementId: 'ENG-TEST-000020',
-      currentState: 'negotiating',
-      targetState:  'accepted',
-      actor:        'USR-TEST-TREFLE-0001',
-      context: {
-        ...ACTEURS,
-        cachetBrutCents: cachetNegocié,
-        tier:            'Freemium',
-        tauxPpm:         120_000,
-        negotiationHistory: [
-          { offeredBy: 'talent', cachetBrutCents: 20_000, timestamp: '2026-05-16T10:00:00Z' },
-          { offeredBy: 'organizer', cachetBrutCents: 18_000, timestamp: '2026-05-16T10:05:00Z' },
-        ],
-      },
-    });
-    if (!result.passed) throw new Error(`Attendu passed:true — raison: ${result.reason}`);
-    if (!result.contractSnapshot) throw new Error('ContractSnapshot manquant');
-    if (result.contractSnapshot.cachetBrutCents !== cachetNegocié)
-      throw new Error(`cachet attendu: ${cachetNegocié}`);
-    if (result.contractSnapshot.negotiationHistory.length !== 2)
-      throw new Error('negotiationHistory doit être préservée dans le snapshot');
-  });
-
-  await test('negotiating→accepted : cachet manquant → bloqué (INVALID_CACHET)', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000021',
-      currentState: 'negotiating',
-      targetState:  'accepted',
-      actor:        'USR-TEST-000001',
-      context: { ...ACTEURS, tier: 'Freemium', tauxPpm: 120_000 }, // pas de cachet
-    });
-    if (result.passed) throw new Error('Aurait dû être bloqué — cachet requis à accepted');
-    if (!result.reason.includes('INVALID_CACHET'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
-  });
-
-  // ════════════════════════════════════════════════════════
-  // SECTION 4 — ContractSnapshot complet
-  // ════════════════════════════════════════════════════════
-  console.log('\n── ContractSnapshot — structure complète ────\n');
-
-  await test('ContractSnapshot contient tous les champs obligatoires', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000030',
-      currentState: 'proposed',
-      targetState:  'accepted',
-      actor:        'USR-TEST-TREFLE-0001',
-      context:      CONTRAT_COMPLET,
-    });
-    if (!result.passed) throw new Error(result.reason);
-    const cs = result.contractSnapshot;
-    const required = [
-      'systemId', 'engagementId', 'phase', 'wormLevel',
-      'talentUserId', 'organizerUserId', 'roleMetier',
-      'cachetBrutCents', 'tier', 'tauxPpm',
-      'commissionMrCents', 'talentNetCents',
-      'createdByActor', 'createdAt', 'sotsSnapshotPpm',
-    ];
-    for (const field of required) {
-      if (cs[field] === undefined || cs[field] === null)
-        throw new Error(`Champ manquant dans ContractSnapshot : ${field}`);
+  await test('proposed→archived est bloquée (TRANSITION_UNAUTHORIZED)', async () => {
+    try {
+      await transitionEngagement({
+        engagementId: ENG_ID, currentState: 'proposed', targetState: 'archived',
+        actor: USR_ID, context: {},
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('TRANSITION_UNAUTHORIZED')) throw new Error(`Mauvaise erreur: ${err.message}`);
     }
-    if (cs.sotsSnapshotPpm !== 1_000_000)
-      throw new Error(`sotsSnapshotPpm attendu: 1 000 000 (neutre), reçu: ${cs.sotsSnapshotPpm}`);
   });
 
-  await test('targetState inconnu → bloqué (GUARD_MISMATCH)', async () => {
-    const result = await validate({
-      engagementId: 'ENG-TEST-000031',
-      currentState: 'proposed',
-      targetState:  'placed', // MissionConversionGuard ne couvre pas ça
-      actor:        'USR-TEST-000001',
-      context:      CONTRAT_COMPLET,
-    });
-    if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('GUARD_MISMATCH'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+  await test('settled→proposed est bloquée (WORM_VIOLATION_LEVEL_3)', async () => {
+    try {
+      await transitionEngagement({
+        engagementId: ENG_ID, currentState: 'settled', targetState: 'proposed',
+        actor: USR_ID, context: {},
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('WORM_VIOLATION_LEVEL_3')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  await test('event_sealed→proposed est bloquée (WORM_VIOLATION_LEVEL_2)', async () => {
+    try {
+      await transitionEngagement({
+        engagementId: ENG_ID, currentState: 'event_sealed', targetState: 'proposed',
+        actor: USR_ID, context: {},
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('WORM_VIOLATION_LEVEL_2')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  await test('balance_pending dans WORM_STATES (W1)', async () => {
+    if (WORM_STATES['balance_pending'] !== 'W1')
+      throw new Error(`balance_pending absent de WORM_STATES — état financier critique non protégé`);
+  });
+
+  await test('payable dans WORM_STATES (W1)', async () => {
+    if (WORM_STATES['payable'] !== 'W1')
+      throw new Error(`payable absent de WORM_STATES — payout non protégé`);
+  });
+
+  // ── Section 3 : Validation systemIds ──────────────────────
+  console.log('\n── Validation systemIds souverains ───────────\n');
+
+  await test('engagementId manquant est bloqué (TRANSITION_ERROR)', async () => {
+    try {
+      await transitionEngagement({
+        currentState: 'proposed', targetState: 'accepted', actor: USR_ID,
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('TRANSITION_ERROR')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  await test('engagementId non-souverain est bloqué (INVALID_SYSTEM_ID)', async () => {
+    try {
+      await transitionEngagement({
+        engagementId: 'hacked-id',
+        currentState: 'proposed', targetState: 'accepted',
+        actor: USR_ID, context: CONTEXTE_NOMINAL,
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('INVALID_SYSTEM_ID')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  await test('actor non-souverain est bloqué (INVALID_SYSTEM_ID)', async () => {
+    try {
+      await transitionEngagement({
+        engagementId: ENG_ID,
+        currentState: 'proposed', targetState: 'accepted',
+        actor: 'admin', context: CONTEXTE_NOMINAL,
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('INVALID_SYSTEM_ID')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  // ── Section 4 : Table souveraine complète ─────────────────
+  console.log('\n── Table souveraine ──────────────────────────\n');
+
+  await test('La table contient au moins 20 transitions', async () => {
+    const count = Object.keys(TRANSITION_TABLE).length;
+    if (count < 20) throw new Error(`Seulement ${count} transitions — attendu: 20+`);
+  });
+
+  await test('Chemin nominal complet proposed→archived couvert', async () => {
+    const chemin = [
+      'proposed->accepted', 'accepted->placed', 'placed->deposit_pending',
+      'deposit_pending->deposit_secured', 'deposit_secured->balance_pending',
+      'balance_pending->event_sealed', 'event_sealed->performed',
+      'performed->event_completed', 'event_completed->sots_window_closed',
+      'sots_window_closed->payable', 'payable->settled', 'settled->archived',
+    ];
+    for (const t of chemin) {
+      if (!TRANSITION_TABLE[t]) throw new Error(`Transition manquante : ${t}`);
+    }
+  });
+
+  await test('Transitions annulation couvertes (cancelled_*)', async () => {
+    const annulations = [
+      'placed->cancelled_pre_deposit',
+      'deposit_secured->cancelled_J30',
+      'balance_pending->cancelled_J7',
+    ];
+    for (const t of annulations) {
+      if (!TRANSITION_TABLE[t]) throw new Error(`Annulation manquante : ${t}`);
+    }
+  });
+
+  await test('Sorties de dispute couvertes (disputed→payable/refunded)', async () => {
+    if (!TRANSITION_TABLE['disputed->payable'])
+      throw new Error('disputed→payable manquante — argent bloqué définitivement sur litige');
+    if (!TRANSITION_TABLE['disputed->refunded'])
+      throw new Error('disputed→refunded manquante — remboursement impossible après litige');
+  });
+
+  await test('Transferts de talent couverts (transfer_*)', async () => {
+    if (!TRANSITION_TABLE['placed->transfer_requested'])
+      throw new Error('transfer_requested manquante');
+    if (!TRANSITION_TABLE['transfer_requested->transfer_accepted'])
+      throw new Error('transfer_accepted manquante');
+    if (!TRANSITION_TABLE['transfer_requested->transfer_refused'])
+      throw new Error('transfer_refused manquante');
+  });
+
+  await test('sots_window_closed→payable dans la table (chemin nominal)', async () => {
+    if (!TRANSITION_TABLE['sots_window_closed->payable'])
+      throw new Error('sots_window_closed→payable manquante — argent du talent bloqué après SOTS');
+  });
+
+  await test('deposit_secured→event_sealed absent (saut direct interdit)', async () => {
+    if (TRANSITION_TABLE['deposit_secured->event_sealed'])
+      throw new Error('Saut direct deposit_secured→event_sealed présent — interdit');
   });
 
   // ── Résultat ──────────────────────────────────────────────
@@ -293,9 +231,9 @@ async function run() {
   console.log(`Résultat : ${passed} PASSED / ${failed} FAILED`);
 
   if (failed === 0) {
-    console.log('MISSIONCONVERSION-01 : ✓ PASSED');
+    console.log('TRANSITION-01 : ✓ PASSED');
   } else {
-    console.log('MISSIONCONVERSION-01 : ✗ FAILED — corriger avant de continuer');
+    console.log('TRANSITION-01 : ✗ FAILED — corriger avant de continuer');
     process.exit(1);
   }
   console.log('═══════════════════════════════════════════════');

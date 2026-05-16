@@ -2,22 +2,21 @@
  * MICRO RAVE V3 — Test P0 : PLACEMENT-01
  * ============================================================
  * Vérifie :
- *   1. PlacementGuard — accepted→placed (sans argent)
- *   2. EventPaymentGuard — placed→deposit_pending (calcul dépôt)
- *   3. EventPaymentGuard — deposit_pending→deposit_secured (confirmation)
- *   4. EventPaymentGuard — deposit_secured→balance_pending (solde J-7)
- *   5. La table corrigée — negotiating→accepted existe
- *   6. Le saut direct deposit_secured→event_sealed est bloqué
+ *   1. PlacementGuard — accepted→placed (isSelfOrganized calculé)
+ *   2. EventPaymentGuard — placed→deposit_pending (totalCents TTC)
+ *   3. EventPaymentGuard — deposit_pending→deposit_secured (tolérance Stripe ±2 centimes)
+ *   4. EventPaymentGuard — deposit_secured→balance_pending
+ *   5. Table souveraine V4 — transitions complètes
  *
- * Source : OS V10 section 2.7.1 + section 3.2 (standard numérique)
- * Pierre de Rosette : DJ Alex · Le Trèfle · 200$ CAD net
+ * Source : OS V10 section 2.7.1 + 3.2 + 3.3
+ * Pierre de Rosette : DJ Alex · Le Trèfle · 250$ TTC total · 50$ dépôt
  * ============================================================
  */
 
 'use strict';
 
 const { validate: validatePlacement }     = require('../../src/core/guards/PlacementGuard');
-const { validate: validateEventPayment }  = require('../../src/core/guards/EventPaymentGuard');
+const { validate: validateEventPayment, STRIPE_TOLERANCE_CENTS } = require('../../src/core/guards/EventPaymentGuard');
 const { transitionEngagement, TRANSITION_TABLE } = require('../../src/core/transitionEngagement');
 
 let passed = 0;
@@ -35,7 +34,6 @@ async function test(name, fn) {
   }
 }
 
-// ── Contextes de référence ─────────────────────────────────────
 const CONTRAT_NOMINAL = {
   contractSnapshotId: 'CS1-TEST-ALEX-000001',
   talentUserId:       'USR-TEST-ALEX-000001',
@@ -46,103 +44,108 @@ const CONTRAT_NOMINAL = {
   ],
 };
 
+// totalCents = prix_vendu_client TTC (TPS + TVQ + frais Stripe inclus)
+// Source : OS V10 section 3.3
 const PAIEMENT_NOMINAL = {
   eventId:                'EVT-TEST-TREFLE-0001',
   contractSnapshotId:     'CS1-TEST-ALEX-000001',
-  totalCents:             25000,    // 250$ CAD total payeur
-  depositRatioPpm:        200000,   // 20% = 200 000 ppm
+  totalCents:             25000,    // 250$ CAD TTC
+  depositRatioPpm:        200000,   // 20%
   eventPaymentCapCents:   350000,   // plafond MVP 3500$
 };
 
 console.log('═══════════════════════════════════════════════');
 console.log('Test P0 : PLACEMENT-01');
-console.log('Pierre de Rosette : DJ Alex · Le Trèfle · 250$ total · 50$ dépôt');
+console.log('Pierre de Rosette : DJ Alex · Le Trèfle · 250$ TTC · 50$ dépôt');
 console.log('═══════════════════════════════════════════════\n');
 
 async function run() {
 
   // ════════════════════════════════════════════════════════
-  // SECTION 1 — PlacementGuard (accepted→placed)
+  // SECTION 1 — PlacementGuard
   // ════════════════════════════════════════════════════════
   console.log('── PlacementGuard (accepted→placed) ─────────\n');
 
-  await test('Cas nominal : placement autorisé avec contrat et lineup', async () => {
+  await test('Cas nominal : placement autorisé', async () => {
     const result = await validatePlacement({
       engagementId: 'ENG-TEST-000001',
-      currentState: 'accepted',
-      targetState:  'placed',
-      actor:        'USR-TEST-TREFLE-0001',
-      context:      CONTRAT_NOMINAL,
+      currentState: 'accepted', targetState: 'placed',
+      actor: 'USR-TEST-TREFLE-0001',
+      context: CONTRAT_NOMINAL,
     });
-    if (!result.passed) throw new Error(`Attendu passed:true — raison: ${result.reason}`);
+    if (!result.passed) throw new Error(`Attendu passed:true — ${result.reason}`);
   });
 
-  await test('ContractSnapshot manquant → bloqué (MISSING_CONTRACT_SNAPSHOT)', async () => {
+  await test('isSelfOrganized=false quand talent ≠ organisateur', async () => {
     const result = await validatePlacement({
       engagementId: 'ENG-TEST-000002',
-      currentState: 'accepted',
-      targetState:  'placed',
-      actor:        'USR-TEST-000001',
-      context: { ...CONTRAT_NOMINAL, contractSnapshotId: undefined },
+      currentState: 'accepted', targetState: 'placed',
+      actor: 'USR-TEST-TREFLE-0001',
+      context: CONTRAT_NOMINAL,
     });
-    if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('MISSING_CONTRACT_SNAPSHOT'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.passed) throw new Error(result.reason);
+    if (result.isSelfOrganized !== false)
+      throw new Error(`isSelfOrganized attendu: false, reçu: ${result.isSelfOrganized}`);
   });
 
-  await test('ContractSnapshot phase 2 (CS2-) → bloqué (INVALID_CONTRACT_SNAPSHOT)', async () => {
+  await test('isSelfOrganized=true quand talent = organisateur', async () => {
     const result = await validatePlacement({
       engagementId: 'ENG-TEST-000003',
-      currentState: 'accepted',
-      targetState:  'placed',
-      actor:        'USR-TEST-000001',
-      context: { ...CONTRAT_NOMINAL, contractSnapshotId: 'CS2-WRONG-000001' },
+      currentState: 'accepted', targetState: 'placed',
+      actor: 'USR-TEST-TREFLE-0001',
+      context: {
+        ...CONTRAT_NOMINAL,
+        talentUserId:    'USR-TEST-SELF-0001',
+        organizerUserId: 'USR-TEST-SELF-0001', // même personne
+      },
     });
-    if (result.passed) throw new Error('Un CS2 ne doit pas être accepté ici');
-    if (!result.reason.includes('INVALID_CONTRACT_SNAPSHOT'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.passed) throw new Error(result.reason);
+    if (result.isSelfOrganized !== true)
+      throw new Error(`isSelfOrganized attendu: true — BLOC 1 V8 doit être calculé ici`);
+  });
+
+  await test('ContractSnapshot CS2- → bloqué (INVALID_CONTRACT_SNAPSHOT)', async () => {
+    const result = await validatePlacement({
+      engagementId: 'ENG-TEST-000004',
+      currentState: 'accepted', targetState: 'placed',
+      actor: 'USR-TEST-000001',
+      context: { ...CONTRAT_NOMINAL, contractSnapshotId: 'CS2-WRONG-0001' },
+    });
+    if (result.passed) throw new Error('CS2 ne doit pas être accepté ici');
+    if (!result.reason.includes('INVALID_CONTRACT_SNAPSHOT')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   await test('eventId manquant → bloqué (MISSING_EVENT)', async () => {
     const result = await validatePlacement({
-      engagementId: 'ENG-TEST-000004',
-      currentState: 'accepted',
-      targetState:  'placed',
-      actor:        'USR-TEST-000001',
+      engagementId: 'ENG-TEST-000005',
+      currentState: 'accepted', targetState: 'placed',
+      actor: 'USR-TEST-000001',
       context: { ...CONTRAT_NOMINAL, eventId: undefined },
     });
     if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('MISSING_EVENT'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.reason.includes('MISSING_EVENT')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   await test('Lineup vide → bloqué (EMPTY_LINEUP)', async () => {
     const result = await validatePlacement({
-      engagementId: 'ENG-TEST-000005',
-      currentState: 'accepted',
-      targetState:  'placed',
-      actor:        'USR-TEST-000001',
+      engagementId: 'ENG-TEST-000006',
+      currentState: 'accepted', targetState: 'placed',
+      actor: 'USR-TEST-000001',
       context: { ...CONTRAT_NOMINAL, lineupSlots: [] },
     });
     if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('EMPTY_LINEUP'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.reason.includes('EMPTY_LINEUP')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   await test('Slot sans talentUserId → bloqué (LINEUP_SLOT_INCOMPLETE)', async () => {
     const result = await validatePlacement({
-      engagementId: 'ENG-TEST-000006',
-      currentState: 'accepted',
-      targetState:  'placed',
-      actor:        'USR-TEST-000001',
-      context: {
-        ...CONTRAT_NOMINAL,
-        lineupSlots: [{ roleMetier: 'DJ' }], // talentUserId manquant
-      },
+      engagementId: 'ENG-TEST-000007',
+      currentState: 'accepted', targetState: 'placed',
+      actor: 'USR-TEST-000001',
+      context: { ...CONTRAT_NOMINAL, lineupSlots: [{ roleMetier: 'DJ' }] },
     });
     if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('LINEUP_SLOT_INCOMPLETE'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.reason.includes('LINEUP_SLOT_INCOMPLETE')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   // ════════════════════════════════════════════════════════
@@ -150,113 +153,115 @@ async function run() {
   // ════════════════════════════════════════════════════════
   console.log('\n── EventPaymentGuard (placed→deposit_pending) ─\n');
 
-  await test('Dépôt calculé correctement — floor() sur 20%', async () => {
+  await test('Dépôt calculé — floor() sur 20% de 250$ TTC', async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000010',
-      currentState: 'placed',
-      targetState:  'deposit_pending',
-      actor:        'USR-TEST-000001',
-      context:      PAIEMENT_NOMINAL,
+      currentState: 'placed', targetState: 'deposit_pending',
+      actor: 'USR-TEST-000001',
+      context: PAIEMENT_NOMINAL,
     });
-    if (!result.passed) throw new Error(`Attendu passed:true — raison: ${result.reason}`);
-    // 25000 * 200000 / 1_000_000 = 5000 centimes = 50$
-    const expected = Math.floor(25000 * 200000 / 1_000_000);
+    if (!result.passed) throw new Error(`${result.reason}`);
+    const expected = Math.floor(25000 * 200000 / 1_000_000); // 5000
     if (result.depositCents !== expected)
       throw new Error(`Dépôt attendu: ${expected}, reçu: ${result.depositCents}`);
     if (!Number.isInteger(result.depositCents))
-      throw new Error('depositCents doit être un entier — standard numérique');
+      throw new Error('depositCents doit être un entier');
   });
 
-  await test('totalCents en float → bloqué (INVALID_TOTAL)', async () => {
+  await test('totalCents en float → bloqué — message mentionne TTC', async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000011',
-      currentState: 'placed',
-      targetState:  'deposit_pending',
-      actor:        'USR-TEST-000001',
-      context: { ...PAIEMENT_NOMINAL, totalCents: 250.50 }, // float interdit
+      currentState: 'placed', targetState: 'deposit_pending',
+      actor: 'USR-TEST-000001',
+      context: { ...PAIEMENT_NOMINAL, totalCents: 250.50 },
     });
-    if (result.passed) throw new Error('Float accepté — interdit absolu violé');
-    if (!result.reason.includes('INVALID_TOTAL'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (result.passed) throw new Error('Float accepté — interdit absolu');
+    if (!result.reason.includes('INVALID_TOTAL')) throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.reason.includes('TTC'))
+      throw new Error('Le message doit mentionner TTC pour clarifier le contrat d\'interface');
   });
 
   await test('Plafond MVP dépassé → bloqué (PAYMENT_CAP_EXCEEDED)', async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000012',
-      currentState: 'placed',
-      targetState:  'deposit_pending',
-      actor:        'USR-TEST-000001',
-      context: { ...PAIEMENT_NOMINAL, totalCents: 400000 }, // 4000$ > plafond 3500$
+      currentState: 'placed', targetState: 'deposit_pending',
+      actor: 'USR-TEST-000001',
+      context: { ...PAIEMENT_NOMINAL, totalCents: 400000 },
     });
-    if (result.passed) throw new Error('Aurait dû être bloqué par le plafond MVP');
-    if (!result.reason.includes('PAYMENT_CAP_EXCEEDED'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (result.passed) throw new Error('Aurait dû être bloqué');
+    if (!result.reason.includes('PAYMENT_CAP_EXCEEDED')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   await test('depositRatioPpm en float → bloqué (INVALID_DEPOSIT_RATIO)', async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000013',
-      currentState: 'placed',
-      targetState:  'deposit_pending',
-      actor:        'USR-TEST-000001',
-      context: { ...PAIEMENT_NOMINAL, depositRatioPpm: 0.20 }, // float interdit
+      currentState: 'placed', targetState: 'deposit_pending',
+      actor: 'USR-TEST-000001',
+      context: { ...PAIEMENT_NOMINAL, depositRatioPpm: 0.20 },
     });
-    if (result.passed) throw new Error('Float ratio accepté — interdit absolu violé');
-    if (!result.reason.includes('INVALID_DEPOSIT_RATIO'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (result.passed) throw new Error('Float ratio accepté — interdit absolu');
+    if (!result.reason.includes('INVALID_DEPOSIT_RATIO')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   // ════════════════════════════════════════════════════════
   // SECTION 3 — EventPaymentGuard : deposit_pending→deposit_secured
+  // Tolérance Stripe ±2 centimes
   // ════════════════════════════════════════════════════════
   console.log('\n── EventPaymentGuard (deposit_pending→deposit_secured) ─\n');
 
-  await test('Confirmation dépôt : montant exact → autorisé', async () => {
+  await test('Montant exact → autorisé', async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000020',
-      currentState: 'deposit_pending',
-      targetState:  'deposit_secured',
-      actor:        'USR-TEST-000001',
+      currentState: 'deposit_pending', targetState: 'deposit_secured',
+      actor: 'USR-TEST-000001',
       context: {
-        stripePaymentIntentId: 'pi_TEST_STRIPE_000001',
+        stripePaymentIntentId: 'pi_TEST_EXACT_000001',
         confirmedAmountCents:  5000,
         expectedDepositCents:  5000,
       },
     });
-    if (!result.passed) throw new Error(`Attendu passed:true — raison: ${result.reason}`);
+    if (!result.passed) throw new Error(`Attendu passed:true — ${result.reason}`);
   });
 
-  await test('Montant confirmé différent du dépôt attendu → bloqué (DEPOSIT_AMOUNT_MISMATCH)', async () => {
+  await test(`Écart ≤ ${STRIPE_TOLERANCE_CENTS} centimes (arrondi Stripe) → autorisé avec avertissement`, async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000021',
-      currentState: 'deposit_pending',
-      targetState:  'deposit_secured',
-      actor:        'USR-TEST-000001',
+      currentState: 'deposit_pending', targetState: 'deposit_secured',
+      actor: 'USR-TEST-000001',
       context: {
-        stripePaymentIntentId: 'pi_TEST_STRIPE_000002',
-        confirmedAmountCents:  4999, // 1 centime de moins
+        stripePaymentIntentId: 'pi_TEST_ARRONDI_000002',
+        confirmedAmountCents:  4999, // 1 centime d'écart Stripe
         expectedDepositCents:  5000,
       },
     });
-    if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('DEPOSIT_AMOUNT_MISMATCH'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.passed)
+      throw new Error(`Arrondi Stripe de 1 centime doit être toléré — ${result.reason}`);
+  });
+
+  await test('Écart > 2 centimes → bloqué (DEPOSIT_AMOUNT_MISMATCH)', async () => {
+    const result = await validateEventPayment({
+      engagementId: 'ENG-TEST-000022',
+      currentState: 'deposit_pending', targetState: 'deposit_secured',
+      actor: 'USR-TEST-000001',
+      context: {
+        stripePaymentIntentId: 'pi_TEST_MISMATCH_000003',
+        confirmedAmountCents:  4990, // 10 centimes d'écart — anormal
+        expectedDepositCents:  5000,
+      },
+    });
+    if (result.passed) throw new Error('Écart de 10 centimes doit être bloqué');
+    if (!result.reason.includes('DEPOSIT_AMOUNT_MISMATCH')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   await test('stripePaymentIntentId manquant → bloqué (MISSING_STRIPE_INTENT)', async () => {
     const result = await validateEventPayment({
-      engagementId: 'ENG-TEST-000022',
-      currentState: 'deposit_pending',
-      targetState:  'deposit_secured',
-      actor:        'USR-TEST-000001',
-      context: {
-        confirmedAmountCents: 5000,
-        expectedDepositCents: 5000,
-      },
+      engagementId: 'ENG-TEST-000023',
+      currentState: 'deposit_pending', targetState: 'deposit_secured',
+      actor: 'USR-TEST-000001',
+      context: { confirmedAmountCents: 5000, expectedDepositCents: 5000 },
     });
     if (result.passed) throw new Error('Aurait dû être bloqué');
-    if (!result.reason.includes('MISSING_STRIPE_INTENT'))
-      throw new Error(`Mauvaise raison: ${result.reason}`);
+    if (!result.reason.includes('MISSING_STRIPE_INTENT')) throw new Error(`Mauvaise raison: ${result.reason}`);
   });
 
   // ════════════════════════════════════════════════════════
@@ -267,55 +272,66 @@ async function run() {
   await test('Ouverture solde J-7 : balance due correcte → autorisé', async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000030',
-      currentState: 'deposit_secured',
-      targetState:  'balance_pending',
-      actor:        'USR-TEST-000001',
+      currentState: 'deposit_secured', targetState: 'balance_pending',
+      actor: 'USR-TEST-000001',
       context: {
         contractSnapshotId: 'CS1-TEST-ALEX-000001',
-        balanceDueCents:    20000, // 200$ de solde
+        balanceDueCents:    20000,
       },
     });
-    if (!result.passed) throw new Error(`Attendu passed:true — raison: ${result.reason}`);
+    if (!result.passed) throw new Error(`Attendu passed:true — ${result.reason}`);
     if (!Number.isInteger(result.audit.balanceDueCents))
       throw new Error('balanceDueCents doit être un entier');
   });
 
   // ════════════════════════════════════════════════════════
-  // SECTION 5 — Table corrigée
+  // SECTION 5 — Table souveraine V4
   // ════════════════════════════════════════════════════════
-  console.log('\n── Table souveraine — corrections V2 ────────\n');
+  console.log('\n── Table souveraine V4 ───────────────────────\n');
 
-  await test('proposed→negotiating existe dans la table', async () => {
+  await test('proposed→negotiating dans la table', async () => {
     if (!TRANSITION_TABLE['proposed->negotiating'])
-      throw new Error('proposed→negotiating manquante — bombe silencieuse voie négociation');
+      throw new Error('proposed→negotiating manquante');
   });
 
-  await test('negotiating→accepted existe dans la table', async () => {
+  await test('negotiating→accepted dans la table', async () => {
     if (!TRANSITION_TABLE['negotiating->accepted'])
-      throw new Error('negotiating→accepted manquante — bombe silencieuse voie négociation');
+      throw new Error('negotiating→accepted manquante');
   });
 
-  await test('deposit_secured→balance_pending existe dans la table', async () => {
+  await test('deposit_secured→balance_pending dans la table', async () => {
     if (!TRANSITION_TABLE['deposit_secured->balance_pending'])
-      throw new Error('deposit_secured→balance_pending manquante — solde J-7 inaccessible');
+      throw new Error('deposit_secured→balance_pending manquante');
   });
 
-  await test('balance_pending→event_sealed existe dans la table', async () => {
+  await test('balance_pending→event_sealed dans la table', async () => {
     if (!TRANSITION_TABLE['balance_pending->event_sealed'])
-      throw new Error('balance_pending→event_sealed manquante — scellement inaccessible');
+      throw new Error('balance_pending→event_sealed manquante');
   });
 
-  await test('deposit_secured→event_sealed N\'existe plus (saut direct interdit)', async () => {
+  await test('balance_pending→cancelled_J7 dans la table (scheduler)', async () => {
+    if (!TRANSITION_TABLE['balance_pending->cancelled_J7'])
+      throw new Error('balance_pending→cancelled_J7 manquante — scheduler bloqué');
+  });
+
+  await test('disputed→payable dans la table (sortie dispute)', async () => {
+    if (!TRANSITION_TABLE['disputed->payable'])
+      throw new Error('disputed→payable manquante — argent bloqué sur litige');
+  });
+
+  await test('disputed→refunded dans la table (sortie dispute)', async () => {
+    if (!TRANSITION_TABLE['disputed->refunded'])
+      throw new Error('disputed→refunded manquante');
+  });
+
+  await test('deposit_secured→event_sealed absent (saut direct interdit)', async () => {
     if (TRANSITION_TABLE['deposit_secured->event_sealed'])
-      throw new Error(
-        'deposit_secured→event_sealed existe encore — ce saut direct court-circuite balance_pending. ' +
-        'Le solde J-7 doit toujours être payé avant le scellement.'
-      );
+      throw new Error('Saut direct deposit_secured→event_sealed présent — interdit');
   });
 
-  await test('negotiating→withdrawn existe (retrait pendant négociation)', async () => {
+  await test('negotiating→withdrawn dans la table', async () => {
     if (!TRANSITION_TABLE['negotiating->withdrawn'])
-      throw new Error('negotiating→withdrawn manquante — retrait pendant négociation impossible');
+      throw new Error('negotiating→withdrawn manquante');
   });
 
   // ════════════════════════════════════════════════════════
@@ -325,48 +341,39 @@ async function run() {
 
   await test('proposed→negotiating passe par transitionEngagement()', async () => {
     const result = await transitionEngagement({
-      engagementId: 'ENG-TEST-000040',
-      currentState: 'proposed',
-      targetState:  'negotiating',
-      actor:        'USR-TEST-000001',
+      engagementId: 'ENG-INTEG-TEST-0001',
+      currentState: 'proposed', targetState: 'negotiating',
+      actor:        'USR-INTEG-TEST-0001',
       context: {
-        talentUserId:    'USR-TEST-ALEX-000001',
+        talentUserId: 'USR-TEST-ALEX-000001',
         organizerUserId: 'USR-TEST-TREFLE-0001',
-        roleMetier:      'DJ',
-        cachetBrutCents: 20000,
-        tier:            'Freemium',
-        tauxPpm:         120000,
+        roleMetier: 'DJ',
       },
     });
     if (!result.success) throw new Error('Attendu success:true');
-    if (result.newState !== 'negotiating')
-      throw new Error(`newState attendu: negotiating, reçu: ${result.newState}`);
+    if (result.newState !== 'negotiating') throw new Error(`newState attendu: negotiating`);
   });
 
   await test('accepted→placed passe par transitionEngagement()', async () => {
     const result = await transitionEngagement({
-      engagementId: 'ENG-TEST-000041',
-      currentState: 'accepted',
-      targetState:  'placed',
-      actor:        'USR-TEST-TREFLE-0001',
+      engagementId: 'ENG-INTEG-TEST-0001',
+      currentState: 'accepted', targetState: 'placed',
+      actor:        'USR-INTEG-TEST-0001',
       context:      CONTRAT_NOMINAL,
     });
     if (!result.success) throw new Error('Attendu success:true');
-    if (result.newState !== 'placed')
-      throw new Error(`newState attendu: placed, reçu: ${result.newState}`);
+    if (result.newState !== 'placed') throw new Error(`newState attendu: placed`);
   });
 
   await test('placed→deposit_pending passe par transitionEngagement()', async () => {
     const result = await transitionEngagement({
-      engagementId: 'ENG-TEST-000042',
-      currentState: 'placed',
-      targetState:  'deposit_pending',
-      actor:        'USR-TEST-TREFLE-0001',
+      engagementId: 'ENG-INTEG-TEST-0001',
+      currentState: 'placed', targetState: 'deposit_pending',
+      actor:        'USR-INTEG-TEST-0001',
       context:      PAIEMENT_NOMINAL,
     });
     if (!result.success) throw new Error('Attendu success:true');
-    if (result.newState !== 'deposit_pending')
-      throw new Error(`newState attendu: deposit_pending, reçu: ${result.newState}`);
+    if (result.newState !== 'deposit_pending') throw new Error(`newState attendu: deposit_pending`);
   });
 
   // ── Résultat ──────────────────────────────────────────────

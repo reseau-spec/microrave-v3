@@ -1,0 +1,166 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="PK2A9lgbqCf2DFWEEK-y" name="Page-1">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titre" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontColor=#FFD700;fontStyle=1;" value="&lt;b&gt;CARTE 09 — LA PIERRE DE ROSETTE&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="1614" x="20" y="14" as="geometry" />
+        </mxCell>
+        <mxCell id="soustitre" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontColor=#aaaaaa;fontStyle=2;" value="Comment lire les 8 autres cartes en action — un seul event réel les traverse toutes" vertex="1">
+          <mxGeometry height="24" width="1614" x="20" y="54" as="geometry" />
+        </mxCell>
+        <mxCell id="event_bandeau" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a1a00;strokeColor=#FFD700;strokeWidth=4;fontSize=14;fontColor=#FFD700;align=center;verticalAlign=middle;fontStyle=0;" value="&lt;b&gt;🎵 DJ Alex Dubois · 200$ CAD net garanti · Le Trèfle, Montréal · Checkpoint CP-PLATEAU-0001 · Mai 2026&lt;/b&gt;&lt;br&gt;Premier event réel de Micro Rave — test d&#39;acceptation de toute l&#39;architecture constitutionnelle" vertex="1">
+          <mxGeometry height="64" width="1614" x="20" y="86" as="geometry" />
+        </mxCell>
+        <mxCell id="col1_header" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#222233;strokeColor=#555577;fontSize=12;fontColor=#aaaacc;align=center;fontStyle=1;" value="&lt;b&gt;CARTE&lt;/b&gt;" vertex="1">
+          <mxGeometry height="36" width="120" x="20" y="168" as="geometry" />
+        </mxCell>
+        <mxCell id="col2_header" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#222233;strokeColor=#555577;fontSize=12;fontColor=#aaaacc;align=center;fontStyle=1;" value="&lt;b&gt;LOI / PRINCIPE&lt;/b&gt;" vertex="1">
+          <mxGeometry height="36" width="260" x="148" y="168" as="geometry" />
+        </mxCell>
+        <mxCell id="col3_header" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#222233;strokeColor=#555577;fontSize=12;fontColor=#aaaacc;align=center;fontStyle=1;" value="&lt;b&gt;CE QUI SE PASSE CONCRÈTEMENT CE SOIR-LÀ&lt;/b&gt;" vertex="1">
+          <mxGeometry height="36" width="640" x="416" y="168" as="geometry" />
+        </mxCell>
+        <mxCell id="col4_header" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#222233;strokeColor=#555577;fontSize=12;fontColor=#aaaacc;align=center;fontStyle=1;" value="&lt;b&gt;RÉSULTAT ATTENDU&lt;/b&gt;" vertex="1">
+          <mxGeometry height="36" width="570" x="1064" y="168" as="geometry" />
+        </mxCell>
+        <mxCell id="r0_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#1a2a00;strokeColor=#FFD700;fontSize=11;fontColor=#FFD700;align=center;" value="&lt;b&gt;C00&lt;/b&gt;&lt;br&gt;Philosophie" vertex="1">
+          <mxGeometry height="80" width="120" x="20" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="r0_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#111a00;strokeColor=#FFD700;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;La Loi Zéro&lt;/b&gt;&lt;br&gt;Capacité locale → engagement vérifiable → règlement → mémoire" vertex="1">
+          <mxGeometry height="80" width="260" x="148" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="r0_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#111a00;strokeColor=#444400;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="Alex est à Montréal. Son SOTS est visible (12 notes, score 4.3/5). CP-PLATEAU le reconnaît comme talent local. Sa capacité culturelle est vérifiable avant la signature." vertex="1">
+          <mxGeometry height="80" width="640" x="416" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="r0_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ Engagement créé · État : DRAFT → ACCEPTED" vertex="1">
+          <mxGeometry height="80" width="570" x="1064" y="212" as="geometry" />
+        </mxCell>
+        <mxCell id="r1_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#002244;strokeColor=#4488FF;fontSize=11;fontColor=#4488FF;align=center;" value="&lt;b&gt;C01&lt;/b&gt;&lt;br&gt;Ontologie" vertex="1">
+          <mxGeometry height="80" width="120" x="20" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="r1_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001122;strokeColor=#4488FF;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;L&#39;Engagement comme atome&lt;/b&gt;&lt;br&gt;CreateEvent : Le Trèfle propose. Alex accepte." vertex="1">
+          <mxGeometry height="80" width="260" x="148" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="r1_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001122;strokeColor=#223344;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="Voie CreateEvent activée. Le Trèfle crée l&#39;event, définit le slot (23h-01h), attache le talent Alex Dubois. L&#39;engagement est l&#39;atome — tout le reste (paiement, SOTS, mémoire) en découle." vertex="1">
+          <mxGeometry height="80" width="640" x="416" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="r1_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ Engagement ACCEPTED · Dépôt demandé · 🔒 WORM niveau 1" vertex="1">
+          <mxGeometry height="80" width="570" x="1064" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="r2_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#220022;strokeColor=#FF44FF;fontSize=11;fontColor=#FF44FF;align=center;" value="&lt;b&gt;C02&lt;/b&gt;&lt;br&gt;Machine État" vertex="1">
+          <mxGeometry height="100" width="120" x="20" y="388" as="geometry" />
+        </mxCell>
+        <mxCell id="r2_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#FF44FF;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;Séquence d&#39;états WORM&lt;/b&gt;&lt;br&gt;accepted → deposit_secured → balance_pending → event_sealed → performed → payable → settled" vertex="1">
+          <mxGeometry height="100" width="260" x="148" y="388" as="geometry" />
+        </mxCell>
+        <mxCell id="r2_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#441144;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="Le Trèfle dépose 200$ CAD (+ frais). État passe à DEPOSIT_SECURED 🔒. La nuit du show : Alex se présente, GPS cohérent. L&#39;event est SEALED 🔒🔒. Alex performe. État : PERFORMED. Les 11 conditions vérifiées → PAYABLE." vertex="1">
+          <mxGeometry height="100" width="640" x="416" y="388" as="geometry" />
+        </mxCell>
+        <mxCell id="r2_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ settled · 🔒🔒🔒 ARCHIVED&lt;br&gt;La séquence est complète. Immuable." vertex="1">
+          <mxGeometry height="100" width="570" x="1064" y="388" as="geometry" />
+        </mxCell>
+        <mxCell id="r3_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#002200;strokeColor=#00CC66;fontSize=11;fontColor=#00CC66;align=center;" value="&lt;b&gt;C03&lt;/b&gt;&lt;br&gt;Waterfall" vertex="1">
+          <mxGeometry height="80" width="120" x="20" y="496" as="geometry" />
+        </mxCell>
+        <mxCell id="r3_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001100;strokeColor=#00CC66;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;Invariant Zéro Cent&lt;/b&gt;&lt;br&gt;200$ signé · coefficient 1.0 · taux X% · net calculé au centime près" vertex="1">
+          <mxGeometry height="80" width="260" x="148" y="496" as="geometry" />
+        </mxCell>
+        <mxCell id="r3_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001100;strokeColor=#114422;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="Montant contractuel : 200$ CAD. Coefficient SOTS : 1.0 (seuil atteint, aucune modulation). Taux de plateforme : X%. Net Alex = 200$ × coeff × (1 - taux). Livres : dépôt entrant − (net Alex + frais MR) = 0. L&#39;Invariant tient." vertex="1">
+          <mxGeometry height="80" width="640" x="416" y="496" as="geometry" />
+        </mxCell>
+        <mxCell id="r3_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ Livres = 0 · Paiement autorisé · LEDGER-02 respecté" vertex="1">
+          <mxGeometry height="80" width="570" x="1064" y="496" as="geometry" />
+        </mxCell>
+        <mxCell id="r5_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#1a001a;strokeColor=#CC44FF;fontSize=11;fontColor=#CC44FF;align=center;" value="&lt;b&gt;C05&lt;/b&gt;&lt;br&gt;SOTS &amp; Rép." vertex="1">
+          <mxGeometry height="80" width="120" x="20" y="584" as="geometry" />
+        </mxCell>
+        <mxCell id="r5_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#CC44FF;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;Donnée-témoin&lt;/b&gt;&lt;br&gt;Après le show : 24h pour noter. Append-only. SOTSQuantitative + SOTSQualitative." vertex="1">
+          <mxGeometry height="80" width="260" x="148" y="584" as="geometry" />
+        </mxCell>
+        <mxCell id="r5_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#441144;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="Le Trèfle note Alex : énergie 4/5, technique 5/5, ponctualité 5/5, communication 4/5. Texte qualitatif : &#39;Set électro solide, bonne lecture de salle.&#39; Fenêtre 24h. Append-only. Alex peut contester par procédure. Score mis à jour dans ReputationLedger." vertex="1">
+          <mxGeometry height="80" width="640" x="416" y="584" as="geometry" />
+        </mxCell>
+        <mxCell id="r5_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ 13ème note · Score mis à jour · Mémoire permanente créée" vertex="1">
+          <mxGeometry height="80" width="570" x="1064" y="584" as="geometry" />
+        </mxCell>
+        <mxCell id="r6_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#1a1000;strokeColor=#FF9900;fontSize=11;fontColor=#FF9900;align=center;" value="&lt;b&gt;C06&lt;/b&gt;&lt;br&gt;Admin Auth" vertex="1">
+          <mxGeometry height="80" width="120" x="20" y="672" as="geometry" />
+        </mxCell>
+        <mxCell id="r6_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#111000;strokeColor=#FF9900;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;11 conditions de paiement&lt;/b&gt;&lt;br&gt;Preuve présence · Ledger équilibré · SOTS soumis · GPS cohérent…" vertex="1">
+          <mxGeometry height="80" width="260" x="148" y="672" as="geometry" />
+        </mxCell>
+        <mxCell id="r6_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#111000;strokeColor=#443300;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="GPS cohérent ✓ · SOTS soumis par le lieu ✓ · Ledger équilibré ✓ · Event archivé ✓ · Pas de dispute ouverte ✓ · Identité vérifiée ✓ · Compte bancaire actif ✓ · … (11/11). Aucun SoloFounderOverride utilisé ce soir. Constitution auto-exécutée." vertex="1">
+          <mxGeometry height="80" width="640" x="416" y="672" as="geometry" />
+        </mxCell>
+        <mxCell id="r6_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ 11/11 conditions · Paiement déclenché automatiquement · Fondateur n&#39;a pas triché" vertex="1">
+          <mxGeometry height="80" width="570" x="1064" y="672" as="geometry" />
+        </mxCell>
+        <mxCell id="r8_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001a1a;strokeColor=#00DDDD;fontSize=11;fontColor=#00DDDD;align=center;" value="&lt;b&gt;C08&lt;/b&gt;&lt;br&gt;Lois Inv." vertex="1">
+          <mxGeometry height="80" width="120" x="20" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="r8_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001111;strokeColor=#00DDDD;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;Toutes les 6 lois traversées&lt;/b&gt;&lt;br&gt;Loi Zéro · Co-dép · Zéro Cent · Témoin · Greffier · Append" vertex="1">
+          <mxGeometry height="80" width="260" x="148" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="r8_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001111;strokeColor=#224444;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="① Loi Zéro : capacité locale → mémoire territoriale ✓  ② Co-dépendance : présence prouvée → argent libéré ✓  ③ Zéro Cent : livres = 0 ✓  ④ Donnée-témoin : notes append-only ✓  ⑤ Greffier : automatisé sur preuves, gelé sur incertitudes ✓  ⑥ Append-Only : rien n&#39;a été effacé ✓" vertex="1">
+          <mxGeometry height="80" width="640" x="416" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="r8_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#001400;strokeColor=#00FF44;strokeWidth=3;fontSize=14;fontColor=#00FF44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ 6/6 lois respectées · Constitution vivante · Score : 10/10" vertex="1">
+          <mxGeometry height="80" width="570" x="1064" y="760" as="geometry" />
+        </mxCell>
+        <mxCell id="timeline_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#FFD700;fontStyle=1;" value="&lt;b&gt;SÉQUENCE TEMPORELLE DE LA NUIT&lt;/b&gt;" vertex="1">
+          <mxGeometry height="24" width="400" x="20" y="856" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_j30" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a1a00;strokeColor=#FFD700;fontSize=10;fontColor=#FFD700;align=center;" value="J-30&lt;br&gt;&lt;b&gt;Contrat signé&lt;/b&gt;&lt;br&gt;ACCEPTED 🔒" vertex="1">
+          <mxGeometry height="60" width="130" x="20" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="arr1" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
+          <mxGeometry height="36" width="30" x="156" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_j7" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#001122;strokeColor=#4488FF;fontSize=10;fontColor=#4488FF;align=center;" value="J-7&lt;br&gt;&lt;b&gt;Dépôt reçu&lt;/b&gt;&lt;br&gt;DEPOSIT_SECURED 🔒" vertex="1">
+          <mxGeometry height="60" width="130" x="192" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="arr2" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
+          <mxGeometry height="36" width="30" x="328" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_soir" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#220022;strokeColor=#FF44FF;fontSize=10;fontColor=#FF44FF;align=center;" value="Soir J&lt;br&gt;&lt;b&gt;Event SEALED&lt;/b&gt;&lt;br&gt;🔒🔒 GPS OK" vertex="1">
+          <mxGeometry height="60" width="130" x="364" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="arr3" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
+          <mxGeometry height="36" width="30" x="500" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_perf" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#001100;strokeColor=#00CC66;fontSize=10;fontColor=#00CC66;align=center;" value="23h→01h&lt;br&gt;&lt;b&gt;Alex performe&lt;/b&gt;&lt;br&gt;PERFORMED" vertex="1">
+          <mxGeometry height="60" width="130" x="536" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="arr4" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
+          <mxGeometry height="36" width="30" x="672" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_note" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a001a;strokeColor=#CC44FF;fontSize=10;fontColor=#CC44FF;align=center;" value="J+24h&lt;br&gt;&lt;b&gt;Le Trèfle note&lt;/b&gt;&lt;br&gt;SOTS append-only" vertex="1">
+          <mxGeometry height="60" width="130" x="708" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="arr5" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
+          <mxGeometry height="36" width="30" x="844" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_pay" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a1000;strokeColor=#FF9900;fontSize=10;fontColor=#FF9900;align=center;" value="11 cond.&lt;br&gt;&lt;b&gt;Paiement auto&lt;/b&gt;&lt;br&gt;PAYABLE → SETTLED" vertex="1">
+          <mxGeometry height="60" width="130" x="880" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="arr6" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
+          <mxGeometry height="36" width="30" x="1016" y="900" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_arch" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a0000;strokeColor=#FF3344;fontSize=10;fontColor=#FF3344;align=center;" value="Pour toujours&lt;br&gt;&lt;b&gt;Mémoire créée&lt;/b&gt;&lt;br&gt;ARCHIVED 🔒🔒🔒" vertex="1">
+          <mxGeometry height="60" width="130" x="1052" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="final_bandeau" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#001400;strokeColor=#00FF44;strokeWidth=3;fontSize=14;fontColor=#00FF44;align=center;verticalAlign=middle;" value="&lt;b&gt;🧪 Cet event est le test d&#39;acceptation de toute l&#39;architecture.&lt;br&gt;S&#39;il fonctionne, la constitution est vivante. S&#39;il échoue, les cartes 00 à 08 indiquent exactement où regarder.&lt;/b&gt;" vertex="1">
+          <mxGeometry height="56" width="1200" x="20" y="962" as="geometry" />
+        </mxCell>
+        <mxCell id="lois_app" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#111111;strokeColor=#555555;fontSize=11;fontColor=#aaaaaa;align=left;verticalAlign=top;" value="&lt;b&gt;Lois de cette carte&lt;/b&gt;&lt;br&gt;LOI-ZERO-01 · CODEP-PRES-01&lt;br&gt;LEDGER-02 · SOTS-TEMOIN-01&lt;br&gt;WORM-APPEND-01 · LINEUP-01&lt;br&gt;Voir Cartes 00–08 pour détails" vertex="1">
+          <mxGeometry height="130" width="400" x="1234" y="888" as="geometry" />
+        </mxCell>
+        <mxCell id="version" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#555555;" value="Micro Rave V4 · Carte 09 · La Pierre de Rosette · Premier Event Réel · Mai 2026" vertex="1">
+          <mxGeometry height="20" width="1614" x="20" y="1028" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

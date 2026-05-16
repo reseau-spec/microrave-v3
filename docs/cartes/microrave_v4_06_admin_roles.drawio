@@ -1,0 +1,88 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="carte06_v4" name="Page-1">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="&lt;b style=&#39;font-size:18px&#39;&gt;Qui a le droit de faire quoi dans Micro Rave ?&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;color:#888;font-size:11px&#39;&gt;Carte 06 — Admin Authority Matrix · V4_REFONTE · Parties VI et IX&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="1300" x="150" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="decl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;align=center;strokeWidth=4;shadow=1;" value="&lt;b style=&#39;font-size:16px&#39;&gt;Le DecisionKernel ne juge pas — il enregistre.&lt;br/&gt;L&#39;Admin ne décide pas seul — il prouve.&lt;br/&gt;Certains pouvoirs ne doivent pas exister parce que leur existence détruirait la confiance.&lt;/b&gt;" vertex="1">
+          <mxGeometry height="80" width="1300" x="150" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="greff_title" parent="1" style="text;html=1;align=center;strokeColor=#6c8ebf;fillColor=#dae8fc;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;⚖️ Greffier vs Juge — la distinction fondamentale · section 6.1&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="1300" x="150" y="172" as="geometry" />
+        </mxCell>
+        <mxCell id="greffier" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;strokeWidth=2;" value="&lt;b style=&#39;font-size:13px&#39;&gt;📒 Greffier incorruptible — ce que Micro Rave EST&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#555&#39;&gt;«Il automatise seulement ce qui est prouvé.&lt;br/&gt;Il gèle ce qui est incertain.&lt;br/&gt;Il exige une décision humaine pour les cas ambigus.&lt;br/&gt;Il ne laisse jamais une sortie d&#39;argent sans trace.»&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;La trace est sa promesse. L&#39;humilité est son architecture.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="630" x="150" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="juge" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=12;align=center;strokeWidth=2;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🚫 Juge parfait — ce que Micro Rave REFUSE d&#39;être&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#b85450&#39;&gt;Un juge parfait prétend avoir toujours raison.&lt;br/&gt;Il efface les erreurs plutôt que de les corriger.&lt;br/&gt;Il décide seul sans laisser de trace.&lt;br/&gt;Il concentre le pouvoir sans le distribuer.&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;C&#39;est exactement la structure que les 19 interdits rendent architecturalement impossible.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="630" x="820" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="sep_pouvoirs" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;" value="&lt;b&gt;Lire ≠ Modifier · Modifier ≠ Approuver · Approuver ≠ Exécuter · Exporter = pouvoir distinct&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Chaque action est un pouvoir séparé. Cumuler ces pouvoirs dans une seule personne détruirait la confiance.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="1300" x="150" y="334" as="geometry" />
+        </mxCell>
+        <mxCell id="roles_title" parent="1" style="text;html=1;align=center;strokeColor=#555;fillColor=#f5f5f5;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;👤 Les 10 rôles canoniques — section 9.2&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="1300" x="150" y="404" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=11;align=center;" value="&lt;b&gt;🔴 N5 — FOUNDER&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px&#39;&gt;Le fondateur&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Autorité ultime. Absorbe les rôles vacants au MVP.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="150" y="442" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=11;align=center;" value="&lt;b&gt;🟠 N4 — FINANCE_ADMIN&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Finance, payouts, ledger, TaxConfig, reversals.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="406" y="442" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;🔵 N3 — OPS_ADMIN&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Opérations quotidiennes. Relances non financières.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="662" y="442" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;🔵 N3 — DISPUTE_ADMIN&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Disputes, DecisionRecord. Conflit d&#39;intérêt obligatoire.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="918" y="442" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;🔵 N3 — PRIVACY_ADMIN&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;LPRPDE, pseudonymisation, DataRetentionPolicyConfig.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="1174" y="442" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;🟢 N2 — SUPPORT_ADMIN&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Lecture niveaux 1-2. Escalade. Zéro payout.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="240" x="150" y="528" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;🟢 N2 — DEV_ADMIN&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Déploiement, logs. Zéro données financières réelles.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="240" x="406" y="528" as="geometry" />
+        </mxCell>
+        <mxCell id="r8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;🟢 N2 — POLICY_ADMIN&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Modification PolicyConfig standard. Pas configs critiques.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="240" x="662" y="528" as="geometry" />
+        </mxCell>
+        <mxCell id="r9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;align=center;" value="&lt;b&gt;🟢 N2 — CELL_MANAGER &lt;i&gt;post-MVP&lt;/i&gt;&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Territoire uniquement. Jamais les events SECRET.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="240" x="918" y="528" as="geometry" />
+        </mxCell>
+        <mxCell id="r10" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#aaa;fontSize=11;align=center;" value="&lt;b&gt;⚪ N1 — AUDITOR_EXTERNAL&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Lecture seulement sur périmètre DataAccessAuditRoleConfig.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="240" x="1174" y="528" as="geometry" />
+        </mxCell>
+        <mxCell id="solo_title" parent="1" style="text;html=1;align=center;strokeColor=#b85450;fillColor=#fde9e8;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;⚡ SoloFounderOverride vs DualApproval — section 9.3&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="1300" x="150" y="614" as="geometry" />
+        </mxCell>
+        <mxCell id="solo_override" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=12;align=left;spacingLeft=8;strokeWidth=3;" value="&lt;b style=&#39;font-size:13px&#39;&gt;⚡ SoloFounderOverride — exception documentée — DETTE ARCHITECTURALE&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:11px&#39;&gt;Pas une validation. Une exception qui doit rester exceptionnelle.&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;Délai 60s · confirmation explicite · AdminIncidentRecord SOLO_FOUNDER_OVERRIDE · DataAccessLedgerEntry FOUNDER_SOLO_OVERRIDE&lt;/span&gt;&lt;br/&gt;&lt;b style=&#39;font-size:12px;color:#b85450&#39;&gt;🌅 CONDITION DE SUNSET — à définir AVANT Series A&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:11px;color:#555&#39;&gt;Le SoloFounderOverride est une dette architecturale temporaire, pas un droit permanent.&lt;br/&gt;Son existence est légitime au MVP. Son maintien au-delà de la première levée institutionnelle est un signal d&#39;alarme.&lt;br/&gt;Une institution mature distribue le pouvoir — elle ne le concentre pas.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="155" width="630" x="150" y="652" as="geometry" />
+        </mxCell>
+        <mxCell id="dual_approval" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=left;spacingLeft=8;strokeWidth=3;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🔒 DualApproval — deux clés obligatoires&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px&#39;&gt;Configs critiques : TaxConfig · LedgerCodeMap · MembershipPlan&lt;br/&gt;SOTSCommissionModulationConfig · DataRetentionPolicyConfig&lt;br/&gt;MigrationTriggerPolicyConfig · SecretsRotationPolicyConfig · DualApprovalThresholdConfig&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;Sans les deux approbations : &lt;b&gt;architecturalement impossible.&lt;/b&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="155" width="630" x="820" y="652" as="geometry" />
+        </mxCell>
+        <mxCell id="interdits_title" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=13;align=center;fontStyle=1;strokeWidth=3;" value="&lt;b&gt;🚫 Les 19 interdits absolus — même pour le fondateur — architecturalement impossibles · section 9.4&lt;/b&gt;" vertex="1">
+          <mxGeometry height="36" width="1300" x="150" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="interdits_1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=6;" value="&lt;span style=&#39;line-height:1.7&#39;&gt;🚫 &lt;b&gt;1.&lt;/b&gt; Modifier une écriture FinancialLedger&lt;br/&gt;🚫 &lt;b&gt;2.&lt;/b&gt; Supprimer une ReputationLedgerEntry&lt;br/&gt;🚫 &lt;b&gt;3.&lt;/b&gt; Modifier un ContractSnapshot WORM&lt;br/&gt;🚫 &lt;b&gt;4.&lt;/b&gt; Sauter une transition d&#39;état obligatoire&lt;br/&gt;🚫 &lt;b&gt;5.&lt;/b&gt; Revenir en arrière sur un état WORM&lt;br/&gt;🚫 &lt;b&gt;6.&lt;/b&gt; Modifier un Engagement archivé&lt;br/&gt;🚫 &lt;b&gt;7.&lt;/b&gt; Supprimer un DecisionRecord&lt;br/&gt;🚫 &lt;b&gt;8.&lt;/b&gt; Supprimer un AdminAction log&lt;br/&gt;🚫 &lt;b&gt;9.&lt;/b&gt; Supprimer un DataAccessLedgerEntry&lt;br/&gt;🚫 &lt;b&gt;10.&lt;/b&gt; Supprimer ou falsifier un BugReplayRecord&lt;/span&gt;" vertex="1">
+          <mxGeometry height="180" width="630" x="150" y="864" as="geometry" />
+        </mxCell>
+        <mxCell id="interdits_2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=6;" value="&lt;span style=&#39;line-height:1.7&#39;&gt;🚫 &lt;b&gt;11.&lt;/b&gt; Modifier un WebhookIdempotencyRecord traité&lt;br/&gt;🚫 &lt;b&gt;12.&lt;/b&gt; Désactiver le DataAccessLedger&lt;br/&gt;🚫 &lt;b&gt;13.&lt;/b&gt; Modifier un SchedulerRun complété&lt;br/&gt;🚫 &lt;b&gt;14.&lt;/b&gt; Supprimer un AdminIncidentRecord&lt;br/&gt;🚫 &lt;b&gt;15.&lt;/b&gt; Modifier le systemId d&#39;un objet existant&lt;br/&gt;🚫 &lt;b&gt;16.&lt;/b&gt; Modifier les préfixes IDFactory d&#39;objets créés&lt;br/&gt;🚫 &lt;b&gt;17.&lt;/b&gt; Contourner le MoneyMovementRouter&lt;br/&gt;🚫 &lt;b&gt;18.&lt;/b&gt; Créer une SettlementInstruction sans DecisionRecord&lt;br/&gt;🚫 &lt;b&gt;19.&lt;/b&gt; Contourner les 6 verrous anti-double payout&lt;/span&gt;" vertex="1">
+          <mxGeometry height="180" width="630" x="820" y="864" as="geometry" />
+        </mxCell>
+        <mxCell id="connexion_02" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;strokeWidth=2;" value="&lt;b&gt;🔗 Connexion avec la Carte 02 — co-dépendance paiement/présence&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Les 11 conditions de paiement (Carte 02) sont la preuve opérationnelle de la co-dépendance.&lt;br/&gt;Chaque condition = &#39;Est-ce que la présence est prouvée ? Est-ce que l&#39;argent est sécurisé ?&#39;&lt;br/&gt;Si l&#39;une manque → le paiement attend. Jamais silencieux. C&#39;est la même loi ici.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="1300" x="150" y="1071" as="geometry" />
+        </mxCell>
+        <mxCell id="enfant" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=center;strokeWidth=2;" value="&lt;b&gt;Pour un enfant de 8 ans :&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Même les créateurs du jeu ne peuvent pas enfreindre ces règles.&lt;br/&gt;Ce ne sont pas des règles qu&#39;on choisit de respecter. Ce sont des règles que le système rend impossible de briser.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="60" width="1300" x="150" y="1155" as="geometry" />
+        </mxCell>
+        <mxCell id="lois_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=6;" value="&lt;b&gt;Lois de cette carte :&lt;/b&gt; GREFFIER-01 · DUAL-APPROVAL-01 · FONDATEUR-SUNSET-01 · INTERDITS-1-à-19&lt;br/&gt;&lt;i&gt;Le SoloFounderOverride doit avoir une condition de sunset documentée avant Series A.&lt;/i&gt;" vertex="1">
+          <mxGeometry height="35" width="1300" x="150" y="1232" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

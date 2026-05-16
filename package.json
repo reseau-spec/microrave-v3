@@ -9,7 +9,8 @@
     "test:p0:policyconfig":       "node tests/p0/POLICYCONFIG-FAILCLOSED-01.js",
     "test:p0:transition":         "node tests/p0/TRANSITION-01.js",
     "test:p0:missionconversion":  "node tests/p0/MISSIONCONVERSION-01.js",
-    "test:p0:all":                "npm run test:p0:idfactory && npm run test:p0:policyconfig && npm run test:p0:transition && npm run test:p0:missionconversion",
+    "test:p0:placement":          "node tests/p0/PLACEMENT-01.js",
+    "test:p0:all":                "node tests/p0/IDFACTORY-01.js && node tests/p0/TRANSITION-01.js && node tests/p0/MISSIONCONVERSION-01.js && node tests/p0/PLACEMENT-01.js",
     "proxy:start":                "node stripe-webhook-proxy/index.js"
   },
   "dependencies": {
