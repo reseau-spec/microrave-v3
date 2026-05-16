@@ -49,7 +49,15 @@ async function run() {
       currentState: 'proposed',
       targetState:  'accepted',
       actor:        'USR-TEST-000001',
-      context:      {},
+      context: {
+        talentUserId:    'USR-TEST-ALEX-000001',
+        organizerUserId: 'USR-TEST-TREFLE-0001',
+        roleMetier:      'DJ',
+        cachetBrutCents: 20000,
+        tier:            'Freemium',
+        tauxPpm:         120000,
+      },
+      
     });
     if (!result.success) throw new Error('Résultat attendu: success:true');
     if (result.newState !== 'accepted') throw new Error(`newState attendu: accepted, reçu: ${result.newState}`);
