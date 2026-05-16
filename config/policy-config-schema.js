@@ -1,16 +1,16 @@
 /**
- * MICRO RAVE V3 — PolicyConfig fondamentales
+ * MICRO RAVE V3 — Seed de database — PAS du code métier
  * ============================================================
- * Les 12 configurations à insérer en database AVANT d'écrire
- * la moindre logique financière.
+ * RÔLE UNIQUE : insérer ces valeurs UNE FOIS en database.
  *
- * UTILISATION :
- * Ce fichier définit la structure. Les valeurs sont dans ce tableau.
- * À insérer dans la table policy_config de Base44 manuellement
- * ou via un script d'initialisation.
+ * RÈGLES ABSOLUES :
+ * - Ce fichier n'est JAMAIS importé dans la logique de calcul.
+ * - La logique passe toujours par getConfig('clé').
+ * - Modifier une valeur ici sans l'insérer en database = aucun effet.
+ * - Les valeurs financières vivent en database, pas dans ce fichier.
+ * - Ce fichier est un point d'entrée pour l'initialisation uniquement.
  *
- * RÈGLE : Aucune de ces valeurs ne doit apparaître dans le code.
- *         Tout passe par getConfig('clé').
+ * Source : OS V10 section 3.2 — aucune constante financière dans le code.
  * ============================================================
  */
 
@@ -110,6 +110,15 @@ const POLICY_CONFIGS_FONDAMENTALES = [
   },
 ];
 
+// ── Clés critiques exportées pour validateCriticalConfigs() ──
+// Source unique de vérité — une seule liste à maintenir.
+// Ajouter une config CRITIQUE ici = elle est automatiquement
+// validée au démarrage. Zéro liste à maintenir dans deux endroits.
+// Source : OS V10 section 9.6 — configs critiques double validation.
+const CRITICAL_CONFIG_KEYS = POLICY_CONFIGS_FONDAMENTALES
+  .filter(c => c.category === 'CRITIQUE')
+  .map(c => c.key);
+
 /**
  * Retourne la liste des configs fondamentales.
  * Utiliser pour initialiser la database ou vérifier la conformité.
@@ -125,4 +134,9 @@ function isFundamental(key) {
   return POLICY_CONFIGS_FONDAMENTALES.some(c => c.key === key);
 }
 
-module.exports = { getFoundationalConfigs, isFundamental, POLICY_CONFIGS_FONDAMENTALES };
+module.exports = {
+  getFoundationalConfigs,
+  isFundamental,
+  POLICY_CONFIGS_FONDAMENTALES,
+  CRITICAL_CONFIG_KEYS,
+};

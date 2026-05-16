@@ -15,6 +15,12 @@
 
 const { PolicyConfigRepository } = require('../repositories/PolicyConfigRepository');
 
+// ── Source unique de vérité pour les clés critiques ──────────
+// La liste vient du schema — pas hardcodée ici.
+// Ajouter une config CRITIQUE dans le schema = validée automatiquement.
+// Source : OS V10 section 9.6
+const { CRITICAL_CONFIG_KEYS } = require('../../config/policy-config-schema');
+
 // ── Types de valeurs supportés ───────────────────────────────
 const VALUE_TYPES = {
   CENTS:   (v) => parseInt(v, 10),      // montant en cents entiers
@@ -97,25 +103,14 @@ function clearCache() {
  * Vérifie que toutes les configs critiques sont présentes.
  * À appeler au démarrage du système.
  * Si l'une est absente → le système ne démarre pas.
+ *
+ * La liste des clés critiques vient de CRITICAL_CONFIG_KEYS
+ * dans policy-config-schema.js — source unique de vérité.
  */
 async function validateCriticalConfigs() {
-  const REQUIRED = [
-    'stripe_ppm',
-    'stripe_fixe_cents',
-    'payment_fees_tax_treatment',
-    'free_weight_cents',
-    'event_payment_cap_cents',
-    'deposit_ratio_ppm',
-    'tps_ppm',
-    'tvq_ppm',
-    'ledger_4310',
-    'ledger_4325',
-    'ledger_4326',
-    'ledger_4530',
-  ];
-
   const missing = [];
-  for (const key of REQUIRED) {
+
+  for (const key of CRITICAL_CONFIG_KEYS) {
     try {
       await getConfig(key);
     } catch {
