@@ -18,14 +18,17 @@
  *   5. AuditLogger         ← toujours, sans exception
  *
  * Guards implémentés :
- *   ✅ MissionConversionGuard — proposed→accepted, proposed→negotiating, negotiating→accepted
+ *   ✅ MissionConversionGuard — proposed→negotiating (acteurs seulement, pas de snapshot)
+ *                               proposed→accepted, negotiating→accepted (snapshot complet)
  *   ✅ PlacementGuard         — accepted→placed (contrat + lineup, sans argent)
- *   ✅ EventPaymentGuard      — placed→deposit_pending, deposit_secured→balance_pending (argent)
- *   🔲 SealingGuard           — balance_pending→event_sealed (scellement WORM W2)
+ *   ✅ EventPaymentGuard      — placed→deposit_pending (calcul dépôt TTC)
+ *                               deposit_pending→deposit_secured (confirmation Stripe exacte)
+ *                               deposit_secured→balance_pending (ouverture solde J-7)
+ *   🔲 SealingGuard           — balance_pending→event_sealed (WORM W2 + ContractSnapshot phase 2)
  *   🔲 PresenceWindowGuard    — event_sealed→performed
- *   🔲 PresenceProofGuard     — performed→payable
  *   🔲 EventCompletionGuard   — performed→event_completed
  *   🔲 SOTSWindowGuard        — event_completed→sots_window_closed
+ *   🔲 PresenceProofGuard     — sots_window_closed→payable (nominal) + performed→payable (urgence)
  *   🔲 LedgerInvariantGuard   — payable→settled
  *   🔲 ArchiveWORMGuard       — settled→archived
  * ============================================================
@@ -40,46 +43,64 @@ const EventPaymentGuard      = require('./guards/EventPaymentGuard');
 // ── Table souveraine des transitions autorisées ──────────────
 // Source : OS V10 section 2.7.1
 //
-// CORRECTION V2 :
-// - Ajout de proposed→negotiating et negotiating→accepted (voie négociation)
-// - Ajout de deposit_secured→balance_pending (paiement du solde J-7)
-// - Ajout de balance_pending→event_sealed (scellement après solde)
-// - Suppression du saut direct deposit_secured→event_sealed (incorrect)
-// - Séparation PlacementGuard / EventPaymentGuard
+// CORRECTIONS V3 :
+// - MissionConversionGuard dispatche par targetState :
+//     proposed→negotiating = acteurs seulement (pas de cachet, pas de snapshot)
+//     proposed→accepted / negotiating→accepted = logique complète + snapshot
+// - Ajout de sots_window_closed→payable (chemin nominal après SOTS)
+// - performed→payable conservé comme chemin d'urgence (SoloFounderOverride requis)
+// - totalCents dans EventPaymentGuard = prix_vendu_client TTC (TPS + TVQ + Stripe inclus)
+//   Source : OS V10 section 3.3 LOI WATERFALL-01
 //
 const TRANSITION_TABLE = {
 
-  // ── Chemin nominal ────────────────────────────────────────
-  // Voie directe (CreateEvent sans contre-offre)
+  // ── Chemin nominal ─────────────────────────────────────────
+
+  // Voie directe sans négociation
   'proposed->accepted':                { guard: 'MissionConversionGuard', worm: null, financialGuard: false },
-  // Voie négociation (CreateEvent avec contre-offre)
-  // Source : OS V10 section 2.6 — deux voies vers accepted
+
+  // Voie négociation
+  // proposed→negotiating : acteurs + roleMetier seulement — le prix n'est pas encore arrêté
+  // negotiating→accepted : cachet + taux + tier + ContractSnapshot phase 1
   'proposed->negotiating':             { guard: 'MissionConversionGuard', worm: null, financialGuard: false },
   'negotiating->accepted':             { guard: 'MissionConversionGuard', worm: null, financialGuard: false },
 
   // Placement — contrat validé, lineup verrouillé, sans argent
   'accepted->placed':                  { guard: 'PlacementGuard',         worm: 'W1', financialGuard: false },
 
-  // Dépôt — premier mouvement d'argent, 20% du total
+  // Dépôt — premier mouvement d'argent
+  // totalCents = prix_vendu_client TTC incluant TPS + TVQ + frais Stripe
   'placed->deposit_pending':           { guard: 'EventPaymentGuard',      worm: null, financialGuard: true  },
   'deposit_pending->deposit_secured':  { guard: 'EventPaymentGuard',      worm: null, financialGuard: true  },
 
-  // Solde — paiement du solde J-7 avant l'event
-  // Source : OS V10 section 2.6 — état balance_pending
+  // Solde J-7
   'deposit_secured->balance_pending':  { guard: 'EventPaymentGuard',      worm: null, financialGuard: true  },
+
+  // Scellement WORM W2 — ContractSnapshot phase 2 créé ici
   'balance_pending->event_sealed':     { guard: 'SealingGuard',           worm: 'W2', financialGuard: true  },
 
-  // Présence et complétion
+  // Présence
   'event_sealed->performed':           { guard: 'PresenceWindowGuard',    worm: null, financialGuard: false },
   'performed->event_completed':        { guard: 'EventCompletionGuard',   worm: 'W1', financialGuard: false },
+
+  // SOTS
+  'event_completed->sots_window_closed': { guard: 'SOTSWindowGuard',      worm: 'W1', financialGuard: false },
+
+  // Payout — chemin NOMINAL : après fermeture SOTS
+  // Condition 7 vérifiée ici : SOTSSubmission talent soumise
+  // Source : OS V10 section 2.6 + section 6.3 Condition 7
+  'sots_window_closed->payable':       { guard: 'PresenceProofGuard',     worm: null, financialGuard: true  },
+
+  // Payout — chemin d'URGENCE : court-circuite SOTS
+  // RÉSERVÉ aux cas exceptionnels — requiert SoloFounderOverride + AdminIncidentRecord
+  // Source : OS V10 section 9.3
   'performed->payable':                { guard: 'PresenceProofGuard',     worm: null, financialGuard: true  },
 
-  // SOTS et archivage
-  'event_completed->sots_window_closed': { guard: 'SOTSWindowGuard',      worm: 'W1', financialGuard: false },
+  // Règlement
   'payable->settled':                  { guard: 'LedgerInvariantGuard',   worm: 'W3', financialGuard: true  },
   'settled->archived':                 { guard: 'ArchiveWORMGuard',       worm: 'W3', financialGuard: true  },
 
-  // ── Transitions alternatives ──────────────────────────────
+  // ── Transitions alternatives ───────────────────────────────
   'performed->no_show':                { guard: 'NoShowGuard',            worm: null, financialGuard: false },
   'proposed->withdrawn':               { guard: 'WithdrawalGuard',        worm: null, financialGuard: false },
   'negotiating->withdrawn':            { guard: 'WithdrawalGuard',        worm: null, financialGuard: false },
@@ -90,29 +111,15 @@ const TRANSITION_TABLE = {
 // ── États WORM et leur niveau de sévérité ────────────────────
 // Source : OS V10 section 2.7 BLOC 2 V8
 const WORM_STATES = {
-  'settled':            'W3', // Architecturalement impossible à modifier
-  'archived':           'W3', // Architecturalement impossible à modifier
-  'event_sealed':       'W2', // Fraude — AdminIncidentRecord P0 + SYSTEM_HOLD
-  'accepted':           'W1', // Erreur corrigeable — log obligatoire
+  'settled':            'W3',
+  'archived':           'W3',
+  'event_sealed':       'W2',
+  'accepted':           'W1',
   'deposit_secured':    'W1',
   'event_completed':    'W1',
   'sots_window_closed': 'W1',
 };
 
-/**
- * Fonction principale — unique point d'entrée.
- *
- * @param {object} params
- * @param {string} params.engagementId  — systemId de l'Engagement
- * @param {string} params.currentState  — état actuel
- * @param {string} params.targetState   — état cible
- * @param {string} params.actor         — systemId de l'acteur
- * @param {object} params.context       — données pour les guards
- * @param {object} params.repositories  — accès aux données
- *
- * @returns {object} { success, newState, transition, timestamp }
- * @throws  {Error}  avec code explicite si transition invalide
- */
 async function transitionEngagement({
   engagementId,
   currentState,
@@ -122,7 +129,6 @@ async function transitionEngagement({
   repositories = {},
 }) {
 
-  // ── Validation des paramètres obligatoires ────────────────
   if (!engagementId) throw new Error('TRANSITION_ERROR: engagementId manquant');
   if (!currentState) throw new Error('TRANSITION_ERROR: currentState manquant');
   if (!targetState)  throw new Error('TRANSITION_ERROR: targetState manquant');
@@ -131,9 +137,6 @@ async function transitionEngagement({
   const transitionKey = `${currentState}->${targetState}`;
 
   // ── GUARD 1 : WORMGuard ───────────────────────────────────
-  // Vérifié EN PREMIER — une violation WORM est plus grave
-  // qu'une transition non autorisée.
-  // Source : OS V10 section 2.7 BLOC 2 V8
   const wormLevel = WORM_STATES[currentState];
 
   if (wormLevel === 'W3') {
@@ -151,7 +154,6 @@ async function transitionEngagement({
       attemptedTransition: transitionKey,
       timestamp: new Date().toISOString(),
     };
-    // TODO: repositories.admin?.createIncidentRecord(incident)
     console.error('[WORM] Violation Niveau 2 détectée:', incident);
     throw new Error(
       `WORM_VIOLATION_LEVEL_2: Tentative de modification de l'état scellé "${currentState}". ` +
@@ -159,8 +161,7 @@ async function transitionEngagement({
     );
   }
 
-  // ── GUARD 2 : Transition autorisée dans la table ? ────────
-  // Source : OS V10 section 2.7.1 — table souveraine
+  // ── GUARD 2 : Table souveraine ────────────────────────────
   const rule = TRANSITION_TABLE[transitionKey];
   if (!rule) {
     throw new Error(
@@ -172,15 +173,10 @@ async function transitionEngagement({
     );
   }
 
-  // ── GUARD 3 : Guard spécifique à la transition ────────────
+  // ── GUARD 3 : Guard spécifique ────────────────────────────
   const guardResult = await runSpecificGuard({
     guardName: rule.guard,
-    engagementId,
-    currentState,
-    targetState,
-    actor,
-    context,
-    repositories,
+    engagementId, currentState, targetState, actor, context, repositories,
   });
 
   if (!guardResult.passed) {
@@ -191,15 +187,12 @@ async function transitionEngagement({
   }
 
   // ── GUARD 4 : FinancialInvariantGuard ─────────────────────
-  // Actif uniquement sur les transitions financières.
-  // TODO: vérifier équilibre ledger — LOI LEDGER-02
   if (rule.financialGuard) {
-    console.log(`[FinancialInvariantGuard] "${transitionKey}" — vérification ledger à implémenter`);
+    // TODO: LOI LEDGER-02 — vérifier équilibre ledger
+    console.log(`[FinancialInvariantGuard] "${transitionKey}" — à implémenter`);
   }
 
-  // ── GUARD 5 : AuditLogger — TOUJOURS, sans exception ─────
-  // Source : OS V10 section 2.7.1 — "toujours, sans exception"
-  // TODO: repositories.audit?.writeToDataAccessLedger(auditEntry)
+  // ── GUARD 5 : AuditLogger ─────────────────────────────────
   const auditEntry = {
     engagementId,
     transition: transitionKey,
@@ -208,9 +201,9 @@ async function transitionEngagement({
     guardApplied: rule.guard,
     wormLevel: rule.worm || 'NONE',
   };
+  // TODO: repositories.audit?.writeToDataAccessLedger(auditEntry)
   console.log('[AuditLogger]', JSON.stringify(auditEntry));
 
-  // ── Transition exécutée ───────────────────────────────────
   return {
     success: true,
     engagementId,
@@ -222,124 +215,72 @@ async function transitionEngagement({
   };
 }
 
-// ── Dispatcher des guards spécifiques ────────────────────────
-// Chaque guard est dans son propre fichier — séparation stricte.
-// Ajouter un guard = créer le fichier + ajouter le case ici.
 async function runSpecificGuard({
   guardName, engagementId, currentState,
   targetState, actor, context, repositories
 }) {
   switch (guardName) {
 
-    // ── Guards implémentés ──────────────────────────────────
-
     case 'MissionConversionGuard':
-      // Couvre : proposed→accepted, proposed→negotiating, negotiating→accepted
-      // Source : OS V10 section 2.7.1
       return await MissionConversionGuard.validate({
-        engagementId,
-        currentState,
-        targetState,
-        actor,
-        context,
-        repositories,
+        engagementId, currentState, targetState, actor, context, repositories,
       });
 
     case 'PlacementGuard':
-      // Couvre : accepted→placed
-      // Vérifie : ContractSnapshot phase 1 existe, lineup cohérent, event existe
-      // NE touche PAS à l'argent — financialGuard: false
-      // Source : OS V10 section 2.7.1
       return await PlacementGuard.validate({
-        engagementId,
-        currentState,
-        targetState,
-        actor,
-        context,
-        repositories,
+        engagementId, currentState, targetState, actor, context, repositories,
       });
 
     case 'EventPaymentGuard':
-      // Couvre : placed→deposit_pending, deposit_pending→deposit_secured,
-      //          deposit_secured→balance_pending
-      // Touche à l'argent — financialGuard: true
-      // Source : OS V10 section 2.7.1
       return await EventPaymentGuard.validate({
-        engagementId,
-        currentState,
-        targetState,
-        actor,
-        context,
-        repositories,
+        engagementId, currentState, targetState, actor, context, repositories,
       });
 
-    // ── Guards à implémenter ────────────────────────────────
-
     case 'SealingGuard':
-      // Couvre : balance_pending→event_sealed
-      // TODO: LOI LEDGER-02 avant scellement, ContractSnapshot phase 2
       console.log(`[SealingGuard] balance_pending→event_sealed — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'PresenceWindowGuard':
-      // Couvre : event_sealed→performed
-      // TODO: ouvrir fenêtre check-in, créer SessionPresence
       console.log(`[PresenceWindowGuard] ouverture fenêtre check-in — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
-    case 'PresenceProofGuard':
-      // Couvre : performed→payable
-      // TODO: SessionPresence.checkedInAt != null — LOI CO-DÉPENDANCE-01
-      // TODO: Condition 7 — SOTSSubmission talent soumise
-      console.log(`[PresenceProofGuard] vérification présence et SOTS — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
-
     case 'EventCompletionGuard':
-      // Couvre : performed→event_completed
-      // TODO: tous talents en performed, no-show résolu
       console.log(`[EventCompletionGuard] complétion event — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'SOTSWindowGuard':
-      // Couvre : event_completed→sots_window_closed
-      // TODO: fermer fenêtre SOTS 24h après event_completed
       console.log(`[SOTSWindowGuard] fermeture fenêtre SOTS — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
+    case 'PresenceProofGuard':
+      // Couvre : sots_window_closed→payable (nominal) + performed→payable (urgence)
+      console.log(`[PresenceProofGuard] vérification présence — à implémenter`);
+      return { passed: true, reason: 'placeholder' };
+
     case 'LedgerInvariantGuard':
-      // Couvre : payable→settled
-      // TODO: KYCStatus=VERIFIED, ledger équilibré, LOI LEDGER-02
       console.log(`[LedgerInvariantGuard] invariant ledger — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'ArchiveWORMGuard':
-      // Couvre : settled→archived
-      // TODO: GoNoGoDecisionRecord=GO, BugReplayRecords P0=PASSED, SOTS closed
       console.log(`[ArchiveWORMGuard] archive finale WORM — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'NoShowGuard':
-      // Couvre : performed→no_show
-      // TODO: délai de grâce expiré, logique no-show
       console.log(`[NoShowGuard] no-show — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'WithdrawalGuard':
-      // Couvre : proposed→withdrawn, negotiating→withdrawn
-      // TODO: avant accord, aucune conséquence réputationnelle
       console.log(`[WithdrawalGuard] retrait avant accord — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'DisputeGuard':
-      // Couvre : accepted→disputed, event_sealed→disputed
-      // TODO: logique de dispute, ConflictOfInterestRecord si isSelfOrganized
       console.log(`[DisputeGuard] dispute — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     default:
       throw new Error(
-        `GUARD_UNKNOWN: Guard "${guardName}" non reconnu dans le dispatcher. ` +
-        `Créer le fichier src/core/guards/${guardName}.js et l'ajouter ici.`
+        `GUARD_UNKNOWN: Guard "${guardName}" non reconnu. ` +
+        `Créer src/core/guards/${guardName}.js et l'ajouter ici.`
       );
   }
 }
