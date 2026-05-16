@@ -11,47 +11,91 @@
  * violation de Niveau 2 (équivalent fraude).
  *
  * Ordre invariant des guards :
- *   1. WORMGuard         ← en premier — violation la plus grave
- *   2. MissionConversionGuard (vérification table)
- *   3. Guard spécifique à la transition
- *   4. FinancialInvariantGuard
- *   5. AuditLogger       ← toujours, sans exception
+ *   1. WORMGuard           ← en premier — violation la plus grave
+ *   2. Vérification table  ← transition autorisée ?
+ *   3. Guard spécifique    ← logique métier de la transition
+ *   4. FinancialInvariantGuard ← si transition financière
+ *   5. AuditLogger         ← toujours, sans exception
+ *
+ * Guards implémentés :
+ *   ✅ MissionConversionGuard — proposed→accepted, proposed→negotiating, negotiating→accepted
+ *   ✅ PlacementGuard         — accepted→placed (contrat + lineup, sans argent)
+ *   ✅ EventPaymentGuard      — placed→deposit_pending, deposit_secured→balance_pending (argent)
+ *   🔲 SealingGuard           — balance_pending→event_sealed (scellement WORM W2)
+ *   🔲 PresenceWindowGuard    — event_sealed→performed
+ *   🔲 PresenceProofGuard     — performed→payable
+ *   🔲 EventCompletionGuard   — performed→event_completed
+ *   🔲 SOTSWindowGuard        — event_completed→sots_window_closed
+ *   🔲 LedgerInvariantGuard   — payable→settled
+ *   🔲 ArchiveWORMGuard       — settled→archived
  * ============================================================
  */
 
 'use strict';
+
 const MissionConversionGuard = require('./guards/MissionConversionGuard');
+const PlacementGuard         = require('./guards/PlacementGuard');
+const EventPaymentGuard      = require('./guards/EventPaymentGuard');
 
 // ── Table souveraine des transitions autorisées ──────────────
 // Source : OS V10 section 2.7.1
+//
+// CORRECTION V2 :
+// - Ajout de proposed→negotiating et negotiating→accepted (voie négociation)
+// - Ajout de deposit_secured→balance_pending (paiement du solde J-7)
+// - Ajout de balance_pending→event_sealed (scellement après solde)
+// - Suppression du saut direct deposit_secured→event_sealed (incorrect)
+// - Séparation PlacementGuard / EventPaymentGuard
+//
 const TRANSITION_TABLE = {
-  'proposed->accepted':               { guard: 'MissionConversionGuard', worm: null, financialGuard: false },
-  'accepted->placed':                 { guard: 'PlacementGuard',         worm: 'W1', financialGuard: false },
-  'placed->deposit_pending':          { guard: 'PlacementGuard',         worm: null, financialGuard: true  },
-  'deposit_pending->deposit_secured': { guard: 'SealingGuard',           worm: null, financialGuard: true  },
-  'deposit_secured->event_sealed':    { guard: 'SealingGuard',           worm: 'W2', financialGuard: true  },
-  'event_sealed->performed':          { guard: 'PresenceWindowGuard',    worm: null, financialGuard: false },
-  'performed->event_completed':       { guard: 'EventCompletionGuard',   worm: 'W1', financialGuard: false },
-  'performed->payable':               { guard: 'PresenceProofGuard',     worm: null, financialGuard: true  },
-  'event_completed->sots_window_closed': { guard: 'SOTSWindowGuard',     worm: 'W1', financialGuard: false },
-  'payable->settled':                 { guard: 'LedgerInvariantGuard',   worm: 'W3', financialGuard: true  },
-  'settled->archived':                { guard: 'ArchiveWORMGuard',       worm: 'W3', financialGuard: true  },
-  // Transitions alternatives
-  'performed->no_show':               { guard: 'NoShowGuard',            worm: null, financialGuard: false },
-  'proposed->withdrawn':              { guard: 'WithdrawalGuard',        worm: null, financialGuard: false },
-  'accepted->disputed':               { guard: 'DisputeGuard',           worm: null, financialGuard: false },
-  'event_sealed->disputed':           { guard: 'DisputeGuard',           worm: null, financialGuard: false },
+
+  // ── Chemin nominal ────────────────────────────────────────
+  // Voie directe (CreateEvent sans contre-offre)
+  'proposed->accepted':                { guard: 'MissionConversionGuard', worm: null, financialGuard: false },
+  // Voie négociation (CreateEvent avec contre-offre)
+  // Source : OS V10 section 2.6 — deux voies vers accepted
+  'proposed->negotiating':             { guard: 'MissionConversionGuard', worm: null, financialGuard: false },
+  'negotiating->accepted':             { guard: 'MissionConversionGuard', worm: null, financialGuard: false },
+
+  // Placement — contrat validé, lineup verrouillé, sans argent
+  'accepted->placed':                  { guard: 'PlacementGuard',         worm: 'W1', financialGuard: false },
+
+  // Dépôt — premier mouvement d'argent, 20% du total
+  'placed->deposit_pending':           { guard: 'EventPaymentGuard',      worm: null, financialGuard: true  },
+  'deposit_pending->deposit_secured':  { guard: 'EventPaymentGuard',      worm: null, financialGuard: true  },
+
+  // Solde — paiement du solde J-7 avant l'event
+  // Source : OS V10 section 2.6 — état balance_pending
+  'deposit_secured->balance_pending':  { guard: 'EventPaymentGuard',      worm: null, financialGuard: true  },
+  'balance_pending->event_sealed':     { guard: 'SealingGuard',           worm: 'W2', financialGuard: true  },
+
+  // Présence et complétion
+  'event_sealed->performed':           { guard: 'PresenceWindowGuard',    worm: null, financialGuard: false },
+  'performed->event_completed':        { guard: 'EventCompletionGuard',   worm: 'W1', financialGuard: false },
+  'performed->payable':                { guard: 'PresenceProofGuard',     worm: null, financialGuard: true  },
+
+  // SOTS et archivage
+  'event_completed->sots_window_closed': { guard: 'SOTSWindowGuard',      worm: 'W1', financialGuard: false },
+  'payable->settled':                  { guard: 'LedgerInvariantGuard',   worm: 'W3', financialGuard: true  },
+  'settled->archived':                 { guard: 'ArchiveWORMGuard',       worm: 'W3', financialGuard: true  },
+
+  // ── Transitions alternatives ──────────────────────────────
+  'performed->no_show':                { guard: 'NoShowGuard',            worm: null, financialGuard: false },
+  'proposed->withdrawn':               { guard: 'WithdrawalGuard',        worm: null, financialGuard: false },
+  'negotiating->withdrawn':            { guard: 'WithdrawalGuard',        worm: null, financialGuard: false },
+  'accepted->disputed':                { guard: 'DisputeGuard',           worm: null, financialGuard: false },
+  'event_sealed->disputed':            { guard: 'DisputeGuard',           worm: null, financialGuard: false },
 };
 
 // ── États WORM et leur niveau de sévérité ────────────────────
 // Source : OS V10 section 2.7 BLOC 2 V8
 const WORM_STATES = {
-  'settled':      'W3', // Architecturalement impossible à modifier
-  'archived':     'W3', // Architecturalement impossible à modifier
-  'event_sealed': 'W2', // Fraude — AdminIncidentRecord P0 + SYSTEM_HOLD
-  'accepted':     'W1', // Erreur corrigeable — log obligatoire
-  'deposit_secured': 'W1',
-  'event_completed': 'W1',
+  'settled':            'W3', // Architecturalement impossible à modifier
+  'archived':           'W3', // Architecturalement impossible à modifier
+  'event_sealed':       'W2', // Fraude — AdminIncidentRecord P0 + SYSTEM_HOLD
+  'accepted':           'W1', // Erreur corrigeable — log obligatoire
+  'deposit_secured':    'W1',
+  'event_completed':    'W1',
   'sots_window_closed': 'W1',
 };
 
@@ -87,8 +131,9 @@ async function transitionEngagement({
   const transitionKey = `${currentState}->${targetState}`;
 
   // ── GUARD 1 : WORMGuard ───────────────────────────────────
-  // Vérifié EN PREMIER — violation WORM plus grave que
-  // transition non autorisée. Source : OS V10 section 2.7
+  // Vérifié EN PREMIER — une violation WORM est plus grave
+  // qu'une transition non autorisée.
+  // Source : OS V10 section 2.7 BLOC 2 V8
   const wormLevel = WORM_STATES[currentState];
 
   if (wormLevel === 'W3') {
@@ -146,12 +191,15 @@ async function transitionEngagement({
   }
 
   // ── GUARD 4 : FinancialInvariantGuard ─────────────────────
+  // Actif uniquement sur les transitions financières.
+  // TODO: vérifier équilibre ledger — LOI LEDGER-02
   if (rule.financialGuard) {
-    // TODO: vérifier équilibre ledger avant transition financière
     console.log(`[FinancialInvariantGuard] "${transitionKey}" — vérification ledger à implémenter`);
   }
 
   // ── GUARD 5 : AuditLogger — TOUJOURS, sans exception ─────
+  // Source : OS V10 section 2.7.1 — "toujours, sans exception"
+  // TODO: repositories.audit?.writeToDataAccessLedger(auditEntry)
   const auditEntry = {
     engagementId,
     transition: transitionKey,
@@ -160,7 +208,6 @@ async function transitionEngagement({
     guardApplied: rule.guard,
     wormLevel: rule.worm || 'NONE',
   };
-  // TODO: repositories.audit?.writeToDataAccessLedger(auditEntry)
   console.log('[AuditLogger]', JSON.stringify(auditEntry));
 
   // ── Transition exécutée ───────────────────────────────────
@@ -176,74 +223,124 @@ async function transitionEngagement({
 }
 
 // ── Dispatcher des guards spécifiques ────────────────────────
+// Chaque guard est dans son propre fichier — séparation stricte.
+// Ajouter un guard = créer le fichier + ajouter le case ici.
 async function runSpecificGuard({
   guardName, engagementId, currentState,
   targetState, actor, context, repositories
 }) {
   switch (guardName) {
 
+    // ── Guards implémentés ──────────────────────────────────
+
     case 'MissionConversionGuard':
+      // Couvre : proposed→accepted, proposed→negotiating, negotiating→accepted
+      // Source : OS V10 section 2.7.1
       return await MissionConversionGuard.validate({
         engagementId,
+        currentState,
+        targetState,
         actor,
         context,
         repositories,
       });
 
     case 'PlacementGuard':
-      // TODO: EventPaymentRecord, lineup verrouillé, prix calculé
-      console.log(`[PlacementGuard] placement — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      // Couvre : accepted→placed
+      // Vérifie : ContractSnapshot phase 1 existe, lineup cohérent, event existe
+      // NE touche PAS à l'argent — financialGuard: false
+      // Source : OS V10 section 2.7.1
+      return await PlacementGuard.validate({
+        engagementId,
+        currentState,
+        targetState,
+        actor,
+        context,
+        repositories,
+      });
+
+    case 'EventPaymentGuard':
+      // Couvre : placed→deposit_pending, deposit_pending→deposit_secured,
+      //          deposit_secured→balance_pending
+      // Touche à l'argent — financialGuard: true
+      // Source : OS V10 section 2.7.1
+      return await EventPaymentGuard.validate({
+        engagementId,
+        currentState,
+        targetState,
+        actor,
+        context,
+        repositories,
+      });
+
+    // ── Guards à implémenter ────────────────────────────────
 
     case 'SealingGuard':
-      // TODO: LOI LEDGER-02 avant scellement
-      console.log(`[SealingGuard] event_sealed — à implémenter`);
+      // Couvre : balance_pending→event_sealed
+      // TODO: LOI LEDGER-02 avant scellement, ContractSnapshot phase 2
+      console.log(`[SealingGuard] balance_pending→event_sealed — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'PresenceWindowGuard':
-      // TODO: ouvrir fenêtre check-in
-      console.log(`[PresenceWindowGuard] ouverture fenêtre — à implémenter`);
+      // Couvre : event_sealed→performed
+      // TODO: ouvrir fenêtre check-in, créer SessionPresence
+      console.log(`[PresenceWindowGuard] ouverture fenêtre check-in — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'PresenceProofGuard':
+      // Couvre : performed→payable
       // TODO: SessionPresence.checkedInAt != null — LOI CO-DÉPENDANCE-01
-      console.log(`[PresenceProofGuard] vérification présence — à implémenter`);
+      // TODO: Condition 7 — SOTSSubmission talent soumise
+      console.log(`[PresenceProofGuard] vérification présence et SOTS — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'EventCompletionGuard':
-      // TODO: tous talents performed, no-show résolu
-      console.log(`[EventCompletionGuard] complétion — à implémenter`);
+      // Couvre : performed→event_completed
+      // TODO: tous talents en performed, no-show résolu
+      console.log(`[EventCompletionGuard] complétion event — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'SOTSWindowGuard':
+      // Couvre : event_completed→sots_window_closed
       // TODO: fermer fenêtre SOTS 24h après event_completed
-      console.log(`[SOTSWindowGuard] fermeture SOTS — à implémenter`);
+      console.log(`[SOTSWindowGuard] fermeture fenêtre SOTS — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'LedgerInvariantGuard':
-      // TODO: KYCStatus=VERIFIED, ledger équilibré
+      // Couvre : payable→settled
+      // TODO: KYCStatus=VERIFIED, ledger équilibré, LOI LEDGER-02
       console.log(`[LedgerInvariantGuard] invariant ledger — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'ArchiveWORMGuard':
-      // TODO: GoNoGoDecisionRecord=GO, BugReplayRecords P0=PASSED
-      console.log(`[ArchiveWORMGuard] archive finale — à implémenter`);
+      // Couvre : settled→archived
+      // TODO: GoNoGoDecisionRecord=GO, BugReplayRecords P0=PASSED, SOTS closed
+      console.log(`[ArchiveWORMGuard] archive finale WORM — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'NoShowGuard':
+      // Couvre : performed→no_show
+      // TODO: délai de grâce expiré, logique no-show
       console.log(`[NoShowGuard] no-show — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'WithdrawalGuard':
-      console.log(`[WithdrawalGuard] retrait — à implémenter`);
+      // Couvre : proposed→withdrawn, negotiating→withdrawn
+      // TODO: avant accord, aucune conséquence réputationnelle
+      console.log(`[WithdrawalGuard] retrait avant accord — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'DisputeGuard':
+      // Couvre : accepted→disputed, event_sealed→disputed
+      // TODO: logique de dispute, ConflictOfInterestRecord si isSelfOrganized
       console.log(`[DisputeGuard] dispute — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     default:
-      throw new Error(`GUARD_UNKNOWN: Guard "${guardName}" non reconnu`);
+      throw new Error(
+        `GUARD_UNKNOWN: Guard "${guardName}" non reconnu dans le dispatcher. ` +
+        `Créer le fichier src/core/guards/${guardName}.js et l'ajouter ici.`
+      );
   }
 }
 
