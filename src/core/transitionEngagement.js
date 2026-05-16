@@ -20,6 +20,7 @@
  */
 
 'use strict';
+const MissionConversionGuard = require('./guards/MissionConversionGuard');
 
 // ── Table souveraine des transitions autorisées ──────────────
 // Source : OS V10 section 2.7.1
@@ -182,9 +183,12 @@ async function runSpecificGuard({
   switch (guardName) {
 
     case 'MissionConversionGuard':
-      // TODO: ContractSnapshot phase 1, lineup cohérent, signatures
-      console.log(`[MissionConversionGuard] proposed->accepted — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await MissionConversionGuard.validate({
+        engagementId,
+        actor,
+        context,
+        repositories,
+      });
 
     case 'PlacementGuard':
       // TODO: EventPaymentRecord, lineup verrouillé, prix calculé
