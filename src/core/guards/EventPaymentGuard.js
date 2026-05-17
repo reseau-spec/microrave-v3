@@ -4,28 +4,32 @@
  * Guard spécifique aux transitions financières de paiement :
  *   - placed → deposit_pending       (calcul dépôt 20%)
  *   - deposit_pending → deposit_secured (confirmation Stripe)
- *   - deposit_secured → balance_pending (ouverture solde J-7)
  *
  * Source : OS V10 section 2.7.1
+ *
+ * NOTE SUR LA GRANULARITÉ :
+ *   La version précédente couvrait deposit_secured→balance_pending.
+ *   L'OS V10 table 2.7.1 définit deposit_pending→event_sealed directement
+ *   via SealingGuard. La granularité "balance_pending" n'est pas dans
+ *   l'OS souverain. Ce guard couvre donc uniquement les deux transitions
+ *   de paiement avant le scellement.
+ *   Le SealingGuard couvrira deposit_pending→event_sealed.
  *
  * CONTRAT D'INTERFACE — totalCents :
  *   totalCents = prix_vendu_client TTC
  *   = prix_vendu_HT + TPS + TVQ + frais_Stripe
  *   C'est le montant réel encaissé sur la carte du client.
  *   Source : OS V10 section 3.3 LOI WATERFALL-01
- *   NE PAS confondre avec cachetBrutCents (montant HT du talent).
- *
- * Standard numérique invariant :
- *   - Tous les montants en centimes entiers (jamais float)
- *   - Taux en ppm (jamais float)
- *   - deposit = floor(totalCents * depositRatioPpm / 1_000_000)
- *   Source : OS V10 section 3.2
  *
  * TOLÉRANCE STRIPE (deposit_pending→deposit_secured) :
- *   Stripe peut arrondir de ±2 centimes selon la devise et le réseau.
- *   La comparaison tolère un écart ≤ 2 centimes avec log d'avertissement.
- *   Un écart > 2 centimes déclenche DEPOSIT_AMOUNT_MISMATCH bloquant.
- *   Source : comportement documenté de l'API Stripe Connect CAD.
+ *   Stripe peut arrondir de ±2 centimes.
+ *   Écart ≤ 2 centimes : accepté avec avertissement.
+ *   Écart > 2 centimes : DEPOSIT_AMOUNT_MISMATCH bloquant.
+ *
+ * Standard numérique invariant :
+ *   - Montants en centimes entiers (jamais float)
+ *   - Taux en ppm (jamais float)
+ *   Source : OS V10 section 3.2
  * ============================================================
  */
 
@@ -36,7 +40,6 @@ const STRIPE_TOLERANCE_CENTS = 2;
 const COVERED_TRANSITIONS = new Set([
   'placed->deposit_pending',
   'deposit_pending->deposit_secured',
-  'deposit_secured->balance_pending',
 ]);
 
 async function validate({
@@ -63,8 +66,6 @@ async function validate({
       return validateDepositCreation({ engagementId, actor, context });
     case 'deposit_pending->deposit_secured':
       return validateDepositConfirmation({ engagementId, actor, context });
-    case 'deposit_secured->balance_pending':
-      return validateBalanceOpening({ engagementId, actor, context });
     default:
       return { passed: false, reason: `GUARD_UNKNOWN_TRANSITION: "${transitionKey}"` };
   }
@@ -72,11 +73,12 @@ async function validate({
 
 // ── placed → deposit_pending ──────────────────────────────────
 // totalCents = prix_vendu_client TTC (TPS + TVQ + frais Stripe inclus)
+// Source : OS V10 section 3.3 LOI WATERFALL-01
 function validateDepositCreation({ engagementId, actor, context }) {
   const {
     eventId,
     contractSnapshotId,
-    totalCents,       // ATTENTION : TTC incluant TPS + TVQ + frais Stripe
+    totalCents,
     depositRatioPpm,
     eventPaymentCapCents,
   } = context;
@@ -115,8 +117,8 @@ function validateDepositCreation({ engagementId, actor, context }) {
   if (totalCents > eventPaymentCapCents) {
     return {
       passed: false,
-      reason: `PAYMENT_CAP_EXCEEDED: Total ${totalCents} centimes dépasse le plafond MVP ` +
-              `de ${eventPaymentCapCents} centimes. SoloFounderOverride requis. ` +
+      reason: `PAYMENT_CAP_EXCEEDED: Total ${totalCents} centimes > plafond MVP ` +
+              `${eventPaymentCapCents} centimes. SoloFounderOverride requis. ` +
               `Source : OS V10 section 9.6.`,
     };
   }
@@ -124,13 +126,13 @@ function validateDepositCreation({ engagementId, actor, context }) {
   if (!Number.isInteger(depositRatioPpm) || depositRatioPpm <= 0 || depositRatioPpm > 1_000_000) {
     return {
       passed: false,
-      reason: `INVALID_DEPOSIT_RATIO: depositRatioPpm doit être un entier entre 1 et 1 000 000. ` +
+      reason: `INVALID_DEPOSIT_RATIO: depositRatioPpm entier entre 1 et 1 000 000. ` +
               `Reçu : ${depositRatioPpm}. Provient de getConfig("deposit_ratio_ppm").`,
     };
   }
 
-  const depositCents     = Math.floor(totalCents * depositRatioPpm / 1_000_000);
-  const balanceDueCents  = totalCents - depositCents;
+  const depositCents    = Math.floor(totalCents * depositRatioPpm / 1_000_000);
+  const balanceDueCents = totalCents - depositCents;
 
   if (depositCents <= 0) {
     return {
@@ -148,7 +150,7 @@ function validateDepositCreation({ engagementId, actor, context }) {
 }
 
 // ── deposit_pending → deposit_secured ────────────────────────
-// Tolérance Stripe : ±2 centimes acceptés avec avertissement
+// Tolérance Stripe ±2 centimes
 function validateDepositConfirmation({ engagementId, actor, context }) {
   const {
     stripePaymentIntentId,
@@ -159,21 +161,21 @@ function validateDepositConfirmation({ engagementId, actor, context }) {
   if (!stripePaymentIntentId) {
     return {
       passed: false,
-      reason: 'MISSING_STRIPE_INTENT: stripePaymentIntentId obligatoire (provient du webhook Stripe validé).',
+      reason: 'MISSING_STRIPE_INTENT: stripePaymentIntentId obligatoire (webhook Stripe validé).',
     };
   }
 
   if (!Number.isInteger(confirmedAmountCents) || confirmedAmountCents <= 0) {
     return {
       passed: false,
-      reason: `INVALID_CONFIRMED_AMOUNT: confirmedAmountCents doit être un entier positif. Reçu : ${confirmedAmountCents}.`,
+      reason: `INVALID_CONFIRMED_AMOUNT: confirmedAmountCents entier positif. Reçu : ${confirmedAmountCents}.`,
     };
   }
 
   if (!Number.isInteger(expectedDepositCents) || expectedDepositCents <= 0) {
     return {
       passed: false,
-      reason: `INVALID_EXPECTED_DEPOSIT: expectedDepositCents doit être un entier positif. Reçu : ${expectedDepositCents}.`,
+      reason: `INVALID_EXPECTED_DEPOSIT: expectedDepositCents entier positif. Reçu : ${expectedDepositCents}.`,
     };
   }
 
@@ -184,56 +186,21 @@ function validateDepositConfirmation({ engagementId, actor, context }) {
       passed: false,
       reason: `DEPOSIT_AMOUNT_MISMATCH: Montant confirmé (${confirmedAmountCents}) ` +
               `vs attendu (${expectedDepositCents}) — écart ${ecart} centimes ` +
-              `dépasse la tolérance Stripe de ${STRIPE_TOLERANCE_CENTS} centimes. ` +
-              `Vérifier manuellement et déclencher AdminIncidentRecord.`,
+              `dépasse la tolérance de ${STRIPE_TOLERANCE_CENTS} centimes. ` +
+              `Vérifier manuellement — AdminIncidentRecord recommandé.`,
     };
   }
 
   if (ecart > 0) {
-    // Tolérance acceptée — log d'avertissement
     console.warn(
       `[EventPaymentGuard] Arrondi Stripe accepté : confirmé=${confirmedAmountCents}, ` +
-      `attendu=${expectedDepositCents}, écart=${ecart} centime(s). ` +
-      `EngagementId: ${engagementId}`
+      `attendu=${expectedDepositCents}, écart=${ecart} centime(s). EngagementId: ${engagementId}`
     );
   }
 
   return {
     passed: true,
     audit: { stripePaymentIntentId, confirmedAmountCents, expectedDepositCents, ecart },
-  };
-}
-
-// ── deposit_secured → balance_pending ────────────────────────
-function validateBalanceOpening({ engagementId, actor, context }) {
-  const { contractSnapshotId, balanceDueCents } = context;
-
-  if (!contractSnapshotId || !contractSnapshotId.startsWith('CS1-')) {
-    return {
-      passed: false,
-      reason: 'MISSING_CONTRACT_SNAPSHOT: ContractSnapshot phase 1 (CS1-*) obligatoire pour balance_pending.',
-    };
-  }
-
-  if (!Number.isInteger(balanceDueCents) || balanceDueCents < 0) {
-    return {
-      passed: false,
-      reason: `INVALID_BALANCE: balanceDueCents doit être un entier positif ou nul. Reçu : ${balanceDueCents}.`,
-    };
-  }
-
-  if (balanceDueCents === 0) {
-    // Le dépôt couvrait 100% — cas rare mais valide
-    // SealingGuard devra gérer le scellement sans solde supplémentaire
-    console.warn(
-      `[EventPaymentGuard] balance_pending avec solde 0 — ` +
-      `le dépôt couvrait 100% du total. EngagementId: ${engagementId}`
-    );
-  }
-
-  return {
-    passed: true,
-    audit: { contractSnapshotId, balanceDueCents },
   };
 }
 
