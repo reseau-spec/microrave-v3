@@ -8,7 +8,7 @@
  *   4. Table souveraine V5 — conforme OS V10 section 2.7.1
  *
  * NOTE : deposit_secured→balance_pending retiré — non conforme OS V10.
- *        L'OS saute de deposit_pending directement à event_sealed via SealingGuard.
+ *   - deposit_secured et balance_pending restaurés (OS V10.1 section 2.7.1 patch)
  *
  * Source : OS V10 section 2.7.1 + 3.2 + 3.3
  * Pierre de Rosette : DJ Alex · Le Trèfle · 250$ TTC · 50$ dépôt
@@ -266,9 +266,9 @@ async function run() {
   // ════════════════════════════════════════════════════════
   console.log('\n── Table souveraine V5 (conforme OS V10) ────\n');
 
-  await test('deposit_pending→event_sealed dans la table (OS V10 direct)', async () => {
-    if (!TRANSITION_TABLE['deposit_pending->event_sealed'])
-      throw new Error('deposit_pending→event_sealed manquante — non conforme OS V10 table 2.7.1');
+  await test('deposit_pending→event_sealed absente (OS V10.1 patch — saut direct non conforme)', async () => {
+    if (TRANSITION_TABLE['deposit_pending->event_sealed'])
+      throw new Error('deposit_pending→event_sealed présente — le saut direct viole OS V10.1 section 2.7.1 patch');
   });
 
   await test('proposed→negotiating dans la table', async () => {
@@ -279,9 +279,13 @@ async function run() {
     if (!TRANSITION_TABLE['negotiating->accepted']) throw new Error('manquante');
   });
 
-  await test('balance_pending→event_sealed absent (non prescrit par OS V10)', async () => {
-    if (TRANSITION_TABLE['balance_pending->event_sealed'])
-      throw new Error('balance_pending→event_sealed présente — non conforme OS V10');
+  await test('balance_pending→event_sealed présente avec SealingGuard W2 (OS V10.1 patch)', async () => {
+    if (!TRANSITION_TABLE['balance_pending->event_sealed'])
+      throw new Error('balance_pending→event_sealed manquante — OS V10.1 section 2.7.1 patch');
+    if (TRANSITION_TABLE['balance_pending->event_sealed'].guard !== 'SealingGuard')
+      throw new Error('balance_pending→event_sealed doit utiliser SealingGuard');
+    if (TRANSITION_TABLE['balance_pending->event_sealed'].worm !== 'W2')
+      throw new Error('balance_pending→event_sealed doit être WORM W2 (Moment 3 — Fraude)');
   });
 
   await test('disputed→payable utilise DisputeResolutionGuard', async () => {
