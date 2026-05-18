@@ -1,189 +1,180 @@
 /**
- * MICRO RAVE V3 — PolicyConfigAdapter (Base44 V3)
+ * MICRO RAVE V3 — PolicyConfigAdapter (Base44)
  * ============================================================
- * Couche d'adaptation entre PolicyConfigRepository et Base44 V3.
+ * Couche d'adaptation entre PolicyConfigRepository et Base44.
  *
- * RÈGLE ABSOLUE :
- * Ce fichier est le SEUL endroit où Base44 est mentionné
- * pour la config. La logique métier ne connaît pas Base44.
+ * URL réelle  : https://futuristic-rave-core-flow.base44.app
+ * App ID      : 6a09b5c6ace6051fecd365ae
+ * Fonction    : /functions/getPolicyConfig
  *
- * PORTABILITÉ :
- * Si Micro Rave migre vers PostgreSQL, remplacer ce fichier.
- * PolicyConfigRepository.js ne change pas.
- * policy-config-resolver.js ne change pas.
+ * HISTORIQUE DES CORRECTIONS :
+ *   V11a — URL corrigée : app_id brut → slug futuristic-rave-core-flow
+ *           Résultat : 404 "App not found" → 500 "You must be logged in"
+ *   V11b — Auth ajoutée : BASE44_ACCESS_TOKEN injecté dans Authorization header
+ *           createClientFromRequest() lit ce header pour authentifier la requête.
  *
- * AUTH :
- * api_key depuis process.env.BASE44_V3_API_KEY — jamais hardcodée.
- * Source : .env (non versionné dans GitHub)
+ * VARIABLES .ENV REQUISES pour le test 5 :
+ *   DATABASE_URL=https://futuristic-rave-core-flow.base44.app
+ *   BASE44_ACCESS_TOKEN=<token JWT de l'utilisateur Base44>
  *
- * Source : OS V10 section 11.1 — couche portable
+ * Pour obtenir le token : Base44 → ton app → Settings → API / Access Token
+ *
+ * À REMPLACER si Micro Rave migre vers PostgreSQL.
+ * L'interface PolicyConfigRepository ne change pas.
  * ============================================================
  */
 
-'use strict';
-
-const BASE44_V3_APP_ID  = '6a09b5c6ace6051fecd365ae';
-const BASE44_V3_BASE_URL = 'https://app.base44.com/api';
+const BASE44_APP_SLUG  = 'futuristic-rave-core-flow';
+const BASE44_BASE_URL  = `https://${BASE44_APP_SLUG}.base44.app`;
+const FUNCTION_URL     = `${BASE44_BASE_URL}/functions/getPolicyConfig`;
 
 /**
- * Cherche une config par clé dans Base44 V3.
- * Retourne l'objet record ou null si absent.
+ * Construit les headers d'authentification Base44.
+ * createClientFromRequest() lit le header Authorization: Bearer <token>
+ */
+function buildHeaders() {
+  const token = process.env.BASE44_ACCESS_TOKEN;
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+/**
+ * Vérifie si l'adapter est configuré pour appeler Base44.
+ * Requiert DATABASE_URL ET BASE44_ACCESS_TOKEN.
+ * Sans l'un ou l'autre → mode dégradé, skip du test 5.
+ */
+function isConnected() {
+  const url   = process.env.DATABASE_URL;
+  const token = process.env.BASE44_ACCESS_TOKEN;
+  const urlOk   = url   && url   !== 'REMPLACER_PAR_URL_BASE44';
+  const tokenOk = token && token !== 'REMPLACER_PAR_TOKEN_BASE44';
+  return urlOk && tokenOk;
+}
+
+/**
+ * Retourne ce qui manque dans .env pour une connexion complète.
+ * Utilisé par le test 5 pour afficher un message de skip précis.
+ */
+function getMissingConfig() {
+  const missing = [];
+  const url   = process.env.DATABASE_URL;
+  const token = process.env.BASE44_ACCESS_TOKEN;
+  if (!url   || url   === 'REMPLACER_PAR_URL_BASE44')   missing.push('DATABASE_URL');
+  if (!token || token === 'REMPLACER_PAR_TOKEN_BASE44') missing.push('BASE44_ACCESS_TOKEN');
+  return missing;
+}
+
+/**
+ * Trouve une config PolicyConfig par sa clé.
+ * Appelle la fonction Base44 getPolicyConfig avec auth.
  *
  * @param {string} key
- * @returns {Promise<{key, value, value_type, category, description} | null>}
+ * @returns {Promise<{key, value, value_type, category, description}|null>}
  */
 async function findByKey(key) {
-  const apiKey = process.env.BASE44_V3_API_KEY;
-
-  if (!apiKey) {
-    console.error(
-      '[PolicyConfigAdapter] BASE44_V3_API_KEY absent de process.env. ' +
-      'Vérifier le fichier .env à la racine du projet.'
+  if (!isConnected()) {
+    console.warn(
+      `[PolicyConfigAdapter] Mode dégradé pour "${key}". ` +
+      `Manquant dans .env : ${getMissingConfig().join(', ')}`
     );
     return null;
   }
 
+  let response;
   try {
-    const url = `${BASE44_V3_BASE_URL}/apps/${BASE44_V3_APP_ID}/entities/PolicyConfig` +
-                `?q=${encodeURIComponent(JSON.stringify({ key }))}` +
-                `&limit=1`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'api_key':      apiKey,
-        'Content-Type': 'application/json',
-      },
+    response = await fetch(FUNCTION_URL, {
+      method:  'POST',
+      headers: buildHeaders(),
+      body:    JSON.stringify({ key }),
     });
-
-    if (!response.ok) {
-      const body = await response.text();
-      console.error(
-        `[PolicyConfigAdapter] Erreur HTTP ${response.status} pour clé "${key}": ${body}`
-      );
-      return null;
-    }
-
-    const records = await response.json();
-
-    // Base44 retourne un tableau
-    if (!Array.isArray(records) || records.length === 0) {
-      return null;
-    }
-
-    const record = records[0];
-
-    // Normaliser value_type vers les types attendus par PolicyConfigResolver
-    // Base44 V3 a ses propres enums — on mappe vers les nôtres
-    return {
-      key:        record.key,
-      value:      record.value,
-      value_type: normalizeValueType(record.value_type),
-      category:   record.category,
-      description: record.description,
-    };
-
   } catch (err) {
-    console.error(`[PolicyConfigAdapter] Erreur réseau pour clé "${key}":`, err.message);
+    console.error(`[PolicyConfigAdapter] Erreur réseau pour clé "${key}": ${err.message}`);
     return null;
   }
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    console.error(
+      `[PolicyConfigAdapter] Erreur HTTP ${response.status} pour clé "${key}": ${body}`
+    );
+    return null;
+  }
+
+  const json = await response.json();
+  // La fonction getPolicyConfig retourne { data: record | null }
+  return json.data || null;
 }
 
 /**
- * Crée une config dans Base44 V3.
- * Utilisé par le script de seed.
- *
- * @param {{key, value, value_type, category, description}} config
- * @returns {Promise<object | null>}
+ * Crée ou met à jour une config PolicyConfig.
+ * @param {object} data - { key, value, value_type, category, description }
  */
-async function create(config) {
-  const apiKey = process.env.BASE44_V3_API_KEY;
-
-  if (!apiKey) {
-    console.error('[PolicyConfigAdapter] BASE44_V3_API_KEY absent.');
+async function upsert(data) {
+  if (!isConnected()) {
+    console.warn(`[PolicyConfigAdapter] upsert() — ${getMissingConfig().join(', ')} manquant.`);
     return null;
   }
 
+  const existing = await findByKey(data.key);
+  const url = existing
+    ? `${BASE44_BASE_URL}/api/entities/PolicyConfig/${existing.id}`
+    : `${BASE44_BASE_URL}/api/entities/PolicyConfig`;
+
+  let response;
   try {
-    const url = `${BASE44_V3_BASE_URL}/apps/${BASE44_V3_APP_ID}/entities/PolicyConfig`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'api_key':      apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(config),
+    response = await fetch(url, {
+      method:  existing ? 'PUT' : 'POST',
+      headers: buildHeaders(),
+      body:    JSON.stringify(data),
     });
-
-    if (!response.ok) {
-      const body = await response.text();
-      console.error(`[PolicyConfigAdapter] Erreur création "${config.key}": ${body}`);
-      return null;
-    }
-
-    return await response.json();
-
   } catch (err) {
-    console.error(`[PolicyConfigAdapter] Erreur réseau création "${config.key}":`, err.message);
+    console.error(`[PolicyConfigAdapter] Erreur réseau upsert "${data.key}": ${err.message}`);
     return null;
   }
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    console.error(`[PolicyConfigAdapter] Erreur HTTP ${response.status} upsert "${data.key}": ${body}`);
+    return null;
+  }
+
+  return response.json();
 }
 
 /**
- * Liste toutes les configs (pour validateCriticalConfigs).
- *
- * @returns {Promise<Array>}
+ * Liste toutes les configs d'une catégorie.
+ * @param {string} category
  */
-async function listAll() {
-  const apiKey = process.env.BASE44_V3_API_KEY;
-
-  if (!apiKey) return [];
-
-  try {
-    const url = `${BASE44_V3_BASE_URL}/apps/${BASE44_V3_APP_ID}/entities/PolicyConfig?limit=100`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'api_key':      apiKey,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) return [];
-
-    const records = await response.json();
-    return Array.isArray(records) ? records : [];
-
-  } catch (err) {
-    console.error('[PolicyConfigAdapter] Erreur listAll:', err.message);
+async function findByCategory(category) {
+  if (!isConnected()) {
+    console.warn(`[PolicyConfigAdapter] findByCategory — ${getMissingConfig().join(', ')} manquant.`);
     return [];
   }
+
+  const url = `${BASE44_BASE_URL}/api/entities/PolicyConfig?category=${encodeURIComponent(category)}`;
+
+  let response;
+  try {
+    response = await fetch(url, {
+      method:  'GET',
+      headers: buildHeaders(),
+    });
+  } catch (err) {
+    console.error(`[PolicyConfigAdapter] Erreur réseau findByCategory: ${err.message}`);
+    return [];
+  }
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    console.error(`[PolicyConfigAdapter] Erreur HTTP ${response.status} findByCategory: ${body}`);
+    return [];
+  }
+
+  const json = await response.json();
+  return Array.isArray(json) ? json : (json.data || []);
 }
 
-/**
- * Mappe les value_type Base44 vers ceux attendus par PolicyConfigResolver.
- * Base44 génère ses propres enums — on normalise ici.
- *
- * PolicyConfigResolver attend : CENTS, PPM, BOOLEAN, STRING, ENUM
- * Base44 V3 stocke : la valeur telle qu'on l'insère dans le seed
- */
-function normalizeValueType(rawType) {
-  if (!rawType) return 'STRING';
-  const upper = rawType.toUpperCase();
-  const map = {
-    'CENTS':   'CENTS',
-    'PPM':     'PPM',
-    'BOOLEAN': 'BOOLEAN',
-    'STRING':  'STRING',
-    'ENUM':    'ENUM',
-    // Fallbacks si Base44 transforme
-    'NUMBER':  'CENTS',
-    'JSON':    'STRING',
-    'URL':     'STRING',
-  };
-  return map[upper] || 'STRING';
-}
-
-module.exports = { findByKey, create, listAll };
+module.exports = { findByKey, upsert, findByCategory, isConnected, getMissingConfig };

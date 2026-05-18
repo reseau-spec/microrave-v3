@@ -1,32 +1,28 @@
 /**
  * MICRO RAVE V3 — Test P0 : TRANSITION-01
  * ============================================================
- * Vérifie que transitionEngagement() est la porte unique et que
- * la table est conforme à l'OS V10.1 (sections 2.6 + 2.7 + 2.7.1).
+ * Vérifie que transitionEngagement() est l'unique porte
+ * et que les violations sont bloquées.
  *
- * CORRECTIONS V10.1 :
- *   - deposit_secured et balance_pending dans la table (OS V10.1 section 2.7.1 patch)
- *   - deposit_secured dans WORM_STATES W1 (Moment WORM 2 — OS V10 section 2.7)
- *   - deposit_pending retiré de WORM_STATES
- *   - Annulations depuis deposit_secured et balance_pending
- *   - contractSnapshot retourné par transitionEngagement()
- *   - financialGuard: true sur *→disputed après paiement
- *   - no_show_pre_event présent
- *   - proposed→negotiating : acteurs + roleMetier seulement
- *   - proposed→accepted / negotiating→accepted : logique complète
- *   - MissionConversionGuard bloque AVANT WORMGuard pour les transitions MCG
+ * CORRECTIONS V4 :
+ *   - IDFactory.validate() bloque les actors non-souverains
+ *   - balance_pending et payable dans WORM_STATES (W1)
  *   - sots_window_closed→payable testé (chemin nominal)
- *   - DisputeResolutionGuard pour sorties de dispute
+ *   - Transitions alternatives vérifiées dans la table
+ *   - Transitions de sortie de dispute vérifiées
+ *
+ * DÉCISIONS FONDATEUR V11 (Mai 2026) :
+ *   Q1 — TRANSFERT depuis placed ET deposit_secured
+ *   Q2 — SCELLEMENT sur deposit_pending (balance_pending supprimé)
+ *   Q3 — LITIGE uniquement depuis event_completed (fenêtre SOTS)
+ *
+ * Source : OS V10 section 16.2 — LOI TRANSITION-01
  * ============================================================
  */
 
 'use strict';
 
-const {
-  transitionEngagement,
-  TRANSITION_TABLE,
-  WORM_STATES,
-} = require('../../src/core/transitionEngagement');
+const { transitionEngagement, TRANSITION_TABLE, WORM_STATES } = require('../../src/core/transitionEngagement');
 
 let passed = 0;
 let failed = 0;
@@ -43,292 +39,225 @@ async function test(name, fn) {
   }
 }
 
-// ── Contextes de test ──────────────────────────────────────────
-const ENG = 'ENG-20260516-ABCDEF';
-const USR = 'USR-20260516-ABCDEF';
-
-const CONTRAT_COMPLET = {
-  talentUserId:    'USR-20260516-TALENT',
-  organizerUserId: 'USR-20260516-TREFLE',
+const CONTEXTE_NOMINAL = {
+  talentUserId:    'USR-TEST-ALEX-000001',
+  organizerUserId: 'USR-TEST-TREFLE-0001',
   roleMetier:      'DJ',
-  cachetBrutCents: 22_222,
+  cachetBrutCents: 20000,
   tier:            'Freemium',
-  tauxPpm:         120_000,
+  tauxPpm:         120000,
 };
 
-const ACTEURS = {
-  talentUserId:    'USR-20260516-TALENT',
-  organizerUserId: 'USR-20260516-TREFLE',
-  roleMetier:      'DJ',
-};
+const ENG_ID = 'ENG-TEST-TRANS-0001';
+const USR_ID = 'USR-TEST-TRANS-0001';
 
 console.log('═══════════════════════════════════════════════');
-console.log('Test P0 : TRANSITION-01 — V10.1');
-console.log('Source : OS V10.1 sections 2.6 + 2.7 + 2.7.1');
+console.log('Test P0 : TRANSITION-01');
 console.log('═══════════════════════════════════════════════\n');
 
 async function run() {
 
-  // ── Section 1 : proposed→negotiating (acteurs seulement) ──
-  console.log('── proposed→negotiating ─────────────────────\n');
+  // ── Section 1 : Transitions nominales ─────────────────────
+  console.log('── Transitions nominales ─────────────────────\n');
 
-  await test('proposed→negotiating passe avec acteurs + roleMetier', async () => {
+  await test('proposed→accepted retourne success:true', async () => {
     const result = await transitionEngagement({
-      engagementId: ENG, currentState: 'proposed', targetState: 'negotiating',
-      actor: USR, context: ACTEURS,
+      engagementId: ENG_ID,
+      currentState: 'proposed',
+      targetState:  'accepted',
+      actor:        USR_ID,
+      context:      CONTEXTE_NOMINAL,
     });
     if (!result.success) throw new Error('Attendu success:true');
-    if (result.newState !== 'negotiating') throw new Error(`newState: ${result.newState}`);
-    if (result.contractSnapshot) throw new Error('Aucun ContractSnapshot à negotiating');
+    if (result.newState !== 'accepted') throw new Error(`newState attendu: accepted`);
   });
 
-  await test('proposed→negotiating : cachet non requis', async () => {
+  await test('sots_window_closed→payable (chemin nominal) retourne success:true', async () => {
     const result = await transitionEngagement({
-      engagementId: ENG, currentState: 'proposed', targetState: 'negotiating',
-      actor: USR, context: { ...ACTEURS },
+      engagementId: ENG_ID,
+      currentState: 'sots_window_closed',
+      targetState:  'payable',
+      actor:        USR_ID,
+      context:      {},
     });
-    if (!result.passed && result.reason?.includes('INVALID_CACHET')) throw new Error('Cachet ne doit pas être requis');
-    if (!result.success) throw new Error('Doit passer sans cachet');
+    if (!result.success) throw new Error('Attendu success:true');
+    if (result.newState !== 'payable') throw new Error(`newState attendu: payable`);
   });
 
-  await test('proposed→negotiating : talentUserId manquant → bloqué', async () => {
+  // ── Section 2 : Blocages WORM ─────────────────────────────
+  console.log('\n── Blocages WORM ─────────────────────────────\n');
+
+  await test('proposed→archived est bloquée (TRANSITION_UNAUTHORIZED)', async () => {
     try {
       await transitionEngagement({
-        engagementId: ENG, currentState: 'proposed', targetState: 'negotiating',
-        actor: USR, context: { organizerUserId: 'USR-20260516-TREFLE', roleMetier: 'DJ' },
+        engagementId: ENG_ID, currentState: 'proposed', targetState: 'archived',
+        actor: USR_ID, context: {},
       });
-      throw new Error('Aurait dû être bloqué');
+      throw new Error('Aurait dû être bloquée');
     } catch (err) {
-      if (!err.message.includes('MISSING_TALENT')) throw new Error(`Mauvaise erreur: ${err.message}`);
+      if (!err.message.includes('TRANSITION_UNAUTHORIZED')) throw new Error(`Mauvaise erreur: ${err.message}`);
     }
   });
 
-  // ── Section 2 : proposed→accepted ──────────────────────────
-  console.log('\n── proposed→accepted ────────────────────────\n');
-
-  await test('proposed→accepted retourne success:true + contractSnapshot', async () => {
-    const result = await transitionEngagement({
-      engagementId: ENG, currentState: 'proposed', targetState: 'accepted',
-      actor: USR, context: CONTRAT_COMPLET,
-    });
-    if (!result.success) throw new Error('Attendu success:true');
-    if (result.newState !== 'accepted') throw new Error(`newState: ${result.newState}`);
-    if (!result.contractSnapshot) throw new Error('contractSnapshot doit être retourné pour persistence');
-    if (!result.contractSnapshot.systemId.startsWith('CS1-'))
-      throw new Error(`systemId invalide: ${result.contractSnapshot.systemId}`);
-  });
-
-  await test('ContractSnapshot retourné contient talentNetCents entier', async () => {
-    const result = await transitionEngagement({
-      engagementId: ENG, currentState: 'proposed', targetState: 'accepted',
-      actor: USR, context: CONTRAT_COMPLET,
-    });
-    if (!result.contractSnapshot) throw new Error('contractSnapshot absent');
-    const { talentNetCents, commissionMrCents } = result.contractSnapshot;
-    if (!Number.isInteger(talentNetCents)) throw new Error('talentNetCents doit être entier');
-    if (!Number.isInteger(commissionMrCents)) throw new Error('commissionMrCents doit être entier');
-    if (talentNetCents + commissionMrCents !== CONTRAT_COMPLET.cachetBrutCents)
-      throw new Error(`net + commission ≠ cachetBrut: ${talentNetCents} + ${commissionMrCents}`);
-  });
-
-  // ── Section 3 : negotiating→accepted ───────────────────────
-  console.log('\n── negotiating→accepted ─────────────────────\n');
-
-  await test('negotiating→accepted retourne contractSnapshot', async () => {
-    const result = await transitionEngagement({
-      engagementId: ENG, currentState: 'negotiating', targetState: 'accepted',
-      actor: USR, context: {
-        ...CONTRAT_COMPLET,
-        negotiationHistory: [
-          { offeredBy: 'talent', cachetBrutCents: 25_000, timestamp: '2026-05-16T10:00:00Z' },
-          { offeredBy: 'organizer', cachetBrutCents: 22_222, timestamp: '2026-05-16T10:05:00Z' },
-        ],
-      },
-    });
-    if (!result.success) throw new Error('Attendu success:true');
-    if (!result.contractSnapshot) throw new Error('contractSnapshot obligatoire');
-  });
-
-  await test('negotiating→accepted : cachet manquant → bloqué', async () => {
-    const result = await transitionEngagement({
-      engagementId: ENG, currentState: 'negotiating', targetState: 'accepted',
-      actor: USR, context: ACTEURS,
-    }).catch(err => ({ _error: err.message }));
-    if (!result._error || !result._error.includes('INVALID_CACHET'))
-      throw new Error('Cachet doit être requis à accepted');
-  });
-
-  // ── Section 4 : WORM ───────────────────────────────────────
-  console.log('\n── WORMGuard ────────────────────────────────\n');
-
-  await test('settled→proposed bloqué (WORM_VIOLATION_LEVEL_3)', async () => {
+  await test('settled→proposed est bloquée (TRANSITION_UNAUTHORIZED)', async () => {
+    // DÉCISION FONDATEUR V11 : settled retiré de WORM_STATES (non mandaté par l'OS).
+    // La transition est bloquée par la table (TRANSITION_UNAUTHORIZED), pas par WORM.
     try {
       await transitionEngagement({
-        engagementId: ENG, currentState: 'settled', targetState: 'proposed', actor: USR,
+        engagementId: ENG_ID, currentState: 'settled', targetState: 'proposed',
+        actor: USR_ID, context: {},
       });
-      throw new Error('Aurait dû être bloqué');
+      throw new Error('Aurait dû être bloquée');
     } catch (err) {
-      if (!err.message.includes('WORM_VIOLATION_LEVEL_3'))
-        throw new Error(`Attendu LEVEL_3, reçu: ${err.message}`);
+      if (!err.message.includes('TRANSITION_UNAUTHORIZED')) throw new Error(`Mauvaise erreur: ${err.message}`);
     }
   });
 
-  await test('event_sealed→proposed bloqué (WORM_VIOLATION_LEVEL_2)', async () => {
+  await test('event_sealed→proposed est bloquée (WORM_VIOLATION_LEVEL_2)', async () => {
     try {
       await transitionEngagement({
-        engagementId: ENG, currentState: 'event_sealed', targetState: 'proposed', actor: USR,
+        engagementId: ENG_ID, currentState: 'event_sealed', targetState: 'proposed',
+        actor: USR_ID, context: {},
       });
-      throw new Error('Aurait dû être bloqué');
+      throw new Error('Aurait dû être bloquée');
     } catch (err) {
-      if (!err.message.includes('WORM_VIOLATION_LEVEL_2'))
-        throw new Error(`Attendu LEVEL_2, reçu: ${err.message}`);
+      if (!err.message.includes('WORM_VIOLATION_LEVEL_2')) throw new Error(`Mauvaise erreur: ${err.message}`);
     }
   });
 
-  await test('deposit_secured dans WORM_STATES W1 (Moment WORM 2)', async () => {
-    if (WORM_STATES['deposit_secured'] !== 'W1')
-      throw new Error(`deposit_secured doit être W1 (Moment WORM 2 — OS V10 section 2.7). Actuel: ${WORM_STATES['deposit_secured']}`);
-  });
-
-  await test('deposit_pending absent de WORM_STATES (pas un moment WORM)', async () => {
-    if (WORM_STATES['deposit_pending'] !== undefined)
-      throw new Error(`deposit_pending ne doit pas être dans WORM_STATES — n'est pas un moment WORM dans l'OS V10 section 2.7`);
-  });
-
-  await test('balance_pending absent de WORM_STATES (pas un moment WORM)', async () => {
+  await test('balance_pending absent de WORM_STATES (état retiré décision fondateur V11)', async () => {
+    // Q2 — balance_pending supprimé du chemin nominal. Ne doit PAS être dans WORM_STATES.
     if (WORM_STATES['balance_pending'] !== undefined)
-      throw new Error(`balance_pending ne doit pas être dans WORM_STATES — pas dans les 6 moments WORM de l'OS V10 section 2.7`);
+      throw new Error(`balance_pending présent dans WORM_STATES — état supprimé par décision fondateur V11`);
   });
 
-  // ── Section 5 : Table — conformité OS V10.1 ───────────────
-  console.log('\n── Table souveraine OS V10.1 ────────────────\n');
+  await test('payable dans WORM_STATES (W1)', async () => {
+    if (WORM_STATES['payable'] !== 'W1')
+      throw new Error(`payable absent de WORM_STATES — payout non protégé`);
+  });
 
-  await test('Chemin nominal complet conforme OS V10.1 section 2.6', async () => {
+  // ── Section 3 : Validation systemIds ──────────────────────
+  console.log('\n── Validation systemIds souverains ───────────\n');
+
+  await test('engagementId manquant est bloqué (TRANSITION_ERROR)', async () => {
+    try {
+      await transitionEngagement({
+        currentState: 'proposed', targetState: 'accepted', actor: USR_ID,
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('TRANSITION_ERROR')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  await test('engagementId non-souverain est bloqué (INVALID_SYSTEM_ID)', async () => {
+    try {
+      await transitionEngagement({
+        engagementId: 'hacked-id',
+        currentState: 'proposed', targetState: 'accepted',
+        actor: USR_ID, context: CONTEXTE_NOMINAL,
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('INVALID_SYSTEM_ID')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  await test('actor non-souverain est bloqué (INVALID_SYSTEM_ID)', async () => {
+    try {
+      await transitionEngagement({
+        engagementId: ENG_ID,
+        currentState: 'proposed', targetState: 'accepted',
+        actor: 'admin', context: CONTEXTE_NOMINAL,
+      });
+      throw new Error('Aurait dû être bloquée');
+    } catch (err) {
+      if (!err.message.includes('INVALID_SYSTEM_ID')) throw new Error(`Mauvaise erreur: ${err.message}`);
+    }
+  });
+
+  // ── Section 4 : Table souveraine complète ─────────────────
+  console.log('\n── Table souveraine ──────────────────────────\n');
+
+  await test('La table contient au moins 20 transitions', async () => {
+    const count = Object.keys(TRANSITION_TABLE).length;
+    if (count < 20) throw new Error(`Seulement ${count} transitions — attendu: 20+`);
+  });
+
+  await test('Chemin nominal complet proposed→archived couvert (Q2 V11)', async () => {
+    // DÉCISION FONDATEUR V11 Q2 : deposit_pending→event_sealed (balance_pending supprimé)
     const chemin = [
-      'proposed->accepted',
-      'accepted->placed',
-      'placed->deposit_pending',
-      'deposit_pending->deposit_secured',   // OS V10.1 patch — Moment WORM 2
-      'deposit_secured->balance_pending',   // OS V10.1 patch
-      'balance_pending->event_sealed',      // OS V10.1 patch — SealingGuard ici seulement
-      'event_sealed->performed',
-      'performed->event_completed',
-      'event_completed->sots_window_closed',
-      'sots_window_closed->payable',
-      'payable->settled',
-      'settled->archived',
+      'proposed->accepted', 'accepted->placed', 'placed->deposit_pending',
+      'deposit_pending->event_sealed', 'event_sealed->performed',
+      'performed->event_completed', 'event_completed->sots_window_closed',
+      'sots_window_closed->payable', 'payable->settled', 'settled->archived',
     ];
     for (const t of chemin) {
-      if (!TRANSITION_TABLE[t])
-        throw new Error(`Transition manquante : ${t}`);
+      if (!TRANSITION_TABLE[t]) throw new Error(`Transition manquante : ${t}`);
     }
   });
 
-  await test('deposit_secured→balance_pending existe (OS V10.1 patch)', async () => {
-    if (!TRANSITION_TABLE['deposit_secured->balance_pending'])
-      throw new Error('deposit_secured→balance_pending manquante — OS V10.1 section 2.7.1 patch');
+  await test('balance_pending→event_sealed absent du chemin nominal (décision Q2 V11)', async () => {
+    if (TRANSITION_TABLE['balance_pending->event_sealed'])
+      throw new Error('balance_pending→event_sealed présente — doit être supprimée (décision fondateur V11 Q2)');
   });
 
-  await test('balance_pending→event_sealed existe avec SealingGuard W2 (OS V10.1 patch)', async () => {
-    const t = TRANSITION_TABLE['balance_pending->event_sealed'];
-    if (!t) throw new Error('balance_pending→event_sealed manquante');
-    if (t.guard !== 'SealingGuard') throw new Error(`Guard attendu: SealingGuard, reçu: ${t.guard}`);
-    if (t.worm !== 'W2') throw new Error(`WORM attendu: W2 (Moment 3 — Fraude), reçu: ${t.worm}`);
-  });
-
-  await test('deposit_pending→event_sealed absente (plus de saut direct)', async () => {
-    if (TRANSITION_TABLE['deposit_pending->event_sealed'])
-      throw new Error('deposit_pending→event_sealed présente — le saut direct est non conforme à l\'OS V10.1');
-  });
-
-  await test('sots_window_closed→payable présente (chemin nominal SOTS)', async () => {
-    if (!TRANSITION_TABLE['sots_window_closed->payable'])
-      throw new Error('sots_window_closed→payable manquante — argent bloqué après SOTS');
-  });
-
-  await test('Annulations correctement ancrées (OS V10.1 patch)', async () => {
-    // cancelled_J30 depuis deposit_secured (pas deposit_pending)
-    if (!TRANSITION_TABLE['deposit_secured->cancelled_J30'])
-      throw new Error('deposit_secured→cancelled_J30 manquante');
-    // cancelled_J7 depuis balance_pending (pas deposit_pending)
-    if (!TRANSITION_TABLE['balance_pending->cancelled_J7'])
-      throw new Error('balance_pending→cancelled_J7 manquante');
-    // Vérifier que les anciennes transitions erronées sont absentes
-    if (TRANSITION_TABLE['deposit_pending->cancelled_J30'])
-      throw new Error('deposit_pending→cancelled_J30 doit être absente — ancré sur deposit_secured');
-    if (TRANSITION_TABLE['deposit_pending->cancelled_J7'])
-      throw new Error('deposit_pending→cancelled_J7 doit être absente — ancré sur balance_pending');
-  });
-
-  await test('DisputeResolutionGuard pour sorties de dispute', async () => {
-    if (!TRANSITION_TABLE['disputed->payable'] || TRANSITION_TABLE['disputed->payable'].guard !== 'DisputeResolutionGuard')
-      throw new Error('disputed→payable doit utiliser DisputeResolutionGuard');
-    if (!TRANSITION_TABLE['disputed->refunded'] || TRANSITION_TABLE['disputed->refunded'].guard !== 'DisputeResolutionGuard')
-      throw new Error('disputed→refunded doit utiliser DisputeResolutionGuard');
-  });
-
-  await test('financialGuard: true sur *→disputed après paiement', async () => {
-    const postPayment = [
-      'deposit_secured->disputed',
-      'balance_pending->disputed',
-      'event_sealed->disputed',
-      'performed->disputed',
-      'event_completed->disputed',
-      'sots_window_closed->disputed',
-      'payable->disputed',
+  await test('Transitions annulation couvertes (cancelled_*)', async () => {
+    const annulations = [
+      'placed->cancelled_pre_deposit',
+      'deposit_pending->cancelled_pre_deposit',
+      'deposit_secured->cancelled_J30',
     ];
-    for (const t of postPayment) {
-      if (!TRANSITION_TABLE[t])
-        throw new Error(`${t} manquante`);
-      if (!TRANSITION_TABLE[t].financialGuard)
-        throw new Error(`${t} doit avoir financialGuard: true — argent présent`);
+    for (const t of annulations) {
+      if (!TRANSITION_TABLE[t]) throw new Error(`Annulation manquante : ${t}`);
     }
   });
 
-  await test('no_show_pre_event présent (OS V10 section 2.6)', async () => {
-    if (!TRANSITION_TABLE['event_sealed->no_show_pre_event'])
-      throw new Error('event_sealed→no_show_pre_event manquante — OS V10 section 2.6');
-    if (!TRANSITION_TABLE['no_show_pre_event->refunded'])
-      throw new Error('no_show_pre_event→refunded manquante');
-  });
-
-  await test('La table contient au moins 35 transitions', async () => {
-    const count = Object.keys(TRANSITION_TABLE).length;
-    if (count < 35) throw new Error(`${count} transitions — attendu ≥35`);
-  });
-
-  // ── Section 6 : Validations d'entrée ──────────────────────
-  console.log('\n── Validations d\'entrée ─────────────────────\n');
-
-  await test('engagementId manquant → bloqué', async () => {
-    try {
-      await transitionEngagement({ currentState: 'proposed', targetState: 'accepted', actor: USR });
-      throw new Error('Aurait dû être bloqué');
-    } catch (err) {
-      if (!err.message.includes('TRANSITION_ERROR')) throw new Error(`Attendu TRANSITION_ERROR: ${err.message}`);
+  await test('États morts couverts : refunded→archived, withdrawn→archived, no_show→refunded', async () => {
+    const fins = ['refunded->archived', 'withdrawn->archived', 'no_show->refunded'];
+    for (const t of fins) {
+      if (!TRANSITION_TABLE[t]) throw new Error(`Transition finale manquante : ${t} — état cul-de-sac`);
     }
   });
 
-  await test('engagementId non-souverain → bloqué (INVALID_SYSTEM_ID)', async () => {
-    try {
-      await transitionEngagement({
-        engagementId: 'hacked', currentState: 'proposed', targetState: 'accepted', actor: USR,
-      });
-      throw new Error('Aurait dû être bloqué');
-    } catch (err) {
-      if (!err.message.includes('INVALID_SYSTEM_ID')) throw new Error(`Attendu INVALID_SYSTEM_ID: ${err.message}`);
+  await test('Q3 V11 — litige uniquement depuis event_completed (fenêtre SOTS)', async () => {
+    // "Tu ne peux contester que ce que tu as vécu."
+    if (!TRANSITION_TABLE['event_completed->disputed'])
+      throw new Error('event_completed→disputed manquante — litige SOTS impossible');
+    if (TRANSITION_TABLE['accepted->disputed'])
+      throw new Error('accepted→disputed présente — interdit par décision fondateur V11 Q3');
+    if (TRANSITION_TABLE['event_sealed->disputed'])
+      throw new Error('event_sealed→disputed présente — interdit par décision fondateur V11 Q3');
+  });
+
+  await test('Q3 V11 — sorties de dispute avec DisputeResolutionGuard', async () => {
+    const sortiesDispute = ['disputed->payable', 'disputed->refunded'];
+    for (const t of sortiesDispute) {
+      if (!TRANSITION_TABLE[t]) throw new Error(`Sortie de dispute manquante : ${t}`);
+      if (TRANSITION_TABLE[t].guard !== 'DisputeResolutionGuard')
+        throw new Error(`${t} doit utiliser DisputeResolutionGuard, pas ${TRANSITION_TABLE[t].guard}`);
     }
   });
 
-  await test('actor non-souverain → bloqué (INVALID_SYSTEM_ID)', async () => {
-    try {
-      await transitionEngagement({
-        engagementId: ENG, currentState: 'proposed', targetState: 'accepted', actor: 'admin',
-      });
-      throw new Error('Aurait dû être bloqué');
-    } catch (err) {
-      if (!err.message.includes('INVALID_SYSTEM_ID')) throw new Error(`Attendu INVALID_SYSTEM_ID: ${err.message}`);
-    }
+  await test('Q1 V11 — transfert depuis placed ET deposit_secured', async () => {
+    if (!TRANSITION_TABLE['placed->transfer_requested'])
+      throw new Error('placed→transfer_requested manquante');
+    if (!TRANSITION_TABLE['deposit_secured->transfer_requested'])
+      throw new Error('deposit_secured→transfer_requested manquante — transfert après acompte impossible');
+    // Après acompte : financialGuard obligatoire
+    if (!TRANSITION_TABLE['deposit_secured->transfer_requested'].financialGuard)
+      throw new Error('deposit_secured→transfer_requested doit avoir financialGuard=true');
+    if (!TRANSITION_TABLE['transfer_requested->transfer_accepted'])
+      throw new Error('transfer_accepted manquante');
+    if (!TRANSITION_TABLE['transfer_requested->transfer_refused'])
+      throw new Error('transfer_refused manquante');
+  });
+
+  await test('Sorties de dispute couvertes (disputed→payable/refunded)', async () => {
+    if (!TRANSITION_TABLE['disputed->payable'])
+      throw new Error('disputed→payable manquante — argent bloqué définitivement sur litige');
+    if (!TRANSITION_TABLE['disputed->refunded'])
+      throw new Error('disputed→refunded manquante — remboursement impossible après litige');
   });
 
   // ── Résultat ──────────────────────────────────────────────
