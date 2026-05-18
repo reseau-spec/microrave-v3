@@ -265,10 +265,11 @@ async function run() {
   });
 
   // ════════════════════════════════════════════════════════
-  // SECTION 4 — DÉCISION FONDATEUR V11 Q2 : balance_pending supprimé
-  // deposit_pending → event_sealed directement (signatures + dépôt)
+  // SECTION 4 — DÉCISION FONDATEUR Q2 : chemin deux étapes maintenu
+  // deposit_pending → deposit_secured → balance_pending → event_sealed
+  // Doctrine industrie événementielle : acompte sécurise l'artiste, solde scelle l'événement.
   // ════════════════════════════════════════════════════════
-  console.log('\n── Table souveraine V11 (décisions fondateur) ─\n');
+  console.log('\n── Table souveraine (décisions fondateur) ─────\n');
 
   await test('proposed→negotiating dans la table', async () => {
     if (!TRANSITION_TABLE['proposed->negotiating'])
@@ -280,26 +281,32 @@ async function run() {
       throw new Error('negotiating→accepted manquante');
   });
 
-  await test('Q2 V11 — deposit_pending→event_sealed dans la table (SealingGuard)', async () => {
-    if (!TRANSITION_TABLE['deposit_pending->event_sealed'])
-      throw new Error('deposit_pending→event_sealed manquante — scellement impossible');
-    if (TRANSITION_TABLE['deposit_pending->event_sealed'].guard !== 'SealingGuard')
-      throw new Error('deposit_pending→event_sealed doit utiliser SealingGuard');
+  await test('Q2 fondateur — deposit_pending→deposit_secured dans la table (acompte reçu)', async () => {
+    // Décision fondateur : l'acompte doit être techniquement et juridiquement verrouillé
+    // avant que l'artiste bloque sa date. deposit_secured = WORM moment 2.
+    if (!TRANSITION_TABLE['deposit_pending->deposit_secured'])
+      throw new Error('deposit_pending→deposit_secured manquante — acompte non verrouillable');
   });
 
-  await test('Q2 V11 — deposit_secured→balance_pending absent (supprimé)', async () => {
-    if (TRANSITION_TABLE['deposit_secured->balance_pending'])
-      throw new Error('deposit_secured→balance_pending présente — doit être supprimée (décision fondateur V11 Q2)');
+  await test('Q2 fondateur — deposit_secured→balance_pending dans la table (solde demandé)', async () => {
+    // Décision fondateur : après acompte, la demande de solde est une étape distincte.
+    if (!TRANSITION_TABLE['deposit_secured->balance_pending'])
+      throw new Error('deposit_secured→balance_pending manquante — chemin deux étapes rompu');
   });
 
-  await test('Q2 V11 — balance_pending→event_sealed absent (supprimé)', async () => {
-    if (TRANSITION_TABLE['balance_pending->event_sealed'])
-      throw new Error('balance_pending→event_sealed présente — doit être supprimée (décision fondateur V11 Q2)');
+  await test('Q2 fondateur — balance_pending→event_sealed dans la table (scellement après solde)', async () => {
+    // Décision fondateur : le scellement se fait après réception du solde, pas avant.
+    if (!TRANSITION_TABLE['balance_pending->event_sealed'])
+      throw new Error('balance_pending→event_sealed manquante — scellement impossible');
+    if (TRANSITION_TABLE['balance_pending->event_sealed'].guard !== 'SealingGuard')
+      throw new Error('balance_pending→event_sealed doit utiliser SealingGuard');
   });
 
-  await test('Q2 V11 — balance_pending→cancelled_J7 absent (état supprimé)', async () => {
-    if (TRANSITION_TABLE['balance_pending->cancelled_J7'])
-      throw new Error('balance_pending→cancelled_J7 présente — état balance_pending supprimé par décision fondateur V11 Q2');
+  await test('Q2 fondateur — balance_pending→cancelled_J7 dans la table (annulation auto solde impayé)', async () => {
+    // Décision fondateur : si le solde n'arrive pas à J-6, annulation automatique.
+    // Source OS V10 section 16.1 LOI ANNULATION-02.
+    if (!TRANSITION_TABLE['balance_pending->cancelled_J7'])
+      throw new Error('balance_pending→cancelled_J7 manquante — annulation auto impossible si solde impayé');
   });
 
   await test('disputed→payable dans la table (sortie dispute)', async () => {

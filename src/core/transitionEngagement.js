@@ -118,6 +118,9 @@ const TRANSITION_TABLE = {
 
   // ── Transfert de talent ────────────────────────────────────
   'placed->transfer_requested':            { guard: 'TransferGuard',            worm: null, financialGuard: false },
+  // Q1 FONDATEUR V11 : transfert également possible depuis deposit_secured (acompte reçu)
+  // Après acompte : financialGuard obligatoire — Source : décision fondateur Q1 Mai 2026
+  'deposit_secured->transfer_requested':   { guard: 'TransferGuard',            worm: null, financialGuard: true  },
   'transfer_requested->transfer_accepted': { guard: 'TransferGuard',            worm: null, financialGuard: false },
   'transfer_requested->transfer_refused':  { guard: 'TransferGuard',            worm: null, financialGuard: false },
   'transfer_accepted->placed':             { guard: 'TransferGuard',            worm: null, financialGuard: false },
@@ -128,6 +131,12 @@ const TRANSITION_TABLE = {
   // no_show_pre_event : talent absent avant le début — Source : OS V10 section 2.6
   'event_sealed->no_show_pre_event':       { guard: 'NoShowGuard',              worm: null, financialGuard: true  },
   'no_show_pre_event->refunded':           { guard: 'RefundGuard',              worm: null, financialGuard: true  },
+
+  // ── États terminaux — archivage ───────────────────────────
+  // Tout état terminal doit pouvoir atteindre archived — pas de cul-de-sac.
+  // Source : OS V10 section 2.7 — archived = WORM final universel
+  'refunded->archived':                    { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: true  },
+  'withdrawn->archived':                   { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: false },
 
   // ── Retrait avant accord ───────────────────────────────────
   'proposed->withdrawn':                   { guard: 'WithdrawalGuard',          worm: null, financialGuard: false },
@@ -147,14 +156,17 @@ const TRANSITION_TABLE = {
 // payable (W1) : ajout pragmatique — 11 conditions remplies, payout en attente
 // Pas dans les 6 moments officiels mais protège l'état avant settlement
 const WORM_STATES = {
-  'settled':            'W3',
-  'archived':           'W3',
-  'event_sealed':       'W2',
+  'archived':           'W3', // Moment WORM 6 — seul état architecturalement immuable
+  'event_sealed':       'W2', // Moment WORM 3 — WORM financier
   'accepted':           'W1', // Moment WORM 1
   'deposit_secured':    'W1', // Moment WORM 2 — "Liaison contractuelle des parties"
+  'balance_pending':    'W1', // Solde demandé — acompte reçu, artiste engagé, solde attendu
   'event_completed':    'W1', // Moment WORM 4
   'sots_window_closed': 'W1', // Moment WORM 5
   'payable':            'W1', // Protection pragmatique — 11 conditions remplies
+  // Note : settled n'est PAS dans WORM_STATES.
+  // settled→archived est bloqué par la table (TRANSITION_UNAUTHORIZED depuis n'importe où sauf archived).
+  // Source : OS V10 section 2.7 — 6 moments WORM officiels, settled n'en fait pas partie.
 };
 
 async function transitionEngagement({

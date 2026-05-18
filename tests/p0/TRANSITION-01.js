@@ -13,8 +13,10 @@
  *
  * DÉCISIONS FONDATEUR V11 (Mai 2026) :
  *   Q1 — TRANSFERT depuis placed ET deposit_secured
- *   Q2 — SCELLEMENT sur deposit_pending (balance_pending supprimé)
- *   Q3 — LITIGE uniquement depuis event_completed (fenêtre SOTS)
+ *   Q2 — CHEMIN NOMINAL COMPLET : deposit_pending → deposit_secured → balance_pending → event_sealed
+ *        (deux étapes de paiement maintenues — doctrine industrie événementielle)
+ *   Q3 — LITIGE OUVERT À TOUT MOMENT : * → disputed
+ *        (poignée de frein d'urgence — crises avant le jour J couvertes)
  *
  * Source : OS V10 section 16.2 — LOI TRANSITION-01
  * ============================================================
@@ -125,10 +127,11 @@ async function run() {
     }
   });
 
-  await test('balance_pending absent de WORM_STATES (état retiré décision fondateur V11)', async () => {
-    // Q2 — balance_pending supprimé du chemin nominal. Ne doit PAS être dans WORM_STATES.
-    if (WORM_STATES['balance_pending'] !== undefined)
-      throw new Error(`balance_pending présent dans WORM_STATES — état supprimé par décision fondateur V11`);
+  await test('balance_pending présent dans WORM_STATES W1 (chemin deux étapes maintenu)', async () => {
+    // Q2 FONDATEUR : chemin complet deposit_pending → deposit_secured → balance_pending → event_sealed.
+    // balance_pending EST dans le chemin nominal. Il DOIT être protégé W1 (solde en attente).
+    if (WORM_STATES['balance_pending'] !== 'W1')
+      throw new Error(`balance_pending absent de WORM_STATES — solde non protégé. Décision fondateur : deux étapes maintenues.`);
   });
 
   await test('payable dans WORM_STATES (W1)', async () => {
@@ -184,11 +187,15 @@ async function run() {
     if (count < 20) throw new Error(`Seulement ${count} transitions — attendu: 20+`);
   });
 
-  await test('Chemin nominal complet proposed→archived couvert (Q2 V11)', async () => {
-    // DÉCISION FONDATEUR V11 Q2 : deposit_pending→event_sealed (balance_pending supprimé)
+  await test('Chemin nominal complet proposed→archived couvert (Q2 fondateur — deux étapes)', async () => {
+    // DÉCISION FONDATEUR Q2 : chemin complet avec deposit_secured et balance_pending maintenus.
+    // Doctrine industrie événementielle : acompte sécurise l'artiste, solde scelle l'événement.
     const chemin = [
       'proposed->accepted', 'accepted->placed', 'placed->deposit_pending',
-      'deposit_pending->event_sealed', 'event_sealed->performed',
+      'deposit_pending->deposit_secured',
+      'deposit_secured->balance_pending',
+      'balance_pending->event_sealed',
+      'event_sealed->performed',
       'performed->event_completed', 'event_completed->sots_window_closed',
       'sots_window_closed->payable', 'payable->settled', 'settled->archived',
     ];
@@ -197,9 +204,12 @@ async function run() {
     }
   });
 
-  await test('balance_pending→event_sealed absent du chemin nominal (décision Q2 V11)', async () => {
-    if (TRANSITION_TABLE['balance_pending->event_sealed'])
-      throw new Error('balance_pending→event_sealed présente — doit être supprimée (décision fondateur V11 Q2)');
+  await test('balance_pending→event_sealed présente dans la table (scellement après solde)', async () => {
+    // Q2 FONDATEUR : le scellement se fait depuis balance_pending, après réception du solde.
+    if (!TRANSITION_TABLE['balance_pending->event_sealed'])
+      throw new Error('balance_pending→event_sealed manquante — scellement impossible');
+    if (TRANSITION_TABLE['balance_pending->event_sealed'].guard !== 'SealingGuard')
+      throw new Error('balance_pending→event_sealed doit utiliser SealingGuard');
   });
 
   await test('Transitions annulation couvertes (cancelled_*)', async () => {
@@ -220,17 +230,23 @@ async function run() {
     }
   });
 
-  await test('Q3 V11 — litige uniquement depuis event_completed (fenêtre SOTS)', async () => {
-    // "Tu ne peux contester que ce que tu as vécu."
-    if (!TRANSITION_TABLE['event_completed->disputed'])
-      throw new Error('event_completed→disputed manquante — litige SOTS impossible');
-    if (TRANSITION_TABLE['accepted->disputed'])
-      throw new Error('accepted→disputed présente — interdit par décision fondateur V11 Q3');
-    if (TRANSITION_TABLE['event_sealed->disputed'])
-      throw new Error('event_sealed→disputed présente — interdit par décision fondateur V11 Q3');
+  await test('Q3 fondateur — litige ouvert depuis tous les états actifs (* → disputed)', async () => {
+    // DÉCISION FONDATEUR Q3 : poignée de frein d'urgence disponible à tout moment.
+    // Crises avant le jour J (lieu illégal, rupture contrat, non-paiement) doivent être traitables.
+    // Source OS V10 table 2.7.1 : "* → disputed" via DisputeGuard — maintenu.
+    const etatsActifs = [
+      'proposed', 'negotiating', 'accepted', 'placed',
+      'deposit_pending', 'deposit_secured', 'balance_pending',
+      'event_sealed', 'performed', 'event_completed',
+      'sots_window_closed', 'payable',
+    ];
+    for (const etat of etatsActifs) {
+      if (!TRANSITION_TABLE[`${etat}->disputed`])
+        throw new Error(`${etat}→disputed manquante — litige bloqué depuis cet état`);
+    }
   });
 
-  await test('Q3 V11 — sorties de dispute avec DisputeResolutionGuard', async () => {
+  await test('Q3 fondateur — sorties de dispute avec DisputeResolutionGuard', async () => {
     const sortiesDispute = ['disputed->payable', 'disputed->refunded'];
     for (const t of sortiesDispute) {
       if (!TRANSITION_TABLE[t]) throw new Error(`Sortie de dispute manquante : ${t}`);
