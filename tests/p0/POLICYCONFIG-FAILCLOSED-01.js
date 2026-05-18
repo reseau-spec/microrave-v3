@@ -4,14 +4,8 @@
  * Vérifie que le système bloque si une config est absente.
  * Le fail-closed est une précondition à tout le reste.
  *
- * CORRECTIONS :
- *   V11a — URL corrigée (slug, pas app_id brut)
- *   V11b — Auth ajoutée (BASE44_ACCESS_TOKEN dans Authorization header)
- *   V11b — Skip explicite si DATABASE_URL ou BASE44_ACCESS_TOKEN absent
- *
- * VARIABLES .ENV pour test 5 complet :
- *   DATABASE_URL=https://futuristic-rave-core-flow.base44.app
- *   BASE44_ACCESS_TOKEN=<token JWT Base44>
+ * VARIABLE .ENV pour test 5 complet :
+ *   BASE44_API_KEY=<clé API Base44 — Settings → API → api_key>
  *
  * Source : OS V10 section 16.2 — LOI TRANSITION-01
  * ============================================================
@@ -114,7 +108,7 @@ async function run() {
     skip(
       'validateCriticalConfigs() — connexion database',
       `Manquant dans .env : ${manquant.join(', ')}.\n` +
-      `   Ajouter BASE44_ACCESS_TOKEN (Base44 → Settings → API Token).\n` +
+      `   Ajouter BASE44_API_KEY (Base44 → Settings → API → api_key).\n` +
       `   Les 12 configs sont confirmées en base (export CSV du 17 mai 2026).`
     );
   } else {
@@ -130,7 +124,7 @@ async function run() {
 
   if (failed === 0) {
     const suffix = skipped > 0
-      ? ' (skip database — ajouter BASE44_ACCESS_TOKEN dans .env)'
+      ? ' (skip database — ajouter BASE44_API_KEY dans .env)'
       : '';
     console.log(`POLICYCONFIG-FAILCLOSED-01 : ✓ PASSED${suffix}`);
   } else {

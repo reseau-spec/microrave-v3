@@ -4,7 +4,7 @@
  * Insère les 12 configurations fondamentales dans Base44 V3.
  *
  * À EXÉCUTER UNE SEULE FOIS.
- * Vérifier que BASE44_V3_API_KEY est dans .env avant de lancer.
+ * Vérifier que BASE44_API_KEY est dans .env avant de lancer.
  *
  * Usage :
  *   node scripts/seed-policy-config.js
@@ -19,7 +19,7 @@
 // Charger .env
 require('dotenv').config();
 
-const { findByKey, create } = require('../src/adapters/base44/PolicyConfigAdapter');
+const { findByKey, upsert } = require('../src/adapters/base44/PolicyConfigAdapter');
 const { POLICY_CONFIGS_FONDAMENTALES } = require('../config/policy-config-schema');
 
 async function seed() {
@@ -28,8 +28,8 @@ async function seed() {
   console.log(`${POLICY_CONFIGS_FONDAMENTALES.length} configs à vérifier`);
   console.log('═══════════════════════════════════════════════\n');
 
-  if (!process.env.BASE44_V3_API_KEY) {
-    console.error('❌ BASE44_V3_API_KEY absent de .env — arrêt.');
+  if (!process.env.BASE44_API_KEY) {
+    console.error('❌ BASE44_API_KEY absent de .env — arrêt.');
     process.exit(1);
   }
 
@@ -49,7 +49,7 @@ async function seed() {
       }
 
       // Insérer
-      const result = await create({
+      const result = await upsert({
         key:         config.key,
         value:       config.value,
         value_type:  config.value_type,

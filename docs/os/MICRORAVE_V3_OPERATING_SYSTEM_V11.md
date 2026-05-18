@@ -4,7 +4,7 @@
 
 ---
 
-**Ce document contient uniquement ce qui a été explicitement validé par le fondateur.** Toute décision non présente ici est une hypothèse, pas une loi. Version : MVP V3 — Mai 2026 — V10 : Cohérence isSelfOrganized (note 2.7.1 ↔ section 6.3) · carte machine d'état guards souverains
+**Ce document contient uniquement ce qui a été explicitement validé par le fondateur.** Toute décision non présente ici est une hypothèse, pas une loi. Version : MVP V3 — Mai 2026 — V11 : Décisions fondateur Q1/Q2/Q3 · table 2.7.1 corrigée · chemin deux étapes paiement · litige ouvert · transfert depuis deposit_secured
 
 ---
 
@@ -441,20 +441,25 @@ disputed / no\_show / cancelled\_pre\_deposit / cancelled\_J30
     
 - **deposit\_pending :** l'acompte (ratio configuré dans EventPaymentConfig, défaut ≈20%) réserve le Lineup complet — pas un talent individuel. L'EPR est créée au niveau de l'Event. Tout le Lineup est engagé dès que l'acompte est reçu.
 
+- **deposit\_secured :** 🔒 WORM Moment 2 — webhook Stripe `payment_intent.succeeded` reçu. Liaison contractuelle des parties verrouillée. Le talent peut bloquer sa date en confiance — l'acompte est techniquement et juridiquement sécurisé. Décision fondateur V11 Q2 : cet état est distinct et irréductible. Supprimer `deposit_secured` pour simplifier le code détruirait la garantie industrielle que Micro Rave offre aux artistes.
+
+- **balance\_pending :** solde demandé à J-7. L'acompte est reçu, le talent est engagé, le solde est attendu. `BalanceRequestGuard` crée la `SchedulerDueTask` de relance. Si le solde n'arrive pas à J-6 → `balance_pending → cancelled_J7` (LOI ANNULATION-02). Cet état est protégé W1 dans WORM\_STATES.
+
 ## 2.7 Les 6 moments WORM
 
 **\[BLOC 2 — V8\] Hiérarchie de sévérité des WORM — trois niveaux :**
 
 Les 6 moments WORM ne se valent pas institutionnellement. Toute tentative de modification d'un état WORM doit être traitée selon son niveau de sévérité :
 
-- **Niveau 1 — Erreur :** ACCEPTED, DEPOSIT\_SECURED. Toucher à ces états est une erreur de développement — détectable, corrigeable, jamais silencieuse. Exception : SoloFounderOverride avec AdminIncidentRecord obligatoire.  
+- **Niveau 1 — Erreur :** ACCEPTED, DEPOSIT\_SECURED, BALANCE\_PENDING. Toucher à ces états est une erreur de développement — détectable, corrigeable, jamais silencieuse. Exception : SoloFounderOverride avec AdminIncidentRecord obligatoire.  
 - **Niveau 2 — Fraude :** EVENT\_SEALED. Toucher à cet état constitue une tentative de fraude financière. Déclenchement immédiat d'un AdminIncidentRecord P0 et SYSTEM\_HOLD sur tous les fonds liés.  
 - **Niveau 3 — Architecturalement impossible :** ARCHIVED. Aucun mécanisme dans le système ne permet de modifier un état archivé. Pas même le SoloFounderOverride. Le seul mouvement possible est un reversal en avant (nouvelle écriture ajoutée), jamais une modification de l'existant.
 
 | Moment | État | Ce qui devient immuable | Niveau WORM |
 | :---- | :---- | :---- | :---- |
 | 1 | accepted | **Voie CreateEvent :** cachet brut, tier, taux, SOTS snapshot, historique complet de négociation. **Voie QuickPlay :** TalentRolePreferenceId, roleMetier, tarifType, tarifValeurCents, durée, cachet confirmé, timestamp, styleSignature. | 🔒 Niveau 1 — Erreur |
-| 2 | deposit\_secured | Liaison contractuelle des parties | 🔒 Niveau 1 — Erreur |
+| 2 | deposit\_secured | Liaison contractuelle des parties — acompte reçu · artiste sécurisé | 🔒 Niveau 1 — Erreur |
+| 2b | balance\_pending | Solde demandé · acompte reçu · artiste engagé · solde attendu. SchedulerDueTask créée. Protégé W1 — si solde impayé à J\-6 → annulation automatique (LOI ANNULATION\-02). Décision fondateur V11 Q2. | 🔒 Niveau 1 — Erreur |
 | 3 | event\_sealed | WORM financier complet — montants, taux, taxes, Stripe | 🔒🔒 Niveau 2 — Fraude |
 | 4 | event\_completed | Ouverture fenêtre SOTS 24h | 🔒 Niveau 1 — Erreur |
 | 5 | sots\_window\_closed | WORM réputationnel — scores consolidés | 🔒 Niveau 1 — Erreur |
@@ -499,15 +504,18 @@ Cette fonction est **l'unique point d'entrée** pour tout changement d'état. El
 | `negotiating → accepted` | `MissionConversionGuard` | Contre-offre acceptée · prix final confirmé · historique snapshoté |
 | `accepted → placed` | `PlacementGuard` | ContractSnapshot phase 1 existe · signatures valides · Lineup cohérent · Event existe |
 | `placed → deposit_pending` | `EventPaymentGuard` | EventPaymentRecord créé · Lineup verrouillé · prix calculé · LOI LINEUP-03 respectée |
-| `deposit_pending → event_sealed` | `SealingGuard` | Dépôt reçu · balance reçue · ContractSnapshot phase 2 créé · LOI LINEUP-01/02 vérifiées |
+| `deposit_pending → deposit_secured` | `EventPaymentGuard` | Webhook Stripe `payment_intent.succeeded` reçu · acompte confirmé · Moment WORM 2 — liaison contractuelle verrouillée · Décision fondateur V11 Q2 |
+| `deposit_secured → balance_pending` | `BalanceRequestGuard` | Délai J\-7 configuré · balanceDueCents calculé · SchedulerDueTask `balance_deadline_check` créée · solde demandé |
+| `balance_pending → event_sealed` | `SealingGuard` | Solde reçu · ContractSnapshot phase 2 créé · LOI LINEUP-01/02 vérifiées · Moment WORM 3 — WORM financier complet · Décision fondateur V11 Q2 |
 | `event_sealed → performed` | `PresenceWindowGuard` | Date event passée · check-in window ouverte · SessionPresence initiée |
 | `performed → event_completed` | `EventCompletionGuard` | Tous les talents en état `performed` · aucun no-show non résolu |
 | `event_completed → sots_window_closed` | `SOTSWindowGuard` | Fenêtre 24h écoulée · SOTSSubmissions consolidées |
 | `performed → payable` | `PresenceProofGuard` | Présence prouvée via PresenceProofResolver · payout conditions PASS · ledger équilibré · event non disputé |
 | `payable → settled` | `LedgerInvariantGuard` | LOI LEDGER-02 respectée · zéro cent · Stripe payout confirmé · KYCStatus \= VERIFIED |
 | `settled → archived` | `ArchiveWORMGuard` | SOTS window closed · tous les LedgerRecords finaux · GoNoGoDecisionRecord \= GO · BugReplayRecords P0 \= PASSED |
+| `deposit_secured → transfer_requested` | `TransferGuard` | Même conditions que `placed → transfer_requested` · financialGuard obligatoire car acompte reçu · Décision fondateur V11 Q1 |
 | `performed → no_show` | `NoShowGuard` | Absence confirmée · délai de grâce écoulé · LOI NO-SHOW-01 applicable |
-| `* → disputed` | `DisputeGuard` | Standing de l'acteur validé · EvidenceBundle soumis · LOI DISPUTE-01 déclenchée |
+| `* → disputed` | `DisputeGuard` | Standing de l'acteur validé · EvidenceBundle soumis · LOI DISPUTE-01 déclenchée. **Décision fondateur V11 Q3 :** litige accessible depuis TOUS les états actifs sans restriction — la poignée de frein d'urgence doit fonctionner à tout moment. Cas réels couverts : lieu dangereux J\-3, rupture contrat avant show, non\-paiement pendant préparation. La restriction au seul `event_completed` aurait laissé des fonds en otage sans recours légal. |
 | `disputed → *` | `DisputeResolutionGuard` | DecisionRecord existant · SettlementInstruction émise · acteur admin autorisé |
 
 **Toute transition non listée ici est interdite par défaut — fail-closed.**
@@ -2178,7 +2186,7 @@ Cet event est la Pierre de Rosette : il traverse les 8 autres cartes constitutio
 | :---- | :---- | :---- | :---- |
 | C00 Philosophie | Loi Zéro | Alex est à Montréal. Son SOTS est visible (12 notes, score 4.3/5). CP-PLATEAU le reconnaît comme talent local. | ✅ Engagement créé · DRAFT → ACCEPTED |
 | C01 Ontologie | Engagement comme atome | Voie CreateEvent. Le Trèfle crée l'event, slot 23h-01h, attache Alex. | ✅ ACCEPTED · Dépôt demandé · 🔒 WORM 1 |
-| C02 Machine État | Séquence WORM complète | accepted → deposit\_secured → event\_sealed → performed → payable → settled | ✅ settled · 🔒🔒🔒 ARCHIVED |
+| C02 Machine État | Séquence WORM complète | accepted → deposit\_secured → balance\_pending → event\_sealed → performed → payable → settled | ✅ settled · 🔒🔒🔒 ARCHIVED · Chemin deux étapes V11 Q2 |
 | C03 Waterfall | Invariant Zéro Cent | 200$ signé · coefficient 1.0 · taux X% · net calculé au centime | ✅ Livres \= 0 · LEDGER-02 respecté |
 | C05 SOTS | Donnée-témoin | Le Trèfle note Alex 24h après. Append-only. SOTSQuantitative \+ SOTSQualitative. | ✅ 13ème note · Mémoire permanente créée |
 | C06 Admin | 11 conditions | GPS ✓ · SOTS ✓ · Ledger ✓ · Pas de dispute ✓ · 11/11. | ✅ Paiement automatique · SoloFounderOverride non utilisé |
@@ -2187,8 +2195,9 @@ Cet event est la Pierre de Rosette : il traverse les 8 autres cartes constitutio
 **Séquence temporelle :**
 
 - J-30 : Contrat signé ACCEPTED 🔒  
-- J-7 : Dépôt reçu DEPOSIT\_SECURED 🔒  
-- Soir J : Event SEALED 🔒🔒 · GPS OK  
+- J-7 : Acompte reçu DEPOSIT\_SECURED 🔒  
+- J-7 → J-1 : Solde demandé BALANCE\_PENDING 🔒  
+- Soir J : Solde reçu + Event SEALED 🔒🔒 · GPS OK  
 - 23h→01h : Alex performe PERFORMED  
 - J+24h : Le Trèfle note · SOTS append-only  
 - 11 conditions : Paiement auto PAYABLE → SETTLED  
@@ -2399,8 +2408,8 @@ Ces 6 lois ne sont pas des règles de produit. Ce sont les conditions de possibi
 Interrogatoire souverain : 18 BLOCs / 151 décisions validées / 4 amendements / 7 précisions  
 V6 : LOI QUICKPLAY-MISSION-01, LOI QUICKPLAY-CALENDAR-01, LOI CREATEEVENT-QUICKPLAY-01  
 V7 : doctrine EventLocation vs Checkpoint, triptyque corrigé, négociation CreateEvent, machine d'état QuickPlay, TalentRolePreference dans hiérarchie  
-**V8 : alignement cartes constitutionnelles V4 — 13 blocs — mai 2026** **V9 : Guards souverains — LOI TRANSITION-01 — section 2.7.1 — architecture anti-corruption machine d'état — mai 2026** **V10 : Cohérence notes isSelfOrganized (2.7.1 ↔ 6.3) · carte 02 machine d'état mise à jour guards souverains — mai 2026**  
+**V8 : alignement cartes constitutionnelles V4 — 13 blocs — mai 2026** **V9 : Guards souverains — LOI TRANSITION-01 — section 2.7.1 — architecture anti-corruption machine d'état — mai 2026** **V10 : Cohérence notes isSelfOrganized (2.7.1 ↔ 6.3) · carte 02 machine d'état mise à jour guards souverains — mai 2026** **V11 : Décisions fondateur Q1/Q2/Q3 — mai 2026 · Q2 : table 2.7.1 corrigée — chemin nominal deux étapes deposit_secured + balance_pending maintenus (doctrine industrie événementielle) · Q3 : litige ouvert depuis tous les états actifs (\* → disputed) — poignée de frein d'urgence · Q1 : transfert depuis deposit_secured ajouté · balance_pending ajouté dans WORM_STATES W1 · Pierre de Rosette séquence corrigée · settled retiré de WORM (non-moment WORM officiel)**  
 Blocs V8 : BLOC 1 (règle multi-rôle isSelfOrganized) · BLOC 2 (hiérarchie WORM 3 niveaux) · BLOC 3 (LOI CO-DÉPENDANCE-01 nommée) · BLOC 4 (donnée-témoin vs pétrole en 5.0) · BLOC 6 (phrase canonique SOTS \+ styles) · BLOC 8 (capitaine sunset 2 niveaux) · BLOC 9 (SoloFounderOverride dette \+ sunset Series A) · BLOC 10 (Doctrine A HYPOTHÈSE en tête) · BLOC 11 (section 16.0 Lois Invariantes) · BLOC 12 (Pierre de Rosette section 14.9) · BLOC 13 (mapping interdits par domaine)
 
 Fondateur : Frédérik Gélin — Montréal, mai 2026  
-*"Une capacité culturelle locale devient un engagement de prestation vérifiable, puis un règlement économique, puis une mémoire territoriale."*  
+*"Une capacité culturelle locale devient un engagement de prestation vérifiable, puis un règlement économique, puis une mémoire territoriale."*
