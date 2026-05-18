@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net">
+  <diagram id="carte00_v4" name="Page-1">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="e4" edge="1" parent="1" source="cost_title" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;" target="dilemme">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="against_title" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="greffier">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="&lt;b style=&#39;font-size:22px&#39;&gt;Pourquoi Micro Rave existe&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;color:#888;font-size:12px&#39;&gt;Carte 00 — Philosophique · La Constitution · V4_REFONTE&lt;/span&gt;" vertex="1">
+          <mxGeometry height="54" width="1100" x="240" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="loi_zero_souveraine" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=16;align=center;strokeWidth=6;shadow=1;" value="&lt;b style=&#39;font-size:26px&#39;&gt;🌟 LA LOI ZÉRO — LE FILTRE DE TOUT&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:16px&#39;&gt;«Une capacité culturelle locale devient un engagement de prestation vérifiable,&lt;br/&gt;puis un règlement économique, puis une mémoire territoriale.»&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:13px;color:#555&#39;&gt;Si une feature ne contribue pas à cette chaîne → elle est hors scope. C&#39;est le filtre de tout. Tout découle de cette loi.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="120" width="1100" x="240" y="88" as="geometry" />
+        </mxCell>
+        <mxCell id="distinction_2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;strokeWidth=3;" value="&lt;b style=&#39;font-size:14px&#39;&gt;📊 La distinction fondamentale — donnée-témoin, pas donnée-pétrole&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;&lt;b&gt;Donnée-pétrole (ce que Micro Rave REFUSE) :&lt;/b&gt; extraite à l&#39;insu, raffinée, vendue, brûlée, disparue. Elle te réduit. Elle ne te représente pas.&lt;br/&gt;&lt;b&gt;Donnée-témoin (ce que Micro Rave CONSTRUIT) :&lt;/b&gt; co-produite avec consentement, conservée append-only, contestable par procédure, portée par ceux qui l&#39;ont vécue.&lt;br/&gt;&lt;i&gt;La donnée réputationnelle est une preuve d&#39;existence. Et une existence mérite une mémoire.&lt;/i&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="1100" x="240" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="e_loi_dist" edge="1" parent="1" source="loi_zero_souveraine" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="distinction_2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="why_title" parent="1" style="text;html=1;align=center;strokeColor=#b85450;fillColor=#fde9e8;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;❓ Pourquoi cette institution existe — le problème qu&#39;elle résout&lt;/b&gt;" vertex="1">
+          <mxGeometry height="32" width="1100" x="240" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="why_l" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=12;align=center;" value="&lt;b&gt;Le marché avant Micro Rave&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Un DJ de talent à Saint-Michel est invisible.&lt;br/&gt;Son réseau ne va pas jusqu&#39;au Plateau.&lt;br/&gt;L&#39;organisateur engage celui qu&#39;il connaît, pas celui qui joue mieux.&lt;br/&gt;Le talent sous-payé ne peut pas contester.&lt;br/&gt;Aucune preuve. Aucune trace. Aucun arbitrage.&lt;br/&gt;La réputation circule comme rumeur — opaque, injuste, irréfutable.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="530" x="240" y="382" as="geometry" />
+        </mxCell>
+        <mxCell id="why_r" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;" value="&lt;b&gt;Ce que Micro Rave rend possible&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Le DJ de Saint-Michel avec un SOTS de 4,7/5 devient visible&lt;br/&gt;pour un organisateur du Plateau qui ne le connaît pas.&lt;br/&gt;Le score traverse le réseau qu&#39;il n&#39;avait pas.&lt;br/&gt;Le cachet est transparent avant acceptation.&lt;br/&gt;La présence est prouvée. Le paiement est garanti.&lt;br/&gt;La réputation est mémorisée — vérifiable, portable, contestable.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="530" x="810" y="382" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dist_why" edge="1" parent="1" source="distinction_2" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=1.5;" target="why_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="against_title" parent="1" style="text;html=1;align=center;strokeColor=#b85450;fillColor=#fde9e8;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;⚔️ Contre quoi Micro Rave se bat — les trois lois de la corruption institutionnelle&lt;/b&gt;" vertex="1">
+          <mxGeometry height="32" width="1100" x="240" y="534" as="geometry" />
+        </mxCell>
+        <mxCell id="g1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=12;align=center;" value="&lt;b&gt;1. La Loi de Goodhart&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#555&#39;&gt;«Quand la mesure devient la cible,&lt;br/&gt;elle cesse d&#39;être une bonne mesure.»&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Réponse : le vendeur hors waterfall.&lt;br/&gt;Le WORM immuable. Le qualitatif non-financier.&lt;br/&gt;On ne peut pas optimiser ce qu&#39;on ne peut pas réécrire.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="340" x="240" y="576" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=12;align=center;" value="&lt;b&gt;2. La loi de l&#39;opacité sociale&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#555&#39;&gt;«Les réputations circulent&lt;br/&gt;par proximité, pas par mérite.»&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Réponse : le score SOTS portable.&lt;br/&gt;Le DecisionKernel comme greffier.&lt;br/&gt;La preuve remplace le réseau social.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="340" x="620" y="576" as="geometry" />
+        </mxCell>
+        <mxCell id="g3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=12;align=center;" value="&lt;b&gt;3. La loi de la mémoire sélective&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#555&#39;&gt;«L&#39;institution oublie ce qui&lt;br/&gt;lui est inconfortable.»&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Réponse : le ReputationLedger append-only.&lt;br/&gt;19 interdits architecturaux.&lt;br/&gt;Ce qui a été écrit ne peut pas être effacé.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="340" x="1000" y="576" as="geometry" />
+        </mxCell>
+        <mxCell id="greffier" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;strokeWidth=3;" value="&lt;b style=&#39;font-size:13px&#39;&gt;⚖️ La posture institutionnelle fondamentale — Greffier, pas Juge · section 6.1&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:11px&#39;&gt;«Le DecisionKernel MVP ne doit pas prétendre être un juge parfait. Il doit être un greffier incorruptible.»&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Il automatise seulement ce qui est prouvé. Il gèle ce qui est incertain.&lt;br/&gt;Il exige une décision humaine pour les cas ambigus. Il ne laisse jamais une sortie d&#39;argent se produire sans trace institutionnelle.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="110" width="1100" x="240" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="cost_title" parent="1" style="text;html=1;align=center;strokeColor=#9673a6;fillColor=#f5eeff;rounded=1;fontSize=12;fontStyle=1;" value="&lt;b&gt;💸 Le coût que Micro Rave accepte de payer pour tenir ses promesses&lt;/b&gt;" vertex="1">
+          <mxGeometry height="32" width="1100" x="240" y="864" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b&gt;Complexité architecturale&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;6 verrous anti-double payout.&lt;br/&gt;WORM sur 6 moments.&lt;br/&gt;19 interdits absolus.&lt;br/&gt;Ce n&#39;est pas simple — c&#39;est honnête.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="335" x="240" y="906" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b&gt;Croissance délibérément lente&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;On ne lance pas une ville.&lt;br/&gt;On allume un corridor.&lt;br/&gt;La densité locale avant la couverture globale.&lt;br/&gt;La fiabilité avant la notoriété.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="335" x="613" y="906" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=center;" value="&lt;b&gt;L&#39;humilité de la mesure&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Avant, le téléphone ouvre la porte.&lt;br/&gt;Pendant, il reste au vestiaire.&lt;br/&gt;Ce qui ne peut pas être capturé reste au vestiaire — volontairement.&lt;br/&gt;Le système s&#39;arrête à la porte du moment vécu.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="100" width="335" x="1005" y="906" as="geometry" />
+        </mxCell>
+        <mxCell id="dilemme" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5eeff;strokeColor=#9673a6;fontSize=12;align=center;strokeWidth=3;dashed=0;" value="&lt;b style=&#39;font-size:13px&#39;&gt;⚡ Le dilemme fondamental que Micro Rave assume — et ne renégocie pas&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px&#39;&gt;Soit tu honores la promesse d&#39;immuabilité et tu perds des clients impatients.&lt;br/&gt;Soit tu cèdes et tu détruis la confiance. Micro Rave a choisi.&lt;br/&gt;&lt;i&gt;Ce choix ne se renégocie pas. Une institution qui n&#39;a pas nommé son sacrifice n&#39;est pas une constitution — c&#39;est un manifeste de marketing.&lt;/i&gt;&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="1100" x="240" y="1026" as="geometry" />
+        </mxCell>
+        <mxCell id="lois_applicables" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=8;" value="&lt;b&gt;Lois de cette carte :&lt;/b&gt; LOI-ZÉRO · GREFFIER-01 · DISTINCTION-TÉMOIN · DILEMME-01&lt;br/&gt;&lt;i&gt;Voir Carte 08 pour le registre complet des lois invariantes&lt;/i&gt;" vertex="1">
+          <mxGeometry height="40" width="540" x="240" y="1136" as="geometry" />
+        </mxCell>
+        <mxCell id="signature" parent="1" style="text;html=1;align=center;strokeColor=#d6b656;fillColor=#fffff0;rounded=1;fontSize=11;" value="&lt;i style=&#39;font-size:12px&#39;&gt;«Une capacité culturelle locale devient un engagement de prestation vérifiable, puis un règlement économique, puis une mémoire territoriale.»&lt;/i&gt;&lt;br&gt;&lt;span style=&#39;font-size:10px;color:#888&#39;&gt;Loi Zéro · Micro Rave V4 · Fondateur : Frédérik Gélin · Montréal, mai 2026&lt;/span&gt;" vertex="1">
+          <mxGeometry height="54" width="530" x="810" y="1130" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="why_title" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;" target="against_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="greffier" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;" target="cost_title">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
