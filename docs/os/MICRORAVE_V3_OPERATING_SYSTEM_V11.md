@@ -668,7 +668,6 @@ La commission MR est prélevée sur le cachet brut offert, jamais ajoutée par-d
 - Commission Micro Rave  
 - Cachet net estimé  
 - Mention : *"Ce montant est basé sur vos préférences tarifaires pour ce rôle."*
-- Chaque membre voit uniquement son propre cachet, pas celui des autres. Personne ne voit pas les cachets des autres, ni même le capitaine Personne ne peut modifier le total. Tous peuvent voir le rôle et le style de chacun
 
 Dans les deux voies, cette ventilation s'affiche intégralement avant que le bouton de confirmation soit activable. Le talent ne peut pas confirmer sans avoir vu sa ventilation complète.
 
