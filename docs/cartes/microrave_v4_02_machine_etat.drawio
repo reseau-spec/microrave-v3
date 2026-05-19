@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="app.diagrams.net">
-  <diagram id="carte02_v4" name="V4_03 — OS V12 · D-014-A · D-019">
+  <diagram id="carte02_v4_04" name="V4_04 — OS V13 · D-019-A · D-019-B · contestation_window">
     <mxGraphModel dx="2279" dy="1964" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
@@ -70,7 +70,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="&lt;b style=&#39;font-size:18px&#39;&gt;Comment une promesse de performance devient réalité&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px;color:#666&#39;&gt;Machine d&#39;état — Engagement · Micro Rave V4_03&lt;/span&gt;" vertex="1">
+        <mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="&lt;b style=&#39;font-size:18px&#39;&gt;Comment une promesse de performance devient réalité&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px;color:#666&#39;&gt;Machine d&#39;état — Engagement · Micro Rave V4_04&lt;/span&gt;" vertex="1">
           <mxGeometry height="50" width="780" x="30" y="-120" as="geometry" />
         </mxCell>
         <mxCell id="leg_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontStyle=1;" value="&lt;b&gt;Légende&lt;/b&gt;" vertex="1">
@@ -91,7 +91,7 @@
         <mxCell id="leg5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="🔄 Transfert" vertex="1">
           <mxGeometry height="24" width="180" x="1100" y="86" as="geometry" />
         </mxCell>
-        <mxCell id="worm_hier" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#d6b656;fontSize=10;align=center;spacingLeft=6;" value="&lt;b&gt;🔒 6 Moments WORM — hiérarchie officielle OS V12&lt;/b&gt;&lt;div&gt;&lt;br&gt;🔒 W1 — ACCEPTED · DEPOSIT_SECURED · EVENT_COMPLETED · SOTS_WINDOW_CLOSED&lt;br&gt;→ verrouille les engagements contractuels&lt;br&gt;Toucher = erreur&lt;/div&gt;&lt;div&gt;&lt;br&gt;Moment 2 : DEPOSIT_SECURED&lt;br&gt;Acompte reçu · surveillance solde activée · annulation J-6 armée&lt;/div&gt;&lt;div&gt;&lt;br&gt;🔒🔒 W2 — EVENT_SEALED&lt;br&gt;→ verrouille les flux financiers complets&lt;br&gt;Toucher = fraude&lt;/div&gt;&lt;div&gt;&lt;br&gt;🔒🔒🔒 W3 — ARCHIVED&lt;br&gt;→ verrouille tout pour toujours&lt;br&gt;Toucher = architecturalement impossible&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;i&gt;Pierre de Rosette : accepted → deposit_secured → event_sealed → performed → payable → settled&lt;/i&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="worm_hier" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#d6b656;fontSize=10;align=center;spacingLeft=6;" value="&lt;b&gt;🔒 6 Moments WORM — hiérarchie officielle OS V13&lt;/b&gt;&lt;div&gt;&lt;br&gt;🔒 W1 — ACCEPTED · DEPOSIT_SECURED · EVENT_COMPLETED · SOTS_WINDOW_CLOSED&lt;br&gt;→ verrouille les engagements contractuels&lt;br&gt;Toucher = erreur&lt;/div&gt;&lt;div&gt;&lt;br&gt;Moment 2 : DEPOSIT_SECURED&lt;br&gt;Acompte reçu · surveillance solde activée · annulation J-6 armée&lt;/div&gt;&lt;div&gt;&lt;br&gt;🔒🔒 W2 — EVENT_SEALED&lt;br&gt;→ verrouille les flux financiers complets&lt;br&gt;Toucher = fraude&lt;/div&gt;&lt;div&gt;&lt;br&gt;🔒🔒🔒 W3 — ARCHIVED&lt;br&gt;→ verrouille tout pour toujours&lt;br&gt;Toucher = architecturalement impossible&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;i&gt;Pierre de Rosette : accepted → deposit_secured → event_sealed → performed → payable → settled&lt;/i&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="240" width="346" x="1330" y="-18" as="geometry" />
         </mxCell>
         <mxCell id="worm_expl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#d6b656;fontSize=10;align=center;spacingLeft=6;" value="&lt;b&gt;🔒 Qu&#39;est-ce qu&#39;un WORM ?&lt;/b&gt;&lt;br&gt;Write Once, Read Many.&lt;div&gt;&lt;br&gt;Comme écrire à l&#39;encre permanente.&lt;br&gt;Une fois écrit — on ne peut plus effacer.&lt;br&gt;On peut seulement lire.&lt;br&gt;Ça protège tout le monde contre la tricherie.&lt;br&gt;C&#39;est la différence entre une mémoire et un mensonge.&lt;/div&gt;" vertex="1">
@@ -140,13 +140,13 @@
           <mxGeometry height="75" width="380" x="110" y="1341" as="geometry" />
         </mxCell>
         <mxCell id="payable" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;" value="&lt;b&gt;✅ Tout est vérifié — le talent peut être payé&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#3a7a2a;font-size:10px&#39;&gt;payable&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;11 conditions vérifiées (voir encart)&lt;br/&gt;PRÉSENCE PROUVÉE + ARGENT SÉCURISÉ = PAIEMENT&lt;/span&gt;" vertex="1">
-          <mxGeometry height="70" width="300" x="150" y="1458" as="geometry" />
+          <mxGeometry height="70" width="300" x="150" y="1525" as="geometry" />
         </mxCell>
         <mxCell id="settled" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;" value="&lt;b&gt;💸 Le talent reçoit son argent&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#3a7a2a;font-size:10px&#39;&gt;settled&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Virement envoyé. Commission Micro Rave prélevée.&lt;br/&gt;Livres de compte équilibrés à zéro centime.&lt;/span&gt;" vertex="1">
-          <mxGeometry height="70" width="300" x="150" y="1548" as="geometry" />
+          <mxGeometry height="70" width="300" x="150" y="1615" as="geometry" />
         </mxCell>
         <mxCell id="archived" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=6;shadow=1;" value="&lt;b style=&#39;font-size:14px&#39;&gt;🔒🔒🔒 Tout est archivé — jamais modifier, jamais effacer&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a05000;font-size:10px&#39;&gt;archived · WORM niveau 3 — lecture seule globale · pour toujours&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Le contrat, l&#39;argent, les notes, la présence : tout est gravé pour toujours.&lt;br/&gt;Toucher ici = architecturalement impossible.&lt;/span&gt;" vertex="1">
-          <mxGeometry height="90" width="400" x="100" y="1638" as="geometry" />
+          <mxGeometry height="90" width="400" x="100" y="1705" as="geometry" />
         </mxCell>
         <mxCell id="alt_title" parent="1" style="text;html=1;align=center;strokeColor=#b85450;fillColor=#fde9e8;rounded=1;fontSize=11;" value="&lt;b&gt;Chemins alternatifs&lt;/b&gt;" vertex="1">
           <mxGeometry height="30" width="180" x="885" y="119" as="geometry" />
@@ -216,9 +216,7 @@
         <mxCell id="e12" edge="1" parent="1" source="event_completed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="sots_closed" value="24h de notes ✓">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e13" edge="1" parent="1" source="sots_closed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;" target="payable" value="11 conditions ok ✓">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
+        
         <mxCell id="e14" edge="1" parent="1" source="payable" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;" target="settled" value="virement ✓">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -247,7 +245,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="lois_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=6;" value="&lt;div&gt;&lt;b&gt;Lois de cette carte : &lt;/b&gt;CO-DÉPENDANCE-01 · WORM-01/02/03 · PAIEMENT-11CONDITIONS · LOI TRANSITION-01&lt;/div&gt;&lt;div&gt;Interdits : voir Carte 06 § interdits 1,4,5 · Lois invariantes : Carte 08&lt;/div&gt;" vertex="1">
-          <mxGeometry height="40" width="540" x="30" y="1748" as="geometry" />
+          <mxGeometry height="40" width="540" x="30" y="1815" as="geometry" />
         </mxCell>
         <mxCell id="QXs0jakQSQEAoEHUd_hZ-1" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="no_show_pre" value="talent ne trouve pas de remplaçant">
           <mxGeometry relative="1" x="-0.6667" as="geometry">
@@ -316,7 +314,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="er6mtvMOVG047FEzwl9P-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;spacingLeft=6;" value="&lt;div&gt;&lt;b&gt;⚔️ LOI TRANSITION-01 — la porte unique · section 2.7.1&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Toute mutation du champ &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot; style=&quot;&quot;&gt;status&lt;/code&gt; d&#39;un Engagement passe obligatoirement par &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot; style=&quot;&quot;&gt;transitionEngagement()&lt;/code&gt;. Jamais directement.&lt;/p&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Code applicatif · script admin · migration · console de debug : aucun ne peut toucher &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;status&lt;/code&gt; autrement.&lt;/p&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Toute tentative directe déclenche un &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;AdminIncidentRecord&lt;/code&gt; P0 bloquant — violation de Niveau 2 (fraude architecturale).&lt;/p&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Une porte sans gardien n&#39;est pas une porte — c&#39;est une faille.&lt;/p&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
-          <mxGeometry height="220" width="290" x="810" y="1480" as="geometry" />
+          <mxGeometry height="220" width="290" x="810" y="1560" as="geometry" />
         </mxCell>
         <mxCell id="v403_e_dep_seal" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="event_sealed" value="solde reçu · scellement ✓">
           <mxGeometry relative="1" as="geometry" />
@@ -415,7 +413,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="partially_settled" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;" value="&lt;b&gt;💰 Règlement partiel&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;partially_settled — résolution de litige partielle&lt;/span&gt;" vertex="1">
-          <mxGeometry height="50" width="180" x="741" y="1410" as="geometry" />
+          <mxGeometry height="50" width="180" x="741" y="1440" as="geometry" />
         </mxCell>
         <mxCell id="v403_e_disp_ps" edge="1" parent="1" source="disputed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;" target="partially_settled" value="résolution partielle">
           <mxGeometry relative="1" as="geometry">
@@ -462,14 +460,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="v403_e_sots_disp" edge="1" parent="1" source="sots_closed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="disputed" value="quelqu&#39;un conteste">
-          <mxGeometry relative="1" x="-0.3119" y="1" as="geometry">
-            <mxPoint as="offset" />
-            <Array as="points">
-              <mxPoint x="-218" y="1379" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
+        
         <mxCell id="v403_e_pay_disp" edge="1" parent="1" source="payable" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;" target="disputed" value="quelqu&#39;un conteste">
           <mxGeometry relative="1" x="-0.1356" as="geometry">
             <mxPoint as="offset" />
@@ -494,6 +485,23 @@
             <Array as="points">
               <mxPoint x="80" y="1104" />
               <mxPoint x="80" y="1493" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="contestation_window" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=center;strokeWidth=2;" value="&lt;b&gt;⏳ Fenêtre de contestation&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a07000;font-size:10px&#39;&gt;contestation_window&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;24h pour contester la prestation · D-019-B&lt;br/&gt;Sans dispute → payout autorisé&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="300" x="150" y="1435" as="geometry" />
+        </mxCell>
+        <mxCell id="v404_e_sots_cw" edge="1" parent="1" source="sots_closed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="contestation_window" value="fenêtre contestation ouverte">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v404_e_cw_pay" edge="1" parent="1" source="contestation_window" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;" target="payable" value="expiré sans dispute · 11 cond. ✓">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v404_e_cw_disp" edge="1" parent="1" source="contestation_window" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="disputed" value="quelqu&#39;un conteste · Contestation de Prestation">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="560" y="1468" />
+              <mxPoint x="560" y="1150" />
             </Array>
           </mxGeometry>
         </mxCell>

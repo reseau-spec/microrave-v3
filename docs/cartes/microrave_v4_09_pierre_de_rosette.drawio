@@ -56,17 +56,17 @@
           <mxGeometry height="80" width="570" x="1064" y="300" as="geometry" />
         </mxCell>
 
-        <!-- Ligne C02 — CORRIGÉE V11 Q2 : séquence complète + settled non-WORM -->
-        <mxCell id="r2_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#220022;strokeColor=#FF44FF;fontSize=11;fontColor=#FF44FF;align=center;" value="&lt;b&gt;C02&lt;/b&gt;&lt;br&gt;Machine État&lt;br&gt;&lt;i&gt;V11 Q2&lt;/i&gt;" vertex="1">
+        <!-- Ligne C02 — CORRIGÉE D-019-A V13 : séquence contestation_window non-WORM -->
+        <mxCell id="r2_c1" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#220022;strokeColor=#FF44FF;fontSize=11;fontColor=#FF44FF;align=center;" value="&lt;b&gt;C02&lt;/b&gt;&lt;br&gt;Machine État&lt;br&gt;&lt;i&gt;D-019-A V13&lt;/i&gt;" vertex="1">
           <mxGeometry height="110" width="120" x="20" y="388" as="geometry" />
         </mxCell>
-        <mxCell id="r2_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#FF44FF;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;Séquence d&apos;états WORM — chemin deux étapes (V11 Q2)&lt;/b&gt;&lt;br&gt;accepted → deposit_secured → &lt;b&gt;balance_pending&lt;/b&gt; → event_sealed → performed → payable → settled (non-WORM)" vertex="1">
+        <mxCell id="r2_c2" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#FF44FF;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="&lt;b&gt;Séquence WORM V4 — D-019-A&lt;/b&gt;&lt;br&gt;accepted → deposit_secured → event_sealed → performed → event_completed → sots_window_closed → &lt;b&gt;contestation_window&lt;/b&gt; → payable → settled" vertex="1">
           <mxGeometry height="110" width="260" x="148" y="388" as="geometry" />
         </mxCell>
-        <mxCell id="r2_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#441144;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="Le Trèfle dépose l&apos;acompte (≈20%). État : DEPOSIT_SECURED 🔒. À J-7 : solde demandé → BALANCE_PENDING 🔒 (SchedulerDueTask créée — si impayé J-6 → cancelled_J7). Solde reçu → EVENT_SEALED 🔒🔒. La nuit du show : Alex performe, GPS cohérent. 11 conditions vérifiées → PAYABLE → SETTLED." vertex="1">
+        <mxCell id="r2_c3" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#110011;strokeColor=#441144;fontSize=11;fontColor=#e8e8e8;align=left;verticalAlign=middle;" value="Le Trèfle dépose l&apos;acompte (≈20%). DEPOSIT_SECURED 🔒 · surveillance solde activée. Solde reçu → EVENT_SEALED 🔒🔒. Alex performe (GPS ✓). Fenêtre SOTS 24h → SOTS_WINDOW_CLOSED 🔒. Fenêtre contestation 24h (D-019-B) → aucune dispute → PAYABLE. Batch exécuté → SETTLED → ARCHIVED 🔒🔒🔒" vertex="1">
           <mxGeometry height="110" width="640" x="416" y="388" as="geometry" />
         </mxCell>
-        <mxCell id="r2_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ settled (non-WORM) · 🔒🔒🔒 ARCHIVED&lt;br&gt;Chemin deux étapes V11 Q2 · Séquence complète. Immuable." vertex="1">
+        <mxCell id="r2_c4" parent="1" style="rounded=4;whiteSpace=wrap;html=1;fillColor=#0a1400;strokeColor=#00CC44;fontSize=12;fontColor=#00CC44;align=center;verticalAlign=middle;fontStyle=1;" value="✅ settled · 🔒🔒🔒 ARCHIVED&lt;br&gt;Séquence V4 · D-019-A V13 · contestation_window traversée sans dispute." vertex="1">
           <mxGeometry height="110" width="570" x="1064" y="388" as="geometry" />
         </mxCell>
 
@@ -127,7 +127,7 @@
         </mxCell>
 
         <!-- Séquence temporelle — label -->
-        <mxCell id="timeline_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#FFD700;fontStyle=1;" value="&lt;b&gt;SÉQUENCE TEMPORELLE DE LA NUIT — CORRIGÉE V11 Q2&lt;/b&gt;" vertex="1">
+        <mxCell id="timeline_label" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontColor=#FFD700;fontStyle=1;" value="&lt;b&gt;SÉQUENCE TEMPORELLE — V4 · D-019-A · OS V13&lt;/b&gt;" vertex="1">
           <mxGeometry height="24" width="600" x="20" y="866" as="geometry" />
         </mxCell>
 
@@ -140,19 +140,17 @@
         </mxCell>
 
         <!-- J-7 dépôt -->
-        <mxCell id="tl_j7" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#001122;strokeColor=#4488FF;fontSize=10;fontColor=#4488FF;align=center;" value="J-7&lt;br&gt;&lt;b&gt;Acompte reçu&lt;/b&gt;&lt;br&gt;DEPOSIT_SECURED 🔒" vertex="1">
+        <mxCell id="tl_j7" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#001122;strokeColor=#4488FF;fontSize=10;fontColor=#4488FF;align=center;" value="J-7&lt;br&gt;&lt;b&gt;Acompte reçu&lt;/b&gt;&lt;br&gt;DEPOSIT_SECURED 🔒&lt;br&gt;surveillance solde activée" vertex="1">
           <mxGeometry height="60" width="140" x="188" y="898" as="geometry" />
         </mxCell>
         <mxCell id="arr2" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
           <mxGeometry height="36" width="20" x="332" y="910" as="geometry" />
         </mxCell>
 
-        <!-- BALANCE_PENDING — AJOUTÉ V11 Q2 -->
-        <mxCell id="tl_balance" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a0e00;strokeColor=#FF9900;strokeWidth=2;fontSize=10;fontColor=#FF9900;align=center;" value="J-7 → J-1&lt;br&gt;&lt;b&gt;Solde demandé&lt;/b&gt;&lt;br&gt;BALANCE_PENDING 🔒" vertex="1">
-          <mxGeometry height="60" width="140" x="356" y="898" as="geometry" />
+        <!-- état supprimé D-014-A -->
+        
         </mxCell>
-        <mxCell id="tl_balance_note" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#FF6600;fontStyle=2;" value="si impayé J-6 → cancelled_J7" vertex="1">
-          <mxGeometry height="16" width="140" x="356" y="960" as="geometry" />
+        
         </mxCell>
         <mxCell id="arr3" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
           <mxGeometry height="36" width="20" x="500" y="910" as="geometry" />
@@ -175,7 +173,7 @@
         </mxCell>
 
         <!-- SOTS -->
-        <mxCell id="tl_note" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a001a;strokeColor=#CC44FF;fontSize=10;fontColor=#CC44FF;align=center;" value="J+24h&lt;br&gt;&lt;b&gt;Le Trèfle note&lt;/b&gt;&lt;br&gt;SOTS append-only" vertex="1">
+        <mxCell id="tl_note" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a001a;strokeColor=#CC44FF;fontSize=10;fontColor=#CC44FF;align=center;" value="J+24h&lt;br&gt;&lt;b&gt;SOTS fermé&lt;/b&gt;&lt;br&gt;SOTS_WINDOW_CLOSED 🔒&lt;br&gt;→ contestation_window" vertex="1">
           <mxGeometry height="60" width="140" x="860" y="898" as="geometry" />
         </mxCell>
         <mxCell id="arr6" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
@@ -183,10 +181,10 @@
         </mxCell>
 
         <!-- Paiement — settled SANS 🔒, non-WORM -->
-        <mxCell id="tl_pay" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a1000;strokeColor=#FF9900;fontSize=10;fontColor=#FF9900;align=center;" value="11 cond.&lt;br&gt;&lt;b&gt;Paiement auto&lt;/b&gt;&lt;br&gt;PAYABLE → SETTLED" vertex="1">
+        <mxCell id="tl_pay" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#1a1000;strokeColor=#FF9900;fontSize=10;fontColor=#FF9900;align=center;" value="J+48h+&lt;br&gt;&lt;b&gt;Paiement auto&lt;/b&gt;&lt;br&gt;PAYABLE → SETTLED" vertex="1">
           <mxGeometry height="60" width="140" x="1028" y="898" as="geometry" />
         </mxCell>
-        <mxCell id="tl_pay_note" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#888800;fontStyle=2;" value="settled = non-WORM (V11)" vertex="1">
+        <mxCell id="tl_pay_note" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontColor=#888800;fontStyle=2;" value="expiré sans dispute (D-019-B)" vertex="1">
           <mxGeometry height="16" width="140" x="1028" y="960" as="geometry" />
         </mxCell>
         <mxCell id="arr7" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontSize=16;fontColor=#555555;" value="→" vertex="1">
@@ -207,8 +205,11 @@
         <mxCell id="lois_app" parent="1" style="rounded=8;whiteSpace=wrap;html=1;fillColor=#111111;strokeColor=#555555;fontSize=11;fontColor=#aaaaaa;align=left;verticalAlign=top;" value="&lt;b&gt;Lois de cette carte&lt;/b&gt;&lt;br&gt;LOI-ZERO-01 · CODEP-PRES-01&lt;br&gt;LEDGER-02 · SOTS-TEMOIN-01&lt;br&gt;WORM-APPEND-01 · LINEUP-01&lt;br&gt;Voir Cartes 00–08 pour détails" vertex="1">
           <mxGeometry height="130" width="400" x="1234" y="898" as="geometry" />
         </mxCell>
-        <mxCell id="version" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#555555;" value="Micro Rave V4 · Carte 09 · La Pierre de Rosette · Premier Event Réel · Corrections V11 Q2 intégrées · Mai 2026" vertex="1">
+        <mxCell id="version" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;fontColor=#555555;" value="Micro Rave V4 · Carte 09 · La Pierre de Rosette · Premier Event Réel · Corrections D-019-A · D-019-B · OS V13 · 19 mai 2026, 18:07 EST" vertex="1">
           <mxGeometry height="20" width="1614" x="20" y="1048" as="geometry" />
+        </mxCell>
+        <mxCell id="tl_cw" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;" value="J+48h&lt;br&gt;&lt;b&gt;Fenêtre contestation&lt;/b&gt;&lt;br&gt;contestation_window · 24h" vertex="1">
+          <mxGeometry height="55" width="120" x="820" y="1450" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
