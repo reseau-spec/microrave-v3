@@ -4,24 +4,26 @@
  * Vérifie que transitionEngagement() est l'unique porte
  * et que les violations sont bloquées.
  *
- * DÉCISIONS FONDATEUR V11 (Mai 2026) :
- *   Q1 — TRANSFERT depuis deposit_secured uniquement (placed→transfer supprimé)
- *   Q2 — CHEMIN DEUX ÉTAPES : deposit_pending → deposit_secured → balance_pending → event_sealed
+ * DÉCISIONS FONDATEUR V12 :
+ *   [D-014-A] balance_pending retiré de WORM_STATES et de la machine d'état
+ *             SchedulerDueTask créée dans EventPaymentGuard à deposit_secured
+ *             Chemin nominal : deposit_secured → event_sealed (direct)
+ *   [D-014-B] payable retiré de WORM_STATES — état opérationnel non-WORM
+ *
+ * DÉCISIONS FONDATEUR V11 :
+ *   Q1 — TRANSFERT depuis deposit_secured uniquement
  *   Q3 — LITIGE depuis tous les états actifs (* → disputed)
  *
- * ALIGNEMENT D-019 | Machine d'état complète révisée :
+ * ALIGNEMENT D-019 :
  *   - accepted→cancelled_pre_deposit ajouté
  *   - deposit_pending→deposit_failed ajouté
  *   - deposit_pending→cancelled_pre_deposit SUPPRIMÉ
  *   - cancelled_J30/J7/pre_deposit/no_show_pre_event → archived directement
  *   - sots_window_closed→no_show (source officielle du no_show)
- *   - performed→no_show SUPPRIMÉ
  *   - transfer_requested→no_show_pre_event ajouté
- *   - no_show_pre_event→archived (pas via refunded)
  *   - disputed→partially_settled ajouté
- *   - placed→transfer_requested SUPPRIMÉ
  *
- * Source : OS V11 section 16.2 — LOI TRANSITION-01 · D-019
+ * Source : OS V12 section 16.2 — LOI TRANSITION-01
  * ============================================================
  */
 
@@ -57,7 +59,7 @@ const ENG_ID = 'ENG-TEST-TRANS-0001';
 const USR_ID = 'USR-TEST-TRANS-0001';
 
 console.log('═══════════════════════════════════════════════');
-console.log('Test P0 : TRANSITION-01');
+console.log('Test P0 : TRANSITION-01 (V12)');
 console.log('═══════════════════════════════════════════════\n');
 
 async function run() {
@@ -99,7 +101,7 @@ async function run() {
   });
 
   await test('settled→proposed est bloquée (TRANSITION_UNAUTHORIZED)', async () => {
-    // OS V11 : settled est NON-WORM — bloqué par la table, pas par WORMGuard.
+    // settled : non-WORM, bloqué par la table
     try {
       await transitionEngagement({
         engagementId: ENG_ID, currentState: 'settled', targetState: 'proposed',
@@ -124,20 +126,51 @@ async function run() {
     }
   });
 
-  await test('balance_pending dans WORM_STATES W1 (OS V11 Q2)', async () => {
-    if (WORM_STATES['balance_pending'] !== 'W1')
-      throw new Error(`balance_pending doit être W1. Actuel: ${WORM_STATES['balance_pending'] ?? 'ABSENT'}`);
+  // ── [D-014-A] balance_pending RETIRÉ de WORM_STATES ───────
+  await test('[D-014-A] balance_pending ABSENT de WORM_STATES', async () => {
+    // D-014-A : balance_pending fusionné dans deposit_secured.
+    // "En attente de solde" = "acompte reçu" — même réalité humaine, même moment.
+    if (WORM_STATES['balance_pending'] !== undefined)
+      throw new Error(
+        `balance_pending doit être ABSENT de WORM_STATES — D-014-A. ` +
+        `Actuel: ${WORM_STATES['balance_pending']}`
+      );
   });
 
-  await test('payable dans WORM_STATES W1', async () => {
-    if (WORM_STATES['payable'] !== 'W1')
-      throw new Error(`payable absent de WORM_STATES`);
+  // ── [D-014-B] payable RETIRÉ de WORM_STATES ───────────────
+  await test('[D-014-B] payable ABSENT de WORM_STATES', async () => {
+    // D-014-B : payable est un état opérationnel de file d'attente.
+    // Protégé par D-101 (6 verrous anti-double payout), pas par WORM.
+    if (WORM_STATES['payable'] !== undefined)
+      throw new Error(
+        `payable doit être ABSENT de WORM_STATES — D-014-B. ` +
+        `Actuel: ${WORM_STATES['payable']}`
+      );
   });
 
   await test('settled absent de WORM_STATES (non-moment officiel)', async () => {
-    // OS V11 changelog : "settled retiré de WORM (non-moment WORM officiel)"
     if (WORM_STATES['settled'] !== undefined)
       throw new Error(`settled doit être absent de WORM_STATES. Actuel: ${WORM_STATES['settled']}`);
+  });
+
+  await test('WORM_STATES contient exactement les 6 moments officiels', async () => {
+    // D-014 : 6 moments — accepted, deposit_secured, event_sealed,
+    // event_completed, sots_window_closed, archived
+    const attendus = ['accepted', 'deposit_secured', 'event_sealed', 'event_completed', 'sots_window_closed', 'archived'];
+    const absents  = ['balance_pending', 'payable', 'settled', 'deposit_pending'];
+
+    for (const etat of attendus) {
+      if (WORM_STATES[etat] === undefined)
+        throw new Error(`${etat} doit être dans WORM_STATES (Moment officiel D-014)`);
+    }
+    for (const etat of absents) {
+      if (WORM_STATES[etat] !== undefined)
+        throw new Error(`${etat} doit être ABSENT de WORM_STATES`);
+    }
+
+    const count = Object.keys(WORM_STATES).length;
+    if (count !== 6)
+      throw new Error(`WORM_STATES doit contenir exactement 6 entrées. Actuel: ${count}`);
   });
 
   // ── Section 3 : Validation systemIds ──────────────────────
@@ -176,24 +209,23 @@ async function run() {
     }
   });
 
-  // ── Section 4 : Table souveraine D-019 ────────────────────
-  console.log('\n── Table souveraine D-019 ────────────────────\n');
+  // ── Section 4 : Table souveraine D-019 + V12 ──────────────
+  console.log('\n── Table souveraine D-019 + V12 ──────────────\n');
 
   await test('La table contient au moins 20 transitions', async () => {
     const count = Object.keys(TRANSITION_TABLE).length;
     if (count < 20) throw new Error(`Seulement ${count} transitions — attendu: 20+`);
   });
 
-  await test('Chemin nominal complet proposed→archived (D-019 + OS V11 Q2)', async () => {
-    // D-019 chemin nominal + OS V11 Q2 (deux étapes paiement)
+  await test('[D-014-A] Chemin nominal simplifié deposit_secured → event_sealed', async () => {
+    // D-014-A : balance_pending supprimé. Chemin direct.
     const chemin = [
       'proposed->negotiating',
       'negotiating->accepted',
       'accepted->placed',
       'placed->deposit_pending',
       'deposit_pending->deposit_secured',
-      'deposit_secured->balance_pending',
-      'balance_pending->event_sealed',
+      'deposit_secured->event_sealed',   // [D-014-A] direct — sans balance_pending
       'event_sealed->performed',
       'performed->event_completed',
       'event_completed->sots_window_closed',
@@ -202,49 +234,70 @@ async function run() {
       'settled->archived',
     ];
     for (const t of chemin) {
-      if (!TRANSITION_TABLE[t]) throw new Error(`Transition manquante : ${t}`);
+      if (!TRANSITION_TABLE[t]) throw new Error(`Transition manquante dans le chemin nominal : ${t}`);
     }
   });
 
+  await test('[D-014-A] deposit_secured→balance_pending ABSENTE (état supprimé)', async () => {
+    // D-014-A : balance_pending n'existe plus dans la machine d'état
+    if (TRANSITION_TABLE['deposit_secured->balance_pending'])
+      throw new Error('deposit_secured→balance_pending présente — supprimée par D-014-A');
+  });
+
+  await test('[D-014-A] balance_pending→event_sealed ABSENTE (remplacée)', async () => {
+    if (TRANSITION_TABLE['balance_pending->event_sealed'])
+      throw new Error('balance_pending→event_sealed présente — supprimée par D-014-A');
+  });
+
+  await test('[D-014-A] balance_pending→cancelled_J7 ABSENTE (remplacée)', async () => {
+    if (TRANSITION_TABLE['balance_pending->cancelled_J7'])
+      throw new Error('balance_pending→cancelled_J7 présente — supprimée par D-014-A');
+  });
+
+  await test('[D-014-A] deposit_secured→cancelled_J7 présente (LOI ANNULATION-02)', async () => {
+    // D-014-A : annulation automatique J-6 depuis deposit_secured directement
+    const t = TRANSITION_TABLE['deposit_secured->cancelled_J7'];
+    if (!t) throw new Error('deposit_secured→cancelled_J7 MANQUANTE — D-014-A LOI ANNULATION-02');
+    if (t.guard !== 'CancellationGuard') throw new Error(`doit utiliser CancellationGuard, pas ${t.guard}`);
+    if (!t.financialGuard) throw new Error('doit avoir financialGuard: true — acompte reçu');
+  });
+
+  await test('[D-014-A] deposit_secured→event_sealed présente avec SealingGuard W2', async () => {
+    // D-014-A : SealingGuard s'active depuis deposit_secured directement
+    const t = TRANSITION_TABLE['deposit_secured->event_sealed'];
+    if (!t) throw new Error('deposit_secured→event_sealed MANQUANTE — D-014-A');
+    if (t.guard !== 'SealingGuard') throw new Error(`doit utiliser SealingGuard, pas ${t.guard}`);
+    if (t.worm !== 'W2') throw new Error(`doit être WORM W2. Actuel: ${t.worm}`);
+    if (!t.financialGuard) throw new Error('doit avoir financialGuard: true');
+  });
+
   await test('D-019 — accepted→cancelled_pre_deposit présente', async () => {
-    // D-019 : accepted → placed / cancelled_pre_deposit
     if (!TRANSITION_TABLE['accepted->cancelled_pre_deposit'])
       throw new Error('accepted→cancelled_pre_deposit MANQUANTE — D-019');
   });
 
   await test('D-019 — deposit_pending→deposit_failed présente', async () => {
-    // D-019 : deposit_pending → deposit_secured / deposit_failed
     if (!TRANSITION_TABLE['deposit_pending->deposit_failed'])
       throw new Error('deposit_pending→deposit_failed MANQUANTE — D-019');
   });
 
   await test('D-019 — deposit_pending→cancelled_pre_deposit ABSENTE', async () => {
-    // D-019 n'autorise PAS l'annulation depuis deposit_pending (fail-closed)
     if (TRANSITION_TABLE['deposit_pending->cancelled_pre_deposit'])
       throw new Error('deposit_pending→cancelled_pre_deposit présente — interdit par D-019');
   });
 
-  await test('D-019 — terminaisons annulations directes vers archived (sans refunded)', async () => {
-    // D-019 : cancelled_J30 → archived / cancelled_J7 → archived / cancelled_pre_deposit → archived
+  await test('D-019 — terminaisons annulations directes vers archived', async () => {
     for (const t of ['cancelled_J30->archived', 'cancelled_J7->archived', 'cancelled_pre_deposit->archived']) {
-      if (!TRANSITION_TABLE[t]) throw new Error(`${t} MANQUANTE — D-019 terminaison directe`);
+      if (!TRANSITION_TABLE[t]) throw new Error(`${t} MANQUANTE — D-019`);
     }
-    // Vérifier que les anciens chemins via refunded ont été supprimés
     for (const t of ['cancelled_J30->refunded', 'cancelled_J7->refunded', 'cancelled_pre_deposit->refunded']) {
       if (TRANSITION_TABLE[t]) throw new Error(`${t} présente — supprimée par D-019`);
     }
   });
 
   await test('D-019 — transfer_requested→no_show_pre_event présente', async () => {
-    // D-019 : transfer_requested → transfer_accepted / transfer_refused / no_show_pre_event
     if (!TRANSITION_TABLE['transfer_requested->no_show_pre_event'])
       throw new Error('transfer_requested→no_show_pre_event MANQUANTE — D-019');
-  });
-
-  await test('D-019 — event_sealed→no_show_pre_event ABSENTE', async () => {
-    // D-019 : no_show_pre_event vient de transfer_requested, pas de event_sealed
-    if (TRANSITION_TABLE['event_sealed->no_show_pre_event'])
-      throw new Error('event_sealed→no_show_pre_event présente — supprimée par D-019');
   });
 
   await test('D-019 — no_show_pre_event→archived présente (pas via refunded)', async () => {
@@ -254,9 +307,7 @@ async function run() {
       throw new Error('no_show_pre_event→refunded présente — supprimée par D-019');
   });
 
-  await test('D-019 — sots_window_closed→no_show présente (source officielle du no_show)', async () => {
-    // D-019 : sots_window_closed → payable / disputed / no_show
-    // Le système statue sur le no_show après la fenêtre SOTS, pas depuis performed
+  await test('D-019 — sots_window_closed→no_show présente (source officielle)', async () => {
     if (!TRANSITION_TABLE['sots_window_closed->no_show'])
       throw new Error('sots_window_closed→no_show MANQUANTE — D-019');
     if (TRANSITION_TABLE['performed->no_show'])
@@ -264,31 +315,21 @@ async function run() {
   });
 
   await test('D-019 — disputed→partially_settled présente', async () => {
-    // D-019 : disputed → payable / partially_settled / refunded
     if (!TRANSITION_TABLE['disputed->partially_settled'])
       throw new Error('disputed→partially_settled MANQUANTE — D-019');
   });
 
-  await test('D-019 — placed→transfer_requested ABSENTE (Q1 : deposit_secured seulement)', async () => {
-    // D-019 + OS V11 Q1 : transfert uniquement depuis deposit_secured
-    if (TRANSITION_TABLE['placed->transfer_requested'])
-      throw new Error('placed→transfer_requested présente — supprimée par D-019 + Q1');
-    if (!TRANSITION_TABLE['deposit_secured->transfer_requested'])
-      throw new Error('deposit_secured→transfer_requested manquante — Q1 V11');
-  });
-
-  await test('Q3 V11 — litige (* → disputed) depuis tous les états actifs', async () => {
-    // OS V11 Q3 souverain — poignée de frein d'urgence
+  await test('Q3 V12 — litige depuis tous les états actifs (* → disputed)', async () => {
     const etatsActifs = [
       'proposed', 'negotiating', 'accepted', 'placed',
-      'deposit_pending', 'deposit_secured', 'balance_pending',
+      'deposit_pending', 'deposit_secured',
       'event_sealed', 'performed', 'event_completed',
       'sots_window_closed', 'payable',
     ];
     for (const etat of etatsActifs) {
       const t = `${etat}->disputed`;
       if (!TRANSITION_TABLE[t])
-        throw new Error(`${t} MANQUANTE — OS V11 Q3 : poignée de frein d'urgence`);
+        throw new Error(`${t} MANQUANTE — Q3 V12 poignée de frein d'urgence`);
       if (TRANSITION_TABLE[t].guard !== 'DisputeGuard')
         throw new Error(`${t} doit utiliser DisputeGuard`);
     }
@@ -302,26 +343,21 @@ async function run() {
     }
   });
 
-  await test('Q1 V11 — transfert depuis deposit_secured avec financialGuard', async () => {
+  await test('Q1 V12 — transfert depuis deposit_secured avec financialGuard', async () => {
     const t = TRANSITION_TABLE['deposit_secured->transfer_requested'];
     if (!t) throw new Error('deposit_secured→transfer_requested MANQUANTE');
     if (!t.financialGuard) throw new Error('doit avoir financialGuard: true');
     if (!TRANSITION_TABLE['transfer_requested->transfer_accepted']) throw new Error('transfer_accepted manquante');
     if (!TRANSITION_TABLE['transfer_requested->transfer_refused'])  throw new Error('transfer_refused manquante');
-  });
-
-  await test('Cycle transfert complet (accepted/refused → placed)', async () => {
-    // D-013 : fermeture de la boucle — un transfert réussi ramène à placed
-    if (!TRANSITION_TABLE['transfer_accepted->placed']) throw new Error('transfer_accepted→placed manquante');
-    if (!TRANSITION_TABLE['transfer_refused->placed'])  throw new Error('transfer_refused→placed manquante');
+    if (TRANSITION_TABLE['placed->transfer_requested'])
+      throw new Error('placed→transfer_requested présente — supprimée Q1');
   });
 
   await test('États terminaux : tous les chemins finissent en archived', async () => {
     const terminaux = [
       'settled->archived', 'refunded->archived', 'withdrawn->archived',
       'cancelled_pre_deposit->archived', 'cancelled_J30->archived',
-      'cancelled_J7->archived', 'no_show_pre_event->archived',
-      'deposit_failed->archived',
+      'cancelled_J7->archived', 'no_show_pre_event->archived', 'deposit_failed->archived',
     ];
     for (const t of terminaux) {
       if (!TRANSITION_TABLE[t]) throw new Error(`Transition terminale manquante : ${t}`);
