@@ -16,22 +16,38 @@
  *
  * CORRECTIONS V10.1 (patch OS) :
  *   - deposit_secured et balance_pending restaurés dans la table
- *     (OS V10.1 section 2.7.1 — table 2.7.1 incomplète corrigée)
- *   - deposit_secured dans WORM_STATES W1 (OS V10 section 2.7 moment 2)
- *   - deposit_pending retiré de WORM_STATES (n'est pas un moment WORM)
- *   - Annulations recadrées sur deposit_secured et balance_pending
- *   - contractSnapshot retourné par transitionEngagement() pour persistence
- *   - ContractSnapshot non perdu après Guard 1
+ *   - deposit_secured dans WORM_STATES W1
+ *   - deposit_pending retiré de WORM_STATES
+ *   - contractSnapshot retourné pour persistence
  *   - financialGuard corrigé sur *→disputed post-paiement
- *   - no_show_pre_event ajouté
  *
- * ALIGNEMENT OS V11 (décisions fondateur Q1/Q2/Q3) :
- *   Q1 — deposit_secured→transfer_requested ajouté (financialGuard: true)
- *        Source : OS V11 section 2.7.1 + Carte V5 (arête deposit_secured → Transfert)
- *   Q2 — balance_pending ajouté dans WORM_STATES W1 (état protégé, solde en attente)
- *        Source : OS V11 changelog "balance_pending ajouté dans WORM_STATES W1"
- *   Q3 — settled retiré de WORM_STATES (non-moment WORM officiel selon OS V11 changelog)
- *        Source : OS V11 changelog "settled retiré de WORM (non-moment WORM officiel)"
+ * ALIGNEMENT OS V11 Q1/Q2/Q3 :
+ *   Q1 — deposit_secured→transfer_requested (financialGuard: true)
+ *   Q2 — balance_pending W1 dans WORM_STATES
+ *   Q3 — * → disputed depuis tous états actifs
+ *        settled retiré de WORM_STATES
+ *
+ * ALIGNEMENT D-019 | Machine d'état complète révisée :
+ *   AJOUTS :
+ *     accepted→cancelled_pre_deposit
+ *     cancelled_J30→archived          (terminaison directe — pas via refunded)
+ *     cancelled_J7→archived           (terminaison directe — pas via refunded)
+ *     cancelled_pre_deposit→archived  (terminaison directe — pas via refunded)
+ *     deposit_failed→archived         (nouveau state — deposit_pending→deposit_failed)
+ *     deposit_pending→deposit_failed
+ *     disputed→partially_settled
+ *     no_show_pre_event→archived      (terminaison directe — pas via refunded)
+ *     sots_window_closed→no_show      (no_show vient de sots, pas de performed)
+ *     transfer_requested→no_show_pre_event
+ *   SUPPRESSIONS :
+ *     cancelled_J30→refunded          (D-019 : archivage direct)
+ *     cancelled_J7→refunded           (D-019 : archivage direct)
+ *     cancelled_pre_deposit→refunded  (D-019 : archivage direct)
+ *     deposit_pending→cancelled_pre_deposit (D-019 : interdit depuis cet état)
+ *     event_sealed→no_show_pre_event  (D-019 : no_show_pre_event depuis transfer_requested)
+ *     no_show_pre_event→refunded      (D-019 : archivage direct)
+ *     performed→no_show               (D-019 : no_show depuis sots_window_closed)
+ *     placed→transfer_requested       (D-019 + Q1 : transfert depuis deposit_secured seulement)
  * ============================================================
  */
 
@@ -43,71 +59,83 @@ const PlacementGuard         = require('./guards/PlacementGuard');
 const EventPaymentGuard      = require('./guards/EventPaymentGuard');
 const SealingGuard           = require('./guards/SealingGuard');
 
-// ── Table souveraine — Source : OS V11 sections 2.6 + 2.7.1 ─
+// ── Table souveraine — Source : D-019 + OS V11 sections 2.6 + 2.7.1 ──
 const TRANSITION_TABLE = {
 
   // ── Chemin nominal ─────────────────────────────────────────
-  'proposed->accepted':                    { guard: 'MissionConversionGuard',   worm: null, financialGuard: false },
+  // D-019 : proposed → negotiating / withdrawn
   'proposed->negotiating':                 { guard: 'MissionConversionGuard',   worm: null, financialGuard: false },
+  'proposed->withdrawn':                   { guard: 'WithdrawalGuard',          worm: null, financialGuard: false },
+
+  // OS V11 table 2.7.1 : proposed→accepted (voie QuickPlay — bypass négociation)
+  // D-019 liste proposed→negotiating/withdrawn ; OS V11 ajoute proposed→accepted explicitement.
+  'proposed->accepted':                    { guard: 'MissionConversionGuard',   worm: null, financialGuard: false },
+
+  // D-019 : negotiating → accepted / withdrawn
   'negotiating->accepted':                 { guard: 'MissionConversionGuard',   worm: null, financialGuard: false },
+  'negotiating->withdrawn':                { guard: 'WithdrawalGuard',          worm: null, financialGuard: false },
+
+  // D-019 : accepted → placed / cancelled_pre_deposit
   'accepted->placed':                      { guard: 'PlacementGuard',           worm: 'W1', financialGuard: false },
+  'accepted->cancelled_pre_deposit':       { guard: 'CancellationGuard',        worm: null, financialGuard: false },
 
-  // totalCents = prix_vendu_client TTC (TPS + TVQ + frais Stripe inclus)
-  // Source : OS V11 section 3.3 LOI WATERFALL-01
+  // D-019 : placed → deposit_pending / cancelled_pre_deposit
   'placed->deposit_pending':               { guard: 'EventPaymentGuard',        worm: null, financialGuard: true  },
+  'placed->cancelled_pre_deposit':         { guard: 'CancellationGuard',        worm: null, financialGuard: false },
 
-  // deposit_pending → deposit_secured : webhook Stripe payment_intent.succeeded
-  // Source : OS V11 section 2.7.1 — Moment WORM 2
-  // Pierre de Rosette V11 : "J-7 : Dépôt reçu DEPOSIT_SECURED 🔒"
+  // D-019 : deposit_pending → deposit_secured / deposit_failed
+  // SUPPRIMÉ : deposit_pending→cancelled_pre_deposit (D-019 n'autorise pas l'annulation ici)
   'deposit_pending->deposit_secured':      { guard: 'EventPaymentGuard',        worm: 'W1', financialGuard: true  },
+  'deposit_pending->deposit_failed':       { guard: 'EventPaymentGuard',        worm: null, financialGuard: true  },
 
-  // deposit_secured → balance_pending : request de paiement du solde J-7
-  // Source : OS V11 section 2.7.1 — Q2 décision fondateur
-  // "Solde demandé à J-7. SchedulerDueTask balance_deadline_check créée."
+  // D-019 : deposit_secured → balance_pending / transfer_requested / cancelled_J30
+  // OS V11 Q1 : transfert depuis deposit_secured uniquement — placed→transfer_requested supprimé
   'deposit_secured->balance_pending':      { guard: 'BalanceRequestGuard',      worm: null, financialGuard: true  },
+  'deposit_secured->transfer_requested':   { guard: 'TransferGuard',            worm: null, financialGuard: true  },
+  'deposit_secured->cancelled_J30':        { guard: 'CancellationGuard',        worm: null, financialGuard: true  },
 
-  // balance_pending → event_sealed : solde reçu + ContractSnapshot phase 2
-  // Source : OS V11 section 2.7.1 — SealingGuard couvre CE seul passage
-  // Pierre de Rosette V11 : "Soir J : Event SEALED 🔒🔒"
+  // D-019 : transfer_requested → transfer_accepted / transfer_refused / no_show_pre_event
+  // SUPPRIMÉ : event_sealed→no_show_pre_event (D-019 : no_show_pre_event vient du cycle transfert)
+  'transfer_requested->transfer_accepted': { guard: 'TransferGuard',            worm: null, financialGuard: false },
+  'transfer_requested->transfer_refused':  { guard: 'TransferGuard',            worm: null, financialGuard: false },
+  'transfer_requested->no_show_pre_event': { guard: 'TransferGuard',            worm: null, financialGuard: true  },
+
+  // Retour du cycle transfert — D-013 (nécessaire pour fermer la boucle)
+  'transfer_accepted->placed':             { guard: 'TransferGuard',            worm: null, financialGuard: false },
+  'transfer_refused->placed':              { guard: 'TransferGuard',            worm: null, financialGuard: false },
+
+  // D-019 : balance_pending → event_sealed / cancelled_J7
   'balance_pending->event_sealed':         { guard: 'SealingGuard',             worm: 'W2', financialGuard: true  },
+  'balance_pending->cancelled_J7':         { guard: 'CancellationGuard',        worm: null, financialGuard: true  },
 
+  // D-019 : event_sealed → performed
   'event_sealed->performed':               { guard: 'PresenceWindowGuard',      worm: null, financialGuard: false },
+
+  // D-019 : performed → event_completed / disputed
   'performed->event_completed':            { guard: 'EventCompletionGuard',     worm: 'W1', financialGuard: false },
-  'event_completed->sots_window_closed':   { guard: 'SOTSWindowGuard',          worm: 'W1', financialGuard: false },
+  'performed->disputed':                   { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
 
-  // Payout nominal — après SOTS (Condition 7 vérifiée)
-  // Source : OS V11 section 2.6 + section 6.3
-  'sots_window_closed->payable':           { guard: 'PresenceProofGuard',       worm: null, financialGuard: true  },
-
-  // Payout urgence — court-circuite SOTS
-  // SoloFounderOverride + AdminIncidentRecord requis — Source : OS V11 section 9.3
+  // OS V11 table 2.7.1 : performed→payable (payout urgence — SoloFounderOverride)
+  // D-019 ne liste pas ce cas ; OS V11 l'explicite comme exception contrôlée.
   'performed->payable':                    { guard: 'PresenceProofGuard',       worm: null, financialGuard: true  },
 
+  // D-019 : event_completed → sots_window_closed
+  'event_completed->sots_window_closed':   { guard: 'SOTSWindowGuard',          worm: 'W1', financialGuard: false },
+
+  // D-019 : sots_window_closed → payable / disputed / no_show
+  // SUPPRIMÉ : performed→no_show (D-019 : no_show déclenché depuis sots_window_closed)
+  'sots_window_closed->payable':           { guard: 'PresenceProofGuard',       worm: null, financialGuard: true  },
+  'sots_window_closed->disputed':          { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
+  'sots_window_closed->no_show':           { guard: 'NoShowGuard',              worm: null, financialGuard: true  },
+
+  // D-019 : payable → settled → archived
   'payable->settled':                      { guard: 'LedgerInvariantGuard',     worm: 'W3', financialGuard: true  },
   'settled->archived':                     { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: true  },
 
-  // ── Annulations — Source : OS V11 section 2.6 ─────────────
-  // placed→cancelled_pre_deposit : avant tout paiement (aucun argent)
-  'placed->cancelled_pre_deposit':         { guard: 'CancellationGuard',        worm: null, financialGuard: false },
-  'deposit_pending->cancelled_pre_deposit':{ guard: 'CancellationGuard',        worm: null, financialGuard: false },
-  // deposit_secured→cancelled_J30 : dépôt reçu, annulation >J-30
-  // Source : OS V11 — annulation depuis deposit_secured, pas deposit_pending
-  'deposit_secured->cancelled_J30':        { guard: 'CancellationGuard',        worm: null, financialGuard: true  },
-  // balance_pending→cancelled_J7 : solde non reçu à J-6 — scheduler balance_deadline_check
-  // Source : OS V11 — LOI ANNULATION-02 — annulation depuis balance_pending
-  'balance_pending->cancelled_J7':         { guard: 'CancellationGuard',        worm: null, financialGuard: true  },
-
-  // ── Remboursements ─────────────────────────────────────────
-  'cancelled_pre_deposit->refunded':       { guard: 'RefundGuard',              worm: null, financialGuard: false },
-  'cancelled_J30->refunded':               { guard: 'RefundGuard',              worm: null, financialGuard: true  },
-  'cancelled_J7->refunded':                { guard: 'RefundGuard',              worm: null, financialGuard: true  },
-  'no_show->refunded':                     { guard: 'RefundGuard',              worm: null, financialGuard: true  },
-
   // ── Dispute — depuis tous les états actifs ─────────────────
-  // Source : OS V11 section 2.7.1 — "* → disputed" via DisputeGuard
-  // OS V11 Q3 : "la poignée de frein d'urgence doit fonctionner à tout moment."
-  // "La restriction au seul event_completed aurait laissé des fonds en otage sans recours légal."
-  // financialGuard: true pour tout état APRÈS réception d'argent
+  // OS V11 Q3 : "* → disputed" — poignée de frein d'urgence à tout moment.
+  // D-019 confirme : performed→disputed, sots_window_closed→disputed.
+  // OS V11 Q3 étend à tous les états actifs (décision fondateur souveraine).
   'proposed->disputed':                    { guard: 'DisputeGuard',             worm: null, financialGuard: false },
   'negotiating->disputed':                 { guard: 'DisputeGuard',             worm: null, financialGuard: false },
   'accepted->disputed':                    { guard: 'DisputeGuard',             worm: null, financialGuard: false },
@@ -115,54 +143,42 @@ const TRANSITION_TABLE = {
   'deposit_pending->disputed':             { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
   'deposit_secured->disputed':             { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
   'balance_pending->disputed':             { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
-  // Après event_sealed : argent reçu — financialGuard: true obligatoire
   'event_sealed->disputed':                { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
-  'performed->disputed':                   { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
   'event_completed->disputed':             { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
-  'sots_window_closed->disputed':          { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
   'payable->disputed':                     { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
 
   // ── Sorties de dispute ─────────────────────────────────────
-  // DisputeResolutionGuard — Source : OS V11 section 9.7 + table 2.7.1
+  // D-019 : disputed → payable / partially_settled / refunded
+  // Source : OS V11 section 9.7 + table 2.7.1
   'disputed->payable':                     { guard: 'DisputeResolutionGuard',   worm: null, financialGuard: true  },
+  'disputed->partially_settled':           { guard: 'DisputeResolutionGuard',   worm: null, financialGuard: true  },
   'disputed->refunded':                    { guard: 'DisputeResolutionGuard',   worm: null, financialGuard: true  },
 
-  // ── Transfert de talent ────────────────────────────────────
-  'placed->transfer_requested':            { guard: 'TransferGuard',            worm: null, financialGuard: false },
-
-  // LIVRABLE 2 — OS V11 Q1 : transfert également possible depuis deposit_secured (acompte reçu)
-  // Source : OS V11 section 2.7.1 — "Décision fondateur V11 Q1"
-  // Carte V5 : arête deposit_secured → Transfert (talent cède sa place) confirmée.
-  // financialGuard: true obligatoire — l'acompte est reçu à ce stade.
-  'deposit_secured->transfer_requested':   { guard: 'TransferGuard',            worm: null, financialGuard: true  },
-
-  'transfer_requested->transfer_accepted': { guard: 'TransferGuard',            worm: null, financialGuard: false },
-  'transfer_requested->transfer_refused':  { guard: 'TransferGuard',            worm: null, financialGuard: false },
-  'transfer_accepted->placed':             { guard: 'TransferGuard',            worm: null, financialGuard: false },
-  'transfer_refused->placed':              { guard: 'TransferGuard',            worm: null, financialGuard: false },
-
   // ── No-show ────────────────────────────────────────────────
-  'performed->no_show':                    { guard: 'NoShowGuard',              worm: null, financialGuard: false },
-  // no_show_pre_event : talent absent avant le début — Source : OS V11 section 2.6
-  'event_sealed->no_show_pre_event':       { guard: 'NoShowGuard',              worm: null, financialGuard: true  },
-  'no_show_pre_event->refunded':           { guard: 'RefundGuard',              worm: null, financialGuard: true  },
+  // D-019 : no_show → refunded → archived (séquence complète)
+  'no_show->refunded':                     { guard: 'RefundGuard',              worm: null, financialGuard: true  },
 
-  // ── États terminaux — archivage ───────────────────────────
-  // Tout état terminal doit pouvoir atteindre archived — pas de cul-de-sac.
-  // Source : OS V11 section 2.7 — archived = WORM final universel
+  // ── Terminaisons directes — archivage sans refunded (D-019) ──
+  // D-019 : cancelled_pre_deposit → archived
+  // D-019 : cancelled_J30 → archived  (SUPPRIMÉ : cancelled_J30→refunded)
+  // D-019 : cancelled_J7 → archived   (SUPPRIMÉ : cancelled_J7→refunded)
+  // D-019 : no_show_pre_event → archived (SUPPRIMÉ : no_show_pre_event→refunded)
+  'cancelled_pre_deposit->archived':       { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: false },
+  'cancelled_J30->archived':               { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: true  },
+  'cancelled_J7->archived':                { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: true  },
+  'no_show_pre_event->archived':           { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: true  },
+
+  // D-019 : refunded → archived
   'refunded->archived':                    { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: true  },
+
+  // D-019 : withdrawn (état terminal) → archived
   'withdrawn->archived':                   { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: false },
 
-  // ── Retrait avant accord ───────────────────────────────────
-  'proposed->withdrawn':                   { guard: 'WithdrawalGuard',          worm: null, financialGuard: false },
-  'negotiating->withdrawn':                { guard: 'WithdrawalGuard',          worm: null, financialGuard: false },
+  // D-019 : deposit_failed → archived (aucun argent reçu — pas de financialGuard)
+  'deposit_failed->archived':              { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: false },
 };
 
 // ── États WORM — Source : OS V11 section 2.7 ─────────────────
-// LIVRABLE 3 — Patch WORM_STATES conforme OS V11 changelog :
-//   "balance_pending ajouté dans WORM_STATES W1"
-//   "settled retiré de WORM (non-moment WORM officiel)"
-//
 // 6 moments WORM officiels + balance_pending (V11 Q2) :
 //
 //   Moment 1  : accepted          (W1) — contrat signé, cachet gravé
@@ -173,12 +189,10 @@ const TRANSITION_TABLE = {
 //   Moment 5  : sots_window_closed (W1) — réputation gravée
 //   Moment 6  : archived          (W3) — immuable définitif
 //
-// settled : RETIRÉ de WORM_STATES — non-moment officiel selon OS V11 changelog.
-//   "settled retiré de WORM (non-moment WORM officiel)" — OS V11 section changelog.
-//   settled est bloqué par l'absence de transitions sortantes dans la table, pas par WORM.
+// settled : RETIRÉ — non-moment WORM officiel (OS V11 changelog).
+//   Bloqué par l'absence de transitions sortantes, pas par WORM.
 //
 // payable (W1) : protection pragmatique — 11 conditions remplies, payout en attente.
-//   Non dans les 6 moments officiels mais protège l'état avant settlement.
 const WORM_STATES = {
   'archived':           'W3', // Moment 6 — architecturalement impossible à modifier
   'event_sealed':       'W2', // Moment 3 — Fraude si touché
@@ -187,8 +201,8 @@ const WORM_STATES = {
   'balance_pending':    'W1', // Moment 2b — OS V11 Q2 : solde demandé, artiste engagé
   'event_completed':    'W1', // Moment 4 — fenêtre SOTS ouverte
   'sots_window_closed': 'W1', // Moment 5 — réputation gravée
-  'payable':            'W1', // Protection pragmatique — 11 conditions remplies, payout en attente
-  // 'settled' : délibérément absent — voir commentaire ci-dessus
+  'payable':            'W1', // Protection pragmatique — 11 conditions remplies
+  // 'settled' : délibérément absent — non-moment WORM officiel (OS V11 changelog)
 };
 
 async function transitionEngagement({
@@ -206,7 +220,6 @@ async function transitionEngagement({
   if (!actor)        throw new Error('TRANSITION_ERROR: actor manquant');
 
   // ── Validation des systemIds souverains ───────────────────
-  // Source : OS V11 section 2.9 — IDFactory
   if (!IDFactory.validate(engagementId, 'Engagement')) {
     throw new Error(
       `INVALID_SYSTEM_ID: engagementId "${engagementId}" invalide. Format : ENG-XXXXXX-XXXXXX`
@@ -222,8 +235,6 @@ async function transitionEngagement({
   const transitionKey = `${currentState}->${targetState}`;
 
   // ── GUARD 1 : MissionConversionGuard ─────────────────────
-  // Valide la légitimité de la transition et l'autorisation de l'acteur.
-  // EN PREMIER — avant WORMGuard — Source : OS V11 section 2.7.1
   const missionResult = await runMissionConversionCheck({
     transitionKey, engagementId, currentState, targetState, actor, context, repositories,
   });
@@ -235,7 +246,6 @@ async function transitionEngagement({
   }
 
   // ── GUARD 2 : WORMGuard ───────────────────────────────────
-  // Source : OS V11 section 2.7 BLOC 2 V8
   const wormLevel = WORM_STATES[currentState];
 
   if (wormLevel === 'W3') {
@@ -251,7 +261,6 @@ async function transitionEngagement({
       attemptedTransition: transitionKey,
       timestamp: new Date().toISOString(),
     };
-    // TODO: repositories.admin?.createIncidentRecord(incident)
     console.error('[WORM] Violation Niveau 2 détectée:', incident);
     throw new Error(
       `WORM_VIOLATION_LEVEL_2: Tentative de modification de l'état scellé "${currentState}". ` +
@@ -260,8 +269,6 @@ async function transitionEngagement({
   }
 
   if (wormLevel === 'W1') {
-    // W1 = erreur corrigeable — log obligatoire, ne bloque pas
-    // Source : OS V11 section 2.7 BLOC 2 V8 — "jamais silencieux"
     console.warn(
       `[WORMGuard] W1 — Transition depuis état WORM corrigeable "${currentState}". ` +
       `Transition "${transitionKey}". EngagementId: ${engagementId}`
@@ -294,15 +301,11 @@ async function transitionEngagement({
   }
 
   // ── GUARD 4 : FinancialInvariantGuard ─────────────────────
-  // TODO: LOI LEDGER-02
   if (rule.financialGuard) {
     console.log(`[FinancialInvariantGuard] "${transitionKey}" — à implémenter`);
   }
 
   // ── GUARD 5 : AuditLogger ─────────────────────────────────
-  // TODO: repositories.audit?.writeToDataAccessLedger(auditEntry)
-  // DETTE CRITIQUE : sans DataAccessLedger, LOI TRANSITION-01 ne peut pas
-  // détecter les mutations directes dans Base44 UI.
   const auditEntry = {
     engagementId, transition: transitionKey, actor,
     timestamp: new Date().toISOString(),
@@ -311,10 +314,6 @@ async function transitionEngagement({
   };
   console.log('[AuditLogger]', JSON.stringify(auditEntry));
 
-  // ── Résultat — contractSnapshot inclus si MCG l'a produit ─
-  // Le contractSnapshot doit être persisté par l'appelant.
-  // Il est produit par MissionConversionGuard à proposed→accepted
-  // et negotiating→accepted uniquement.
   const result = {
     success: true,
     engagementId,
@@ -325,23 +324,9 @@ async function transitionEngagement({
     timestamp: auditEntry.timestamp,
   };
 
-  // Transmettre contractSnapshot :
-  //   - phase 1 produit par MissionConversionGuard (proposed/negotiating→accepted)
-  //   - phase 2 produit par SealingGuard (balance_pending→event_sealed)
-  // L'appelant est responsable de persister en database.
-  if (missionResult.contractSnapshot) {
-    result.contractSnapshot = missionResult.contractSnapshot;
-  }
-  if (guardResult.contractSnapshot) {
-    result.contractSnapshot = guardResult.contractSnapshot;
-  }
-
-  // Transmettre isSelfOrganized si PlacementGuard l'a calculé
-  if (guardResult.isSelfOrganized !== undefined) {
-    result.isSelfOrganized = guardResult.isSelfOrganized;
-  }
-
-  // Transmettre depositCents/balanceDueCents si EventPaymentGuard les a calculés
+  if (missionResult.contractSnapshot) result.contractSnapshot = missionResult.contractSnapshot;
+  if (guardResult.contractSnapshot)   result.contractSnapshot = guardResult.contractSnapshot;
+  if (guardResult.isSelfOrganized !== undefined) result.isSelfOrganized = guardResult.isSelfOrganized;
   if (guardResult.depositCents !== undefined) {
     result.depositCents    = guardResult.depositCents;
     result.balanceDueCents = guardResult.balanceDueCents;
@@ -350,22 +335,15 @@ async function transitionEngagement({
   return result;
 }
 
-// ── Guard 1 : MissionConversionGuard ─────────────────────────
-// Pour les transitions MCG : valide acteur + légitimité + produit contractSnapshot.
-// Pour toutes les autres : pass-through (IDFactory déjà validé).
-// Source : OS V11 section 2.7.1
 async function runMissionConversionCheck({
   transitionKey, engagementId, currentState, targetState, actor, context, repositories,
 }) {
   const rule = TRANSITION_TABLE[transitionKey];
-
   if (rule && rule.guard === 'MissionConversionGuard') {
     return await MissionConversionGuard.validate({
       engagementId, currentState, targetState, actor, context, repositories,
     });
   }
-
-  // Pour toutes les autres transitions : acteur déjà validé par IDFactory
   return { passed: true };
 }
 
@@ -374,88 +352,60 @@ async function runSpecificGuard({
   targetState, actor, context, repositories
 }) {
   switch (guardName) {
-
     case 'MissionConversionGuard':
-      // Déjà exécuté en Guard 1 — résultat déjà connu passed:true ici
-      // contractSnapshot transmis via missionResult dans transitionEngagement()
       return { passed: true, reason: 'already_validated_in_guard_1' };
-
     case 'PlacementGuard':
-      return await PlacementGuard.validate({
-        engagementId, currentState, targetState, actor, context, repositories,
-      });
-
+      return await PlacementGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
     case 'EventPaymentGuard':
-      return await EventPaymentGuard.validate({
-        engagementId, currentState, targetState, actor, context, repositories,
-      });
-
+      return await EventPaymentGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
     case 'BalanceRequestGuard':
-      // deposit_secured → balance_pending
-      // Vérifie : délai de paiement configuré, balanceDueCents > 0
-      // Crée la SchedulerDueTask pour balance_deadline_check
       console.log(`[BalanceRequestGuard] deposit_secured→balance_pending — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'SealingGuard':
-      return await SealingGuard.validate({
-        engagementId, currentState, targetState, actor, context, repositories,
-      });
-
+      return await SealingGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
     case 'PresenceWindowGuard':
       console.log(`[PresenceWindowGuard] ouverture fenêtre check-in — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'EventCompletionGuard':
       console.log(`[EventCompletionGuard] complétion event — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'SOTSWindowGuard':
       console.log(`[SOTSWindowGuard] fermeture fenêtre SOTS — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'PresenceProofGuard':
       console.log(`[PresenceProofGuard] vérification présence — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'LedgerInvariantGuard':
       console.log(`[LedgerInvariantGuard] invariant ledger — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'ArchiveWORMGuard':
       console.log(`[ArchiveWORMGuard] archive finale WORM — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'CancellationGuard':
       console.log(`[CancellationGuard] annulation — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'RefundGuard':
       console.log(`[RefundGuard] remboursement — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'DisputeGuard':
       console.log(`[DisputeGuard] entrée dispute — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'DisputeResolutionGuard':
-      // DecisionRecord + SettlementInstruction + acteur admin
-      // Source : OS V11 section 9.7 + table 2.7.1
+      // D-019 : disputed→payable/partially_settled/refunded
       console.log(`[DisputeResolutionGuard] résolution dispute — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'TransferGuard':
+      // D-019 : transfer_requested→accepted/refused/no_show_pre_event
+      // D-013 : histoire tracée, réputation affectée, seuil 72h
       console.log(`[TransferGuard] transfert talent — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'NoShowGuard':
+      // D-019 : sots_window_closed→no_show, puis no_show→refunded→archived
       console.log(`[NoShowGuard] no-show — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     case 'WithdrawalGuard':
       console.log(`[WithdrawalGuard] retrait avant accord — à implémenter`);
       return { passed: true, reason: 'placeholder' };
-
     default:
       throw new Error(
         `GUARD_UNKNOWN: Guard "${guardName}" non reconnu. ` +

@@ -5,16 +5,20 @@
  *   1. PlacementGuard — accepted→placed (isSelfOrganized calculé)
  *   2. EventPaymentGuard — placed→deposit_pending (totalCents TTC)
  *   3. EventPaymentGuard — deposit_pending→deposit_secured (tolérance Stripe ±2 centimes)
- *   4. OS V11 Q2 — transitions deux étapes obligatoires
+ *   4. OS V11 Q2 + D-019 — transitions deux étapes obligatoires
  *      deposit_pending → deposit_secured → balance_pending → event_sealed
  *
- * Source : OS V11 section 2.7.1 + 3.2 + 3.3
+ * Source : OS V11 section 2.7.1 + 3.2 + 3.3 · D-019
  * Pierre de Rosette : DJ Alex · Le Trèfle · 250$ TTC total · 50$ dépôt
  *
- * DÉCISIONS FONDATEUR V11 (Mai 2026) :
- *   Q2 — CHEMIN DEUX ÉTAPES IRRÉDUCTIBLE
- *        "Supprimer deposit_secured détruirait la garantie industrielle." — OS V11 section 2.7.1
- *        Pierre de Rosette V11 C02 : accepted → deposit_secured → balance_pending → event_sealed
+ * DÉCISIONS FONDATEUR V11 Q2 :
+ *   Chemin deux étapes irréductible.
+ *   "Supprimer deposit_secured détruirait la garantie industrielle." — OS V11 section 2.7.1
+ *
+ * ALIGNEMENT D-019 :
+ *   - deposit_pending→cancelled_pre_deposit ABSENTE (D-019 : interdit)
+ *   - deposit_pending→deposit_failed PRÉSENTE
+ *   - accepted→cancelled_pre_deposit PRÉSENTE
  * ============================================================
  */
 
@@ -49,8 +53,6 @@ const CONTRAT_NOMINAL = {
   ],
 };
 
-// totalCents = prix_vendu_client TTC (TPS + TVQ + frais Stripe inclus)
-// Source : OS V11 section 3.3
 const PAIEMENT_NOMINAL = {
   eventId:                'EVT-TEST-TREFLE-0001',
   contractSnapshotId:     'CS1-TEST-ALEX-000001',
@@ -101,12 +103,12 @@ async function run() {
       context: {
         ...CONTRAT_NOMINAL,
         talentUserId:    'USR-TEST-SELF-0001',
-        organizerUserId: 'USR-TEST-SELF-0001', // même personne
+        organizerUserId: 'USR-TEST-SELF-0001',
       },
     });
     if (!result.passed) throw new Error(result.reason);
     if (result.isSelfOrganized !== true)
-      throw new Error(`isSelfOrganized attendu: true — BLOC 1 V8 doit être calculé ici`);
+      throw new Error(`isSelfOrganized attendu: true`);
   });
 
   await test('ContractSnapshot CS2- → bloqué (INVALID_CONTRACT_SNAPSHOT)', async () => {
@@ -182,8 +184,7 @@ async function run() {
     });
     if (result.passed) throw new Error('Float accepté — interdit absolu');
     if (!result.reason.includes('INVALID_TOTAL')) throw new Error(`Mauvaise raison: ${result.reason}`);
-    if (!result.reason.includes('TTC'))
-      throw new Error('Le message doit mentionner TTC pour clarifier le contrat d\'interface');
+    if (!result.reason.includes('TTC')) throw new Error('Le message doit mentionner TTC');
   });
 
   await test('Plafond MVP dépassé → bloqué (PAYMENT_CAP_EXCEEDED)', async () => {
@@ -210,7 +211,6 @@ async function run() {
 
   // ════════════════════════════════════════════════════════
   // SECTION 3 — EventPaymentGuard : deposit_pending→deposit_secured
-  // Tolérance Stripe ±2 centimes
   // ════════════════════════════════════════════════════════
   console.log('\n── EventPaymentGuard (deposit_pending→deposit_secured) ─\n');
 
@@ -228,19 +228,18 @@ async function run() {
     if (!result.passed) throw new Error(`Attendu passed:true — ${result.reason}`);
   });
 
-  await test(`Écart ≤ ${STRIPE_TOLERANCE_CENTS} centimes (arrondi Stripe) → autorisé avec avertissement`, async () => {
+  await test(`Écart ≤ ${STRIPE_TOLERANCE_CENTS} centimes (arrondi Stripe) → autorisé`, async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000021',
       currentState: 'deposit_pending', targetState: 'deposit_secured',
       actor: 'USR-TEST-000001',
       context: {
         stripePaymentIntentId: 'pi_TEST_ARRONDI_000002',
-        confirmedAmountCents:  4999, // 1 centime d'écart Stripe
+        confirmedAmountCents:  4999,
         expectedDepositCents:  5000,
       },
     });
-    if (!result.passed)
-      throw new Error(`Arrondi Stripe de 1 centime doit être toléré — ${result.reason}`);
+    if (!result.passed) throw new Error(`Arrondi Stripe de 1 centime doit être toléré — ${result.reason}`);
   });
 
   await test('Écart > 2 centimes → bloqué (DEPOSIT_AMOUNT_MISMATCH)', async () => {
@@ -250,7 +249,7 @@ async function run() {
       actor: 'USR-TEST-000001',
       context: {
         stripePaymentIntentId: 'pi_TEST_MISMATCH_000003',
-        confirmedAmountCents:  4990, // 10 centimes d'écart — anormal
+        confirmedAmountCents:  4990,
         expectedDepositCents:  5000,
       },
     });
@@ -270,12 +269,9 @@ async function run() {
   });
 
   // ════════════════════════════════════════════════════════
-  // SECTION 4 — OS V11 Q2 : chemin deux étapes obligatoire
-  // deposit_pending → deposit_secured → balance_pending → event_sealed
-  // Doctrine industrie événementielle : acompte sécurise l'artiste, solde scelle l'événement.
-  // "Supprimer deposit_secured pour simplifier le code détruirait la garantie industrielle." — OS V11 2.7.1
+  // SECTION 4 — OS V11 Q2 + D-019 : table souveraine
   // ════════════════════════════════════════════════════════
-  console.log('\n── Table souveraine OS V11 (décisions fondateur) ─\n');
+  console.log('\n── Table souveraine OS V11 Q2 + D-019 ─────────\n');
 
   await test('proposed→negotiating dans la table', async () => {
     if (!TRANSITION_TABLE['proposed->negotiating'])
@@ -287,72 +283,72 @@ async function run() {
       throw new Error('negotiating→accepted manquante');
   });
 
-  // MODIFICATION 4A — Ancien test : 'Q2 fondateur — deposit_pending→event_sealed dans la table (SealingGuard)'
-  // Vérifiait que le saut DIRECT deposit_pending→event_sealed était PRÉSENT — faux selon OS V11 Q2.
-  // Nouveau test : vérifie deposit_pending→deposit_secured (Moment WORM 2 — acompte confirmé).
-  await test('OS V11 Q2 — deposit_pending→deposit_secured présente (EventPaymentGuard)', async () => {
-    // Moment WORM 2 : acompte confirmé par webhook Stripe — liaison contractuelle verrouillée.
-    // "L'acompte est reçu — le talent est réservé." — OS V11 section 2.7.1
+  await test('OS V11 Q2 — deposit_pending→deposit_secured présente (Moment WORM 2)', async () => {
     const t = TRANSITION_TABLE['deposit_pending->deposit_secured'];
-    if (!t)
-      throw new Error('deposit_pending→deposit_secured MANQUANTE — Moment WORM 2 impossible');
-    if (t.guard !== 'EventPaymentGuard')
-      throw new Error(`doit utiliser EventPaymentGuard, pas ${t.guard}`);
-    if (t.worm !== 'W1')
-      throw new Error(`doit être WORM W1 (Moment 2). Actuel: ${t.worm}`);
+    if (!t) throw new Error('deposit_pending→deposit_secured MANQUANTE');
+    if (t.guard !== 'EventPaymentGuard') throw new Error(`doit utiliser EventPaymentGuard, pas ${t.guard}`);
+    if (t.worm !== 'W1') throw new Error(`doit être WORM W1. Actuel: ${t.worm}`);
   });
 
-  // MODIFICATION 4B — Ancien test : 'Q2 fondateur — deposit_secured→balance_pending absent (supprimé)'
-  // Vérifiait que deposit_secured→balance_pending était ABSENTE — faux selon OS V11 Q2.
-  // Nouveau test : vérifie que deposit_secured→balance_pending est PRÉSENTE (BalanceRequestGuard).
   await test('OS V11 Q2 — deposit_secured→balance_pending présente (BalanceRequestGuard)', async () => {
-    // OS V11 : "Solde demandé à J-7. SchedulerDueTask balance_deadline_check créée."
-    // "Le solde est demandé — l'artiste est engagé." — OS V11 section 2.7.1
     const t = TRANSITION_TABLE['deposit_secured->balance_pending'];
-    if (!t)
-      throw new Error('deposit_secured→balance_pending MANQUANTE — solde jamais demandé (OS V11 Q2)');
-    if (t.guard !== 'BalanceRequestGuard')
-      throw new Error(`doit utiliser BalanceRequestGuard, pas ${t.guard}`);
+    if (!t) throw new Error('deposit_secured→balance_pending MANQUANTE');
+    if (t.guard !== 'BalanceRequestGuard') throw new Error(`doit utiliser BalanceRequestGuard, pas ${t.guard}`);
   });
 
-  // MODIFICATION 4C — Ancien test : 'Q2 fondateur — balance_pending→event_sealed absent (supprimé)'
-  // Vérifiait que balance_pending→event_sealed était ABSENTE — faux selon OS V11 Q2.
-  // Nouveau test : vérifie que balance_pending→event_sealed est PRÉSENTE avec SealingGuard W2.
   await test('OS V11 Q2 — balance_pending→event_sealed présente avec SealingGuard W2', async () => {
-    // WORM financier complet — ContractSnapshot phase 2 créé.
-    // "Tout l'argent est en sécurité — le show est confirmé." — OS V11 section 2.7.1
     const t = TRANSITION_TABLE['balance_pending->event_sealed'];
-    if (!t)
-      throw new Error('balance_pending→event_sealed MANQUANTE — scellement impossible sans solde (OS V11 Q2)');
-    if (t.guard !== 'SealingGuard')
-      throw new Error(`doit utiliser SealingGuard, pas ${t.guard}`);
-    if (t.worm !== 'W2')
-      throw new Error(`doit être WORM W2. Actuel: ${t.worm}`);
+    if (!t) throw new Error('balance_pending→event_sealed MANQUANTE');
+    if (t.guard !== 'SealingGuard') throw new Error(`doit utiliser SealingGuard, pas ${t.guard}`);
+    if (t.worm !== 'W2') throw new Error(`doit être WORM W2. Actuel: ${t.worm}`);
   });
 
-  // MODIFICATION 4D — Ancien test : 'Q2 fondateur — balance_pending→cancelled_J7 absent (état supprimé)'
-  // Vérifiait que balance_pending→cancelled_J7 était ABSENTE — faux selon OS V11 Q2.
-  // Nouveau test : vérifie que balance_pending→cancelled_J7 est PRÉSENTE (LOI ANNULATION-02).
   await test('OS V11 Q2 — balance_pending→cancelled_J7 présente (LOI ANNULATION-02)', async () => {
-    // Si solde non reçu à J-6 → annulation automatique. SchedulerDueTask → CancellationGuard.
-    // "Paiement final non reçu à J-6 → cancelled_J7 — acompte va aux talents." — OS V11 section 16.1
     const t = TRANSITION_TABLE['balance_pending->cancelled_J7'];
-    if (!t)
-      throw new Error('balance_pending→cancelled_J7 MANQUANTE — LOI ANNULATION-02 inapplicable (OS V11 Q2)');
-    if (t.guard !== 'CancellationGuard')
-      throw new Error(`doit utiliser CancellationGuard, pas ${t.guard}`);
-    if (!t.financialGuard)
-      throw new Error('doit avoir financialGuard: true — dépôt reçu à ce stade');
+    if (!t) throw new Error('balance_pending→cancelled_J7 MANQUANTE — LOI ANNULATION-02 inapplicable');
+    if (t.guard !== 'CancellationGuard') throw new Error(`doit utiliser CancellationGuard, pas ${t.guard}`);
+    if (!t.financialGuard) throw new Error('doit avoir financialGuard: true — dépôt reçu');
   });
 
-  await test('disputed→payable dans la table (sortie dispute)', async () => {
-    if (!TRANSITION_TABLE['disputed->payable'])
-      throw new Error('disputed→payable manquante — argent bloqué sur litige');
+  await test('D-019 — deposit_pending→deposit_failed présente', async () => {
+    // D-019 : deposit_pending → deposit_secured / deposit_failed
+    if (!TRANSITION_TABLE['deposit_pending->deposit_failed'])
+      throw new Error('deposit_pending→deposit_failed MANQUANTE — D-019');
   });
 
-  await test('disputed→refunded dans la table (sortie dispute)', async () => {
-    if (!TRANSITION_TABLE['disputed->refunded'])
-      throw new Error('disputed→refunded manquante');
+  await test('D-019 — deposit_pending→cancelled_pre_deposit ABSENTE', async () => {
+    // D-019 n'autorise pas l'annulation depuis deposit_pending (fail-closed)
+    if (TRANSITION_TABLE['deposit_pending->cancelled_pre_deposit'])
+      throw new Error('deposit_pending→cancelled_pre_deposit présente — interdit par D-019');
+  });
+
+  await test('D-019 — accepted→cancelled_pre_deposit présente', async () => {
+    // D-019 : accepted → placed / cancelled_pre_deposit
+    if (!TRANSITION_TABLE['accepted->cancelled_pre_deposit'])
+      throw new Error('accepted→cancelled_pre_deposit MANQUANTE — D-019');
+  });
+
+  await test('D-019 — terminaisons annulations directes (sans refunded)', async () => {
+    // D-019 : cancelled_J30/J7/pre_deposit → archived directement
+    for (const t of ['cancelled_J30->archived', 'cancelled_J7->archived', 'cancelled_pre_deposit->archived']) {
+      if (!TRANSITION_TABLE[t]) throw new Error(`${t} MANQUANTE — D-019 terminaison directe`);
+    }
+    for (const t of ['cancelled_J30->refunded', 'cancelled_J7->refunded', 'cancelled_pre_deposit->refunded']) {
+      if (TRANSITION_TABLE[t]) throw new Error(`${t} présente — supprimée par D-019`);
+    }
+  });
+
+  await test('D-019 — sots_window_closed→no_show présente (source officielle du no_show)', async () => {
+    if (!TRANSITION_TABLE['sots_window_closed->no_show'])
+      throw new Error('sots_window_closed→no_show MANQUANTE — D-019');
+    if (TRANSITION_TABLE['performed->no_show'])
+      throw new Error('performed→no_show présente — supprimée par D-019');
+  });
+
+  await test('disputed→payable et disputed→refunded dans la table', async () => {
+    if (!TRANSITION_TABLE['disputed->payable'])   throw new Error('disputed→payable manquante');
+    if (!TRANSITION_TABLE['disputed->refunded'])  throw new Error('disputed→refunded manquante');
+    if (!TRANSITION_TABLE['disputed->partially_settled']) throw new Error('disputed→partially_settled manquante — D-019');
   });
 
   await test('deposit_secured→event_sealed absent (saut direct interdit)', async () => {
@@ -374,7 +370,7 @@ async function run() {
     const result = await transitionEngagement({
       engagementId: 'ENG-INTEG-TEST-0001',
       currentState: 'proposed', targetState: 'negotiating',
-      actor:        'USR-INTEG-TEST-0001',
+      actor: 'USR-INTEG-TEST-0001',
       context: {
         talentUserId: 'USR-TEST-ALEX-000001',
         organizerUserId: 'USR-TEST-TREFLE-0001',
@@ -389,8 +385,8 @@ async function run() {
     const result = await transitionEngagement({
       engagementId: 'ENG-INTEG-TEST-0001',
       currentState: 'accepted', targetState: 'placed',
-      actor:        'USR-INTEG-TEST-0001',
-      context:      CONTRAT_NOMINAL,
+      actor: 'USR-INTEG-TEST-0001',
+      context: CONTRAT_NOMINAL,
     });
     if (!result.success) throw new Error('Attendu success:true');
     if (result.newState !== 'placed') throw new Error(`newState attendu: placed`);
@@ -400,8 +396,8 @@ async function run() {
     const result = await transitionEngagement({
       engagementId: 'ENG-INTEG-TEST-0001',
       currentState: 'placed', targetState: 'deposit_pending',
-      actor:        'USR-INTEG-TEST-0001',
-      context:      PAIEMENT_NOMINAL,
+      actor: 'USR-INTEG-TEST-0001',
+      context: PAIEMENT_NOMINAL,
     });
     if (!result.success) throw new Error('Attendu success:true');
     if (result.newState !== 'deposit_pending') throw new Error(`newState attendu: deposit_pending`);
