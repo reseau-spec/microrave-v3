@@ -18,7 +18,7 @@
  *   Q3 — LITIGE OUVERT À TOUT MOMENT : * → disputed
  *        (poignée de frein d'urgence — crises avant le jour J couvertes)
  *
- * Source : OS V10 section 16.2 — LOI TRANSITION-01
+ * Source : OS V11 section 16.2 — LOI TRANSITION-01
  * ============================================================
  */
 
@@ -101,9 +101,13 @@ async function run() {
     }
   });
 
+  // MODIFICATION 1 — Ligne 102 : settled→proposed
+  // Commentaire mis à jour : settled est NON-WORM selon OS V11 changelog.
+  // Le test lui-même est correct (TRANSITION_UNAUTHORIZED depuis la table) — seul le commentaire change.
   await test('settled→proposed est bloquée (TRANSITION_UNAUTHORIZED)', async () => {
-    // DÉCISION FONDATEUR V11 : settled retiré de WORM_STATES (non mandaté par l'OS).
-    // La transition est bloquée par la table (TRANSITION_UNAUTHORIZED), pas par WORM.
+    // OS V11 : settled est un état NON-WORM (non-moment officiel).
+    // Il est bloqué par la table (aucune transition sortante), pas par le WORMGuard.
+    // "settled retiré de WORM (non-moment WORM officiel)" — OS V11 section changelog.
     try {
       await transitionEngagement({
         engagementId: ENG_ID, currentState: 'settled', targetState: 'proposed',
@@ -111,7 +115,8 @@ async function run() {
       });
       throw new Error('Aurait dû être bloquée');
     } catch (err) {
-      if (!err.message.includes('TRANSITION_UNAUTHORIZED')) throw new Error(`Mauvaise erreur: ${err.message}`);
+      if (!err.message.includes('TRANSITION_UNAUTHORIZED'))
+        throw new Error(`Attendu TRANSITION_UNAUTHORIZED, reçu: ${err.message}`);
     }
   });
 
@@ -127,11 +132,18 @@ async function run() {
     }
   });
 
-  await test('balance_pending présent dans WORM_STATES W1 (chemin deux étapes maintenu)', async () => {
-    // Q2 FONDATEUR : chemin complet deposit_pending → deposit_secured → balance_pending → event_sealed.
-    // balance_pending EST dans le chemin nominal. Il DOIT être protégé W1 (solde en attente).
+  // MODIFICATION 2 — Ligne 128 : balance_pending dans WORM_STATES W1
+  // Ancienne assertion : vérifiait que balance_pending était ABSENT de WORM_STATES.
+  // Nouvelle assertion : vérifie que balance_pending est W1 (OS V11 Q2 — état protégé).
+  await test('balance_pending dans WORM_STATES W1 (OS V11 Q2 — état protégé)', async () => {
+    // OS V11 Q2 : balance_pending est un état actif et protégé W1.
+    // "Solde demandé · acompte reçu · artiste engagé" — toucher cet état = erreur corrigeable.
+    // "balance_pending ajouté dans WORM_STATES W1" — OS V11 section changelog.
     if (WORM_STATES['balance_pending'] !== 'W1')
-      throw new Error(`balance_pending absent de WORM_STATES — solde non protégé. Décision fondateur : deux étapes maintenues.`);
+      throw new Error(
+        `balance_pending doit être W1 dans WORM_STATES — OS V11 section 2.7. ` +
+        `Actuel: ${WORM_STATES['balance_pending'] ?? 'ABSENT'}`
+      );
   });
 
   await test('payable dans WORM_STATES (W1)', async () => {
@@ -187,29 +199,48 @@ async function run() {
     if (count < 20) throw new Error(`Seulement ${count} transitions — attendu: 20+`);
   });
 
-  await test('Chemin nominal complet proposed→archived couvert (Q2 fondateur — deux étapes)', async () => {
-    // DÉCISION FONDATEUR Q2 : chemin complet avec deposit_secured et balance_pending maintenus.
-    // Doctrine industrie événementielle : acompte sécurise l'artiste, solde scelle l'événement.
+  // MODIFICATION 3 — Ligne 187 : Chemin nominal complet proposed→archived
+  // Ancienne assertion : chemin avec saut direct deposit_pending→event_sealed (interdit par OS V11 Q2).
+  // Nouvelle assertion : chemin deux étapes irréductible conforme OS V11 Q2.
+  await test('Chemin nominal complet proposed→archived en deux étapes (OS V11 Q2)', async () => {
+    // OS V11 Q2 : chemin deux étapes irréductible.
+    // "Supprimer deposit_secured détruirait la garantie industrielle." — OS V11 section 2.7.1
+    // Pierre de Rosette V11 C02 : accepted → deposit_secured → balance_pending → event_sealed
     const chemin = [
-      'proposed->accepted', 'accepted->placed', 'placed->deposit_pending',
-      'deposit_pending->deposit_secured',
-      'deposit_secured->balance_pending',
-      'balance_pending->event_sealed',
+      'proposed->accepted',
+      'accepted->placed',
+      'placed->deposit_pending',
+      'deposit_pending->deposit_secured',   // Moment WORM 2 — acompte confirmé
+      'deposit_secured->balance_pending',   // BalanceRequestGuard — solde demandé
+      'balance_pending->event_sealed',      // SealingGuard W2 — WORM financier complet
       'event_sealed->performed',
-      'performed->event_completed', 'event_completed->sots_window_closed',
-      'sots_window_closed->payable', 'payable->settled', 'settled->archived',
+      'performed->event_completed',
+      'event_completed->sots_window_closed',
+      'sots_window_closed->payable',
+      'payable->settled',
+      'settled->archived',
     ];
     for (const t of chemin) {
-      if (!TRANSITION_TABLE[t]) throw new Error(`Transition manquante : ${t}`);
+      if (!TRANSITION_TABLE[t])
+        throw new Error(`Transition manquante dans le chemin nominal deux étapes : ${t}`);
     }
   });
 
-  await test('balance_pending→event_sealed présente dans la table (scellement après solde)', async () => {
-    // Q2 FONDATEUR : le scellement se fait depuis balance_pending, après réception du solde.
-    if (!TRANSITION_TABLE['balance_pending->event_sealed'])
-      throw new Error('balance_pending→event_sealed manquante — scellement impossible');
-    if (TRANSITION_TABLE['balance_pending->event_sealed'].guard !== 'SealingGuard')
-      throw new Error('balance_pending→event_sealed doit utiliser SealingGuard');
+  // MODIFICATION 4 — Ligne 200 : balance_pending→event_sealed présente (était : absente)
+  // Ancienne assertion : vérifiait que balance_pending→event_sealed était ABSENTE (invalide la règle OS V11).
+  // Nouvelle assertion : vérifie que balance_pending→event_sealed est PRÉSENTE avec SealingGuard W2.
+  await test('balance_pending→event_sealed présente avec SealingGuard W2 (OS V11 Q2)', async () => {
+    // OS V11 : c'est ici que l'argent est scellé. SealingGuard + WORM W2.
+    // "balance_pending→event_sealed : solde reçu + ContractSnapshot phase 2" — OS V11 section 2.7.1
+    const t = TRANSITION_TABLE['balance_pending->event_sealed'];
+    if (!t)
+      throw new Error('balance_pending→event_sealed MANQUANTE — le scellement est impossible (OS V11 Q2)');
+    if (t.guard !== 'SealingGuard')
+      throw new Error(`balance_pending→event_sealed doit utiliser SealingGuard, pas ${t.guard}`);
+    if (t.worm !== 'W2')
+      throw new Error(`balance_pending→event_sealed doit être WORM W2 (Moment 3 — Fraude). Actuel: ${t.worm}`);
+    if (!t.financialGuard)
+      throw new Error('balance_pending→event_sealed doit avoir financialGuard: true — argent présent');
   });
 
   await test('Transitions annulation couvertes (cancelled_*)', async () => {
@@ -230,10 +261,14 @@ async function run() {
     }
   });
 
-  await test('Q3 fondateur — litige ouvert depuis tous les états actifs (* → disputed)', async () => {
-    // DÉCISION FONDATEUR Q3 : poignée de frein d'urgence disponible à tout moment.
-    // Crises avant le jour J (lieu illégal, rupture contrat, non-paiement) doivent être traitables.
-    // Source OS V10 table 2.7.1 : "* → disputed" via DisputeGuard — maintenu.
+  // MODIFICATION 5 — Ligne 223 : Q3 — litige depuis TOUS les états actifs (était : uniquement event_completed)
+  // Ancienne assertion : vérifiait que accepted→disputed et event_sealed→disputed étaient ABSENTES.
+  // Nouvelle assertion : vérifie que * → disputed est présente depuis tous les états actifs.
+  await test('Q3 V11 — litige (* → disputed) depuis tous les états actifs', async () => {
+    // OS V11 Q3 : "la poignée de frein d'urgence doit fonctionner à tout moment."
+    // Cas réels : lieu dangereux J-3, rupture contrat avant show, non-paiement en préparation.
+    // "La restriction au seul event_completed aurait laissé des fonds en otage sans recours légal."
+    // Source : OS V11 section 2.7.1.
     const etatsActifs = [
       'proposed', 'negotiating', 'accepted', 'placed',
       'deposit_pending', 'deposit_secured', 'balance_pending',
@@ -241,8 +276,14 @@ async function run() {
       'sots_window_closed', 'payable',
     ];
     for (const etat of etatsActifs) {
-      if (!TRANSITION_TABLE[`${etat}->disputed`])
-        throw new Error(`${etat}→disputed manquante — litige bloqué depuis cet état`);
+      const transition = `${etat}->disputed`;
+      if (!TRANSITION_TABLE[transition])
+        throw new Error(
+          `${transition} MANQUANTE — poignée de frein d'urgence inaccessible depuis ${etat}. ` +
+          `OS V11 Q3 : * → disputed depuis tous les états actifs.`
+        );
+      if (TRANSITION_TABLE[transition].guard !== 'DisputeGuard')
+        throw new Error(`${transition} doit utiliser DisputeGuard`);
     }
   });
 

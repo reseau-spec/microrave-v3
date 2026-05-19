@@ -5,11 +5,16 @@
  *   1. PlacementGuard — accepted→placed (isSelfOrganized calculé)
  *   2. EventPaymentGuard — placed→deposit_pending (totalCents TTC)
  *   3. EventPaymentGuard — deposit_pending→deposit_secured (tolérance Stripe ±2 centimes)
- *   4. EventPaymentGuard — deposit_secured→balance_pending
- *   5. Table souveraine V4 — transitions complètes
+ *   4. OS V11 Q2 — transitions deux étapes obligatoires
+ *      deposit_pending → deposit_secured → balance_pending → event_sealed
  *
- * Source : OS V10 section 2.7.1 + 3.2 + 3.3
+ * Source : OS V11 section 2.7.1 + 3.2 + 3.3
  * Pierre de Rosette : DJ Alex · Le Trèfle · 250$ TTC total · 50$ dépôt
+ *
+ * DÉCISIONS FONDATEUR V11 (Mai 2026) :
+ *   Q2 — CHEMIN DEUX ÉTAPES IRRÉDUCTIBLE
+ *        "Supprimer deposit_secured détruirait la garantie industrielle." — OS V11 section 2.7.1
+ *        Pierre de Rosette V11 C02 : accepted → deposit_secured → balance_pending → event_sealed
  * ============================================================
  */
 
@@ -45,7 +50,7 @@ const CONTRAT_NOMINAL = {
 };
 
 // totalCents = prix_vendu_client TTC (TPS + TVQ + frais Stripe inclus)
-// Source : OS V10 section 3.3
+// Source : OS V11 section 3.3
 const PAIEMENT_NOMINAL = {
   eventId:                'EVT-TEST-TREFLE-0001',
   contractSnapshotId:     'CS1-TEST-ALEX-000001',
@@ -265,11 +270,12 @@ async function run() {
   });
 
   // ════════════════════════════════════════════════════════
-  // SECTION 4 — DÉCISION FONDATEUR Q2 : chemin deux étapes maintenu
+  // SECTION 4 — OS V11 Q2 : chemin deux étapes obligatoire
   // deposit_pending → deposit_secured → balance_pending → event_sealed
   // Doctrine industrie événementielle : acompte sécurise l'artiste, solde scelle l'événement.
+  // "Supprimer deposit_secured pour simplifier le code détruirait la garantie industrielle." — OS V11 2.7.1
   // ════════════════════════════════════════════════════════
-  console.log('\n── Table souveraine (décisions fondateur) ─────\n');
+  console.log('\n── Table souveraine OS V11 (décisions fondateur) ─\n');
 
   await test('proposed→negotiating dans la table', async () => {
     if (!TRANSITION_TABLE['proposed->negotiating'])
@@ -281,32 +287,62 @@ async function run() {
       throw new Error('negotiating→accepted manquante');
   });
 
-  await test('Q2 fondateur — deposit_pending→deposit_secured dans la table (acompte reçu)', async () => {
-    // Décision fondateur : l'acompte doit être techniquement et juridiquement verrouillé
-    // avant que l'artiste bloque sa date. deposit_secured = WORM moment 2.
-    if (!TRANSITION_TABLE['deposit_pending->deposit_secured'])
-      throw new Error('deposit_pending→deposit_secured manquante — acompte non verrouillable');
+  // MODIFICATION 4A — Ancien test : 'Q2 fondateur — deposit_pending→event_sealed dans la table (SealingGuard)'
+  // Vérifiait que le saut DIRECT deposit_pending→event_sealed était PRÉSENT — faux selon OS V11 Q2.
+  // Nouveau test : vérifie deposit_pending→deposit_secured (Moment WORM 2 — acompte confirmé).
+  await test('OS V11 Q2 — deposit_pending→deposit_secured présente (EventPaymentGuard)', async () => {
+    // Moment WORM 2 : acompte confirmé par webhook Stripe — liaison contractuelle verrouillée.
+    // "L'acompte est reçu — le talent est réservé." — OS V11 section 2.7.1
+    const t = TRANSITION_TABLE['deposit_pending->deposit_secured'];
+    if (!t)
+      throw new Error('deposit_pending→deposit_secured MANQUANTE — Moment WORM 2 impossible');
+    if (t.guard !== 'EventPaymentGuard')
+      throw new Error(`doit utiliser EventPaymentGuard, pas ${t.guard}`);
+    if (t.worm !== 'W1')
+      throw new Error(`doit être WORM W1 (Moment 2). Actuel: ${t.worm}`);
   });
 
-  await test('Q2 fondateur — deposit_secured→balance_pending dans la table (solde demandé)', async () => {
-    // Décision fondateur : après acompte, la demande de solde est une étape distincte.
-    if (!TRANSITION_TABLE['deposit_secured->balance_pending'])
-      throw new Error('deposit_secured→balance_pending manquante — chemin deux étapes rompu');
+  // MODIFICATION 4B — Ancien test : 'Q2 fondateur — deposit_secured→balance_pending absent (supprimé)'
+  // Vérifiait que deposit_secured→balance_pending était ABSENTE — faux selon OS V11 Q2.
+  // Nouveau test : vérifie que deposit_secured→balance_pending est PRÉSENTE (BalanceRequestGuard).
+  await test('OS V11 Q2 — deposit_secured→balance_pending présente (BalanceRequestGuard)', async () => {
+    // OS V11 : "Solde demandé à J-7. SchedulerDueTask balance_deadline_check créée."
+    // "Le solde est demandé — l'artiste est engagé." — OS V11 section 2.7.1
+    const t = TRANSITION_TABLE['deposit_secured->balance_pending'];
+    if (!t)
+      throw new Error('deposit_secured→balance_pending MANQUANTE — solde jamais demandé (OS V11 Q2)');
+    if (t.guard !== 'BalanceRequestGuard')
+      throw new Error(`doit utiliser BalanceRequestGuard, pas ${t.guard}`);
   });
 
-  await test('Q2 fondateur — balance_pending→event_sealed dans la table (scellement après solde)', async () => {
-    // Décision fondateur : le scellement se fait après réception du solde, pas avant.
-    if (!TRANSITION_TABLE['balance_pending->event_sealed'])
-      throw new Error('balance_pending→event_sealed manquante — scellement impossible');
-    if (TRANSITION_TABLE['balance_pending->event_sealed'].guard !== 'SealingGuard')
-      throw new Error('balance_pending→event_sealed doit utiliser SealingGuard');
+  // MODIFICATION 4C — Ancien test : 'Q2 fondateur — balance_pending→event_sealed absent (supprimé)'
+  // Vérifiait que balance_pending→event_sealed était ABSENTE — faux selon OS V11 Q2.
+  // Nouveau test : vérifie que balance_pending→event_sealed est PRÉSENTE avec SealingGuard W2.
+  await test('OS V11 Q2 — balance_pending→event_sealed présente avec SealingGuard W2', async () => {
+    // WORM financier complet — ContractSnapshot phase 2 créé.
+    // "Tout l'argent est en sécurité — le show est confirmé." — OS V11 section 2.7.1
+    const t = TRANSITION_TABLE['balance_pending->event_sealed'];
+    if (!t)
+      throw new Error('balance_pending→event_sealed MANQUANTE — scellement impossible sans solde (OS V11 Q2)');
+    if (t.guard !== 'SealingGuard')
+      throw new Error(`doit utiliser SealingGuard, pas ${t.guard}`);
+    if (t.worm !== 'W2')
+      throw new Error(`doit être WORM W2. Actuel: ${t.worm}`);
   });
 
-  await test('Q2 fondateur — balance_pending→cancelled_J7 dans la table (annulation auto solde impayé)', async () => {
-    // Décision fondateur : si le solde n'arrive pas à J-6, annulation automatique.
-    // Source OS V10 section 16.1 LOI ANNULATION-02.
-    if (!TRANSITION_TABLE['balance_pending->cancelled_J7'])
-      throw new Error('balance_pending→cancelled_J7 manquante — annulation auto impossible si solde impayé');
+  // MODIFICATION 4D — Ancien test : 'Q2 fondateur — balance_pending→cancelled_J7 absent (état supprimé)'
+  // Vérifiait que balance_pending→cancelled_J7 était ABSENTE — faux selon OS V11 Q2.
+  // Nouveau test : vérifie que balance_pending→cancelled_J7 est PRÉSENTE (LOI ANNULATION-02).
+  await test('OS V11 Q2 — balance_pending→cancelled_J7 présente (LOI ANNULATION-02)', async () => {
+    // Si solde non reçu à J-6 → annulation automatique. SchedulerDueTask → CancellationGuard.
+    // "Paiement final non reçu à J-6 → cancelled_J7 — acompte va aux talents." — OS V11 section 16.1
+    const t = TRANSITION_TABLE['balance_pending->cancelled_J7'];
+    if (!t)
+      throw new Error('balance_pending→cancelled_J7 MANQUANTE — LOI ANNULATION-02 inapplicable (OS V11 Q2)');
+    if (t.guard !== 'CancellationGuard')
+      throw new Error(`doit utiliser CancellationGuard, pas ${t.guard}`);
+    if (!t.financialGuard)
+      throw new Error('doit avoir financialGuard: true — dépôt reçu à ce stade');
   });
 
   await test('disputed→payable dans la table (sortie dispute)', async () => {
