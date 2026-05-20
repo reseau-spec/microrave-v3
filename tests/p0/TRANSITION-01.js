@@ -77,9 +77,14 @@ async function run() {
   });
 
   await test('[D-019-B] sots_window_closed→contestation_window retourne success:true', async () => {
+    const mockPolicyConfig = { async getConfig(key) {
+      if (key === 'contestationWindowDurationHours') return '24';
+      throw new Error(`POLICY_CONFIG_MISSING: "${key}" absent`);
+    }};
     const result = await transitionEngagement({
       engagementId: ENG_ID, currentState: 'sots_window_closed', targetState: 'contestation_window',
       actor: USR_ID, context: {},
+      repositories: { policyConfig: mockPolicyConfig },
     });
     if (!result.success) throw new Error('Attendu success:true');
     if (result.newState !== 'contestation_window') throw new Error(`newState attendu: contestation_window`);

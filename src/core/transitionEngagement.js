@@ -58,6 +58,9 @@ const MissionConversionGuard = require('./guards/MissionConversionGuard');
 const PlacementGuard         = require('./guards/PlacementGuard');
 const EventPaymentGuard      = require('./guards/EventPaymentGuard');
 const SealingGuard           = require('./guards/SealingGuard');
+const PresenceProofGuard      = require('./guards/PresenceProofGuard');
+const ContestationWindowGuard = require('./guards/ContestationWindowGuard');
+const LedgerInvariantGuard    = require('./guards/LedgerInvariantGuard');
 
 // ── Table souveraine — Source : D-019-A + OS V13 section 2.7.1 ──
 const TRANSITION_TABLE = {
@@ -251,9 +254,19 @@ async function transitionEngagement({
     );
   }
 
-  // ── GUARD 4 : FinancialInvariantGuard ─────────────────────
+  // ── GUARD 4 : FinancialInvariantGuard (LedgerInvariantGuard) ──────────
   if (rule.financialGuard) {
-    console.log(`[FinancialInvariantGuard] "${transitionKey}" — à implémenter`);
+    const { COVERED_TRANSITIONS: ledgerCovered } = require('./guards/LedgerInvariantGuard');
+    if (ledgerCovered.has(transitionKey)) {
+      const ledgerResult = await LedgerInvariantGuard.validate({
+        engagementId, currentState, targetState, actor, context, repositories,
+      });
+      if (!ledgerResult.passed) {
+        throw new Error(
+          `LEDGER_INVARIANT_FAILED: ${ledgerResult.reason}. EngagementId: ${engagementId}`
+        );
+      }
+    }
   }
 
   // ── GUARD 5 : AuditLogger ─────────────────────────────────
@@ -302,10 +315,7 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return await SealingGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'ContestationWindowGuard':
-      // [D-019-B] Ouvre la fenêtre de Contestation de Prestation (Régime 2)
-      // Durée : DisputeAccessPolicyConfig.contestationWindowDurationHours (recommandé : 24h)
-      console.log(`[ContestationWindowGuard] ouverture fenêtre contestation — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await ContestationWindowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'PresenceWindowGuard':
       console.log(`[PresenceWindowGuard] ouverture fenêtre check-in — à implémenter`);
@@ -320,12 +330,10 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return { passed: true, reason: 'placeholder' };
 
     case 'PresenceProofGuard':
-      console.log(`[PresenceProofGuard] vérification présence / expiration contestation — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await PresenceProofGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'LedgerInvariantGuard':
-      console.log(`[LedgerInvariantGuard] invariant ledger — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await LedgerInvariantGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'ArchiveWORMGuard':
       console.log(`[ArchiveWORMGuard] archive finale WORM — à implémenter`);
