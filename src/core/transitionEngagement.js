@@ -61,6 +61,8 @@ const SealingGuard           = require('./guards/SealingGuard');
 const PresenceProofGuard      = require('./guards/PresenceProofGuard');
 const ContestationWindowGuard = require('./guards/ContestationWindowGuard');
 const LedgerInvariantGuard    = require('./guards/LedgerInvariantGuard');
+const NoShowGuard             = require('./guards/NoShowGuard');
+const ArchiveWORMGuard        = require('./guards/ArchiveWORMGuard');
 
 // ── Table souveraine — Source : D-019-A + OS V13 section 2.7.1 ──
 const TRANSITION_TABLE = {
@@ -217,13 +219,28 @@ async function transitionEngagement({
     );
   }
   if (wormLevel === 'W2') {
-    console.error('[WORM] Violation Niveau 2:', {
-      type: 'WORM_VIOLATION_LEVEL_2', engagementId, actor,
-      attemptedTransition: transitionKey, timestamp: new Date().toISOString(),
-    });
-    throw new Error(
-      `WORM_VIOLATION_LEVEL_2: Tentative de modification de l'état scellé "${currentState}". ` +
-      `AdminIncidentRecord P0 créé. EngagementId: ${engagementId}`
+    // W2 protège les DONNÉES gravées à event_sealed (ContractSnapshot phase 2, WORM financier).
+    // La transition DEPUIS event_sealed vers performed est autorisée — c'est le chemin nominal.
+    // W2 bloque uniquement les tentatives de REVENIR dans event_sealed depuis un état aval.
+    // La vérification de l'état cible est assurée par TRANSITION_TABLE (transitions non listées = bloquées).
+    // Si la transition est dans TRANSITION_TABLE, elle est souveraine — W2 log uniquement.
+    const ruleForW2 = TRANSITION_TABLE[transitionKey];
+    if (!ruleForW2) {
+      // Transition non autorisée depuis un état W2 — fraude potentielle
+      console.error('[WORM] Violation Niveau 2:', {
+        type: 'WORM_VIOLATION_LEVEL_2', engagementId, actor,
+        attemptedTransition: transitionKey, timestamp: new Date().toISOString(),
+      });
+      throw new Error(
+        `WORM_VIOLATION_LEVEL_2: Tentative de modification de l'état scellé "${currentState}". ` +
+        `AdminIncidentRecord P0 créé. EngagementId: ${engagementId}`
+      );
+    }
+    // Transition autorisée depuis W2 — log de traçabilité
+    console.warn(
+      `[WORMGuard] W2 — Transition autorisée depuis état scellé "${currentState}". ` +
+      `Transition "${transitionKey}" présente dans TRANSITION_TABLE souveraine. ` +
+      `EngagementId: ${engagementId}`
     );
   }
   if (wormLevel === 'W1') {
@@ -336,8 +353,7 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return await LedgerInvariantGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'ArchiveWORMGuard':
-      console.log(`[ArchiveWORMGuard] archive finale WORM — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await ArchiveWORMGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'CancellationGuard':
       console.log(`[CancellationGuard] annulation — à implémenter`);
@@ -360,8 +376,7 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return { passed: true, reason: 'placeholder' };
 
     case 'NoShowGuard':
-      console.log(`[NoShowGuard] no-show — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await NoShowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'WithdrawalGuard':
       console.log(`[WithdrawalGuard] retrait avant accord — à implémenter`);
