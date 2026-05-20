@@ -31,6 +31,8 @@
 
 'use strict';
 
+const MoneyMath = require('../MoneyMath');
+
 const STRIPE_TOLERANCE_CENTS = 2;
 
 const COVERED_TRANSITIONS = new Set([
@@ -127,7 +129,7 @@ function validateDepositCreation({ engagementId, actor, context }) {
     };
   }
 
-  const depositCents    = Math.floor(totalCents * depositRatioPpm / 1_000_000);
+  const depositCents    = MoneyMath.depositAmount(totalCents, depositRatioPpm);
   const balanceDueCents = totalCents - depositCents;
 
   if (depositCents <= 0) {

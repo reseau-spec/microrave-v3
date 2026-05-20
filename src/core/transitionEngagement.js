@@ -296,18 +296,14 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return await PlacementGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'EventPaymentGuard':
-      // [D-014-A] targetState='deposit_secured' → crée SchedulerDueTask balance_deadline_check
-      // [SC-DEPOSIT-FAIL] targetState='deposit_failed' → zéro écriture ledger, EPR.status=FAILED
       return await EventPaymentGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'SealingGuard':
-      // [D-014-A] depuis deposit_secured directement
       return await SealingGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'ContestationWindowGuard':
       // [D-019-B] Ouvre la fenêtre de Contestation de Prestation (Régime 2)
       // Durée : DisputeAccessPolicyConfig.contestationWindowDurationHours (recommandé : 24h)
-      // Crée SchedulerDueTask pour expiration → payable
       console.log(`[ContestationWindowGuard] ouverture fenêtre contestation — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
@@ -324,8 +320,6 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return { passed: true, reason: 'placeholder' };
 
     case 'PresenceProofGuard':
-      // contestation_window→payable : expiration + 11 conditions D-075
-      // performed→payable : SoloFounderOverride uniquement (D-106)
       console.log(`[PresenceProofGuard] vérification présence / expiration contestation — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
@@ -334,13 +328,10 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return { passed: true, reason: 'placeholder' };
 
     case 'ArchiveWORMGuard':
-      // [SC-NO-SHOW-PRE] no_show_pre_event→archived : reversal complet, Talent A=0$, MR=0$
-      // [SC-DEPOSIT-FAIL] deposit_failed→archived : zéro écriture ledger
       console.log(`[ArchiveWORMGuard] archive finale WORM — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'CancellationGuard':
-      // [D-014-A] deposit_secured→cancelled_J7 : LOI ANNULATION-02
       console.log(`[CancellationGuard] annulation — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
@@ -349,24 +340,18 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return { passed: true, reason: 'placeholder' };
 
     case 'DisputeGuard':
-      // Régime 1 (Frein d'Urgence) : proposed/negotiating/accepted/placed/
-      //   deposit_pending/deposit_secured/event_sealed/performed/payable
-      // Régime 2 (Contestation de Prestation) : contestation_window seulement
       console.log(`[DisputeGuard] entrée dispute — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'DisputeResolutionGuard':
-      // [SC-08-PARTIEL] disputed→partially_settled : deliveryRecognizedRatio requis
       console.log(`[DisputeResolutionGuard] résolution dispute — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'TransferGuard':
-      // [D-019-A] transfer_accepted→placed · transfer_refused→placed
       console.log(`[TransferGuard] transfert talent — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 
     case 'NoShowGuard':
-      // sots_window_closed→no_show : DecisionRecord NO_SHOW_CONFIRMED requis
       console.log(`[NoShowGuard] no-show — à implémenter`);
       return { passed: true, reason: 'placeholder' };
 

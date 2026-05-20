@@ -1,7 +1,7 @@
 /**
  * MICRO RAVE V3 — Test P0 : SEALING-01
  * ============================================================
- * Vérifie SealingGuard — balance_pending → event_sealed
+ * Vérifie SealingGuard — deposit_secured → event_sealed [D-014-A]
  *
  * Sections :
  *   1. Cas nominal — Pierre de Rosette (DJ Alex · Le Trèfle)
@@ -73,7 +73,7 @@ async function run() {
   await test('Cas nominal : scellement autorisé avec contexte complet', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000001',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -88,7 +88,7 @@ async function run() {
   await test('ContractSnapshot phase 2 construit avec systemId CS2-*', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000002',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -105,7 +105,7 @@ async function run() {
   await test('ContractSnapshot phase 2 contient tous les champs obligatoires', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000003',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -128,7 +128,7 @@ async function run() {
   await test('contractSnapshotPhase1Id référencé dans le phase 2', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000004',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -145,7 +145,7 @@ async function run() {
   await test('Coefficient = max(1, prix_vendu / total_lineup_effectif)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000010',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -164,7 +164,7 @@ async function run() {
   await test('Talent gratuit reçoit freeWeightCents comme poids (100 cents)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000020',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: {
         ...CONTEXTE_NOMINAL,
@@ -189,7 +189,7 @@ async function run() {
     // car le surplus est positif si prix_vendu >= total_lineup_signé
     const result = await validate({
       engagementId: 'ENG-TEST-000021',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: {
         ...CONTEXTE_NOMINAL,
@@ -207,7 +207,7 @@ async function run() {
   await test('Standard numérique : tous les montants waterfall sont des entiers', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000022',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -230,7 +230,7 @@ async function run() {
   await test('sum(nets) + sum(commissions) + rounding = prix_vendu_client', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000030',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -248,7 +248,7 @@ async function run() {
   await test('floor() sur commission : MR ne sur-prélève jamais', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000031',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: CONTEXTE_NOMINAL,
     });
@@ -266,7 +266,7 @@ async function run() {
   await test('LOI LEDGER-02 vérifiée sur lineup à deux talents', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000032',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: {
         ...CONTEXTE_NOMINAL,
@@ -294,7 +294,7 @@ async function run() {
   await test('CS1 manquant → bloqué (MISSING_CONTRACT_SNAPSHOT_PHASE1)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000040',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: { ...CONTEXTE_NOMINAL, contractSnapshotPhase1Id: undefined },
     });
@@ -306,7 +306,7 @@ async function run() {
   await test('dépôt non reçu → bloqué (DEPOSIT_NOT_RECEIVED)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000041',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: { ...CONTEXTE_NOMINAL, depositReceivedCents: 0 },
     });
@@ -318,7 +318,7 @@ async function run() {
   await test('total reçu ≠ prix vendu (+10 centimes) → bloqué (PAYMENT_TOTAL_MISMATCH)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000042',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: {
         ...CONTEXTE_NOMINAL,
@@ -334,7 +334,7 @@ async function run() {
   await test('lineup vide → bloqué (EMPTY_LINEUP)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000043',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: { ...CONTEXTE_NOMINAL, lineupEntries: [] },
     });
@@ -346,7 +346,7 @@ async function run() {
   await test('cachetSigneCents en float → bloqué (LINEUP_ENTRY_INVALID)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000044',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: {
         ...CONTEXTE_NOMINAL,
@@ -363,7 +363,7 @@ async function run() {
   await test('Tolérance ±2 centimes sur total reçu (arrondi Stripe)', async () => {
     const result = await validate({
       engagementId: 'ENG-TEST-000045',
-      currentState: 'balance_pending', targetState: 'event_sealed',
+      currentState: 'deposit_secured', targetState: 'event_sealed',
       actor: 'USR-TEST-TREFLE-0001',
       context: {
         ...CONTEXTE_NOMINAL,
@@ -380,10 +380,10 @@ async function run() {
   // ════════════════════════════════════════════════════════
   console.log('\n── Intégration transitionEngagement() ───────\n');
 
-  await test('balance_pending→event_sealed passe par transitionEngagement()', async () => {
+  await test('[D-014-A] deposit_secured→event_sealed passe par transitionEngagement()', async () => {
     const result = await transitionEngagement({
       engagementId: 'ENG-SEAL-TEST-0001',
-      currentState: 'balance_pending',
+      currentState: 'deposit_secured',
       targetState:  'event_sealed',
       actor:        'USR-SEAL-TEST-0001',
       context:      CONTEXTE_NOMINAL,
@@ -392,10 +392,10 @@ async function run() {
     if (result.newState !== 'event_sealed') throw new Error('newState attendu: event_sealed');
   });
 
-  await test('ContractSnapshot phase 2 retourné par transitionEngagement()', async () => {
+  await test('[D-014-A] ContractSnapshot phase 2 retourné via deposit_secured→event_sealed', async () => {
     const result = await transitionEngagement({
       engagementId: 'ENG-SEAL-TEST-0001',
-      currentState: 'balance_pending',
+      currentState: 'deposit_secured',
       targetState:  'event_sealed',
       actor:        'USR-SEAL-TEST-0001',
       context:      CONTEXTE_NOMINAL,

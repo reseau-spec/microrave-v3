@@ -19,11 +19,6 @@
  *
  * [D-014-B] :
  *   - payable : état opérationnel non-WORM, protégé par D-101
- *
- * [D-019-B] V13 :
- *   - sots_window_closed→payable SUPPRIMÉ
- *   - sots_window_closed→contestation_window AJOUTÉ
- *   - contestation_window→payable AJOUTÉ (expiration fenêtre)
  * ============================================================
  */
 
@@ -32,6 +27,7 @@
 const { validate: validatePlacement }     = require('../../src/core/guards/PlacementGuard');
 const { validate: validateEventPayment, STRIPE_TOLERANCE_CENTS } = require('../../src/core/guards/EventPaymentGuard');
 const { transitionEngagement, TRANSITION_TABLE } = require('../../src/core/transitionEngagement');
+const MoneyMath = require('../../src/core/MoneyMath');
 
 let passed = 0;
 let failed = 0;
@@ -158,14 +154,14 @@ async function run() {
   // ════════════════════════════════════════════════════════
   console.log('\n── EventPaymentGuard (placed→deposit_pending) ─\n');
 
-  await test('Dépôt calculé — floor() sur 20% de 250$ TTC', async () => {
+  await test('[D-063] Dépôt calculé via MoneyMath.depositAmount() — 20% de 250$ TTC', async () => {
     const result = await validateEventPayment({
       engagementId: 'ENG-TEST-000010',
       currentState: 'placed', targetState: 'deposit_pending',
       actor: 'USR-TEST-000001', context: PAIEMENT_NOMINAL,
     });
     if (!result.passed) throw new Error(`${result.reason}`);
-    const expected = Math.floor(25000 * 200000 / 1_000_000);
+    const expected = MoneyMath.depositAmount(25000, 200000);
     if (result.depositCents !== expected)
       throw new Error(`Dépôt attendu: ${expected}, reçu: ${result.depositCents}`);
     if (!Number.isInteger(result.depositCents))
