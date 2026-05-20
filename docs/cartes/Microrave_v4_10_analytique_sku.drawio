@@ -1,0 +1,130 @@
+<mxfile host="app.diagrams.net">
+<diagram id="carte10_v4_analytique_sku" name="V4_10 — Analytique SKU · BLOC 19 · D-148 à D-155 · OS V15">
+<mxGraphModel dx="2400" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+
+<!-- TITRE -->
+<mxCell id="titre" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontStyle=1;" value="&lt;b style='font-size:18px'&gt;Analytique et États Financiers par SKU&lt;/b&gt;&lt;br/&gt;&lt;span style='color:#888;font-size:11px'&gt;Carte 10 — BLOC 19 · D-148 à D-155 · OS V15 · LOI SKU-MOTEUR-01 · LOI CALENDRIER-445-01 · LOI SKU-ATOME-01&lt;/span&gt;" vertex="1">
+  <mxGeometry x="20" y="20" width="1600" height="60" as="geometry"/>
+</mxCell>
+
+<!-- LOI FONDATRICE -->
+<mxCell id="loi_fond" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;fontStyle=1;" value="&lt;b style='font-size:14px'&gt;⚠️ LOI SKU-MOTEUR-01 — Non-contamination des moteurs économiques&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Un abonnement SaaS et un événement transigé ne partagent ni la même unité de temps, ni la même unité de valeur, ni la même causalité.&lt;br/&gt;Les mélanger dans un même état de rentabilité sans étiquette explicite produit une métrique composite qui trompe tout le monde, les investisseurs les premiers.&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;La corrélation inter-moteurs est une analyse stratégique — jamais une ligne comptable." vertex="1">
+  <mxGeometry x="20" y="100" width="1600" height="80" as="geometry"/>
+</mxCell>
+
+<!-- SECTION 1 : TRIPTYQUE SKU -->
+<mxCell id="s1_titre" parent="1" style="text;html=1;strokeColor=none;fillColor=#e3f2fd;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontStyle=1;" value="① LE TRIPTYQUE SKU — Trois dimensions orthogonales et indépendantes · LOI SKU-ATOME-01" vertex="1">
+  <mxGeometry x="20" y="210" width="1600" height="36" as="geometry"/>
+</mxCell>
+
+<!-- RoleSKU -->
+<mxCell id="role_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;" value="&lt;b style='font-size:13px'&gt;🎭 RoleSKU · D-150&lt;/b&gt;&lt;br/&gt;&lt;i style='font-size:10px;color:#1b5e20'&gt;Préfixe RSK- · WORM de nomenclature&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;&lt;b&gt;QUI&lt;/b&gt; est engagé&lt;br/&gt;&lt;br/&gt;DJ · HUMORISTE · MC&lt;br/&gt;SOUNDTECH · VJ · PHOTOGRAPHE&lt;br/&gt;ANIMATEUR · MUSICIEN · ...&lt;br/&gt;&lt;br/&gt;&lt;span style='font-size:9px;color:#555'&gt;Codes définis en database — jamais hardcodés.&lt;br/&gt;Ajout via PolicyConfigChangeRecord + Admin + Fondateur.&lt;br/&gt;Code immuable une fois créé.&lt;/span&gt;" vertex="1">
+  <mxGeometry x="20" y="260" width="300" height="200" as="geometry"/>
+</mxCell>
+
+<!-- StyleSKU -->
+<mxCell id="style_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#6a1b9a;fontSize=11;" value="&lt;b style='font-size:13px'&gt;🎵 StyleSKU · D-151&lt;/b&gt;&lt;br/&gt;&lt;i style='font-size:10px;color:#4a148c'&gt;Préfixe SSK- · Relation N:M avec rôles&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;&lt;b&gt;COMMENT&lt;/b&gt; la prestation est exécutée&lt;br/&gt;&lt;br/&gt;HOUSE · TECHNO · DISCO · JAZZ&lt;br/&gt;STAND_UP · IMPROVISATION&lt;br/&gt;LATIN · R&amp;amp;B · POP · ...&lt;br/&gt;&lt;br/&gt;&lt;span style='font-size:9px;color:#555'&gt;Un style peut appartenir à plusieurs rôles (N:M).&lt;br/&gt;Ex : IMPROVISATION → HUMORISTE + MC + ANIMATEUR.&lt;br/&gt;Style sans rôle = rejeté (fail-closed).&lt;/span&gt;" vertex="1">
+  <mxGeometry x="340" y="260" width="300" height="200" as="geometry"/>
+</mxCell>
+
+<!-- PlageHoraireSKU -->
+<mxCell id="plage_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#01579b;fontSize=11;" value="&lt;b style='font-size:13px'&gt;🕐 PlageHoraireSKU · D-149&lt;/b&gt;&lt;br/&gt;&lt;i style='font-size:10px;color:#01579b'&gt;Préfixe PSK- · Calendrier 4-4-5 (D-148)&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;&lt;b&gt;QUAND&lt;/b&gt; la prestation est livrée&lt;br/&gt;&lt;br/&gt;Format : {ANNEE}Q{Q}W{WW}{J}B{B}&lt;br/&gt;Ex : 2026Q1W065B6 = Ven W06 soirée&lt;br/&gt;6 blocs de 4h · 2 184 SKUs/an&lt;br/&gt;&lt;br/&gt;&lt;span style='font-size:9px;color:#555'&gt;B1 00–04h NUIT · B2 04–08h AUBE&lt;br/&gt;B3 08–12h MATIN · B4 12–16h APRÈS-MIDI&lt;br/&gt;B5 16–20h FIN-APM · B6 20–00h SOIRÉE&lt;/span&gt;" vertex="1">
+  <mxGeometry x="660" y="260" width="300" height="200" as="geometry"/>
+</mxCell>
+
+<!-- EngagementSKUTag -->
+<mxCell id="tag_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;fontSize=11;" value="&lt;b style='font-size:13px'&gt;🔒 EngagementSKUTag · D-152&lt;/b&gt;&lt;br/&gt;&lt;i style='font-size:10px;color:#b71c1c'&gt;Préfixe EST- · WORM gravé à ACCEPTED&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Jointure analytique immuable&lt;br/&gt;Créé simultanément au ContractSnapshot phase 1&lt;br/&gt;&lt;br/&gt;roleSKUCode · styleSKUCode&lt;br/&gt;plageHoraireSKUs (1 ou 2 blocs)&lt;br/&gt;membershipTier (snapshot)&lt;br/&gt;capturedAt [immuable]&lt;br/&gt;&lt;br/&gt;&lt;span style='font-size:9px;color:#555'&gt;Fail-closed : si tag impossible → transition bloquée.&lt;br/&gt;Correction via SKUCorrectionRecord (tag original intact).&lt;/span&gt;" vertex="1">
+  <mxGeometry x="980" y="260" width="300" height="200" as="geometry"/>
+</mxCell>
+
+<!-- Exemple concret -->
+<mxCell id="exemple_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#616161;fontSize=10;" value="&lt;b&gt;Exemple : DJ Alex · House · Vendredi 22h–02h · W06 2026&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;RoleSKU    → RSK-DJ&lt;br/&gt;StyleSKU   → SSK-HOUSE&lt;br/&gt;PlageSKU 1 → PSK-2026Q1W065B6  (Ven 20h–00h SOIRÉE)&lt;br/&gt;PlageSKU 2 → PSK-2026Q1W066B1  (Sam 00h–04h NUIT)&lt;br/&gt;&lt;br/&gt;= 3 SKU distincts pour 1 prestation&lt;br/&gt;&lt;i style='color:#888'&gt;même clé en 2027 : 2027Q1W065B6 · pommes / pommes&lt;/i&gt;" vertex="1">
+  <mxGeometry x="1300" y="260" width="320" height="200" as="geometry"/>
+</mxCell>
+
+<!-- SECTION 2 : CALENDRIER 4-4-5 -->
+<mxCell id="s2_titre" parent="1" style="text;html=1;strokeColor=none;fillColor=#e3f2fd;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontStyle=1;" value="② CALENDRIER 4-4-5 · D-148 — LOI CALENDRIER-445-01" vertex="1">
+  <mxGeometry x="20" y="490" width="1600" height="36" as="geometry"/>
+</mxCell>
+
+<mxCell id="cal_structure" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="&lt;b&gt;Structure&lt;/b&gt;&lt;br/&gt;4 trimestres × 13 semaines = 52 semaines = 364 jours&lt;br/&gt;Chaque trimestre : 3 périodes de 4 + 4 + 5 semaines&lt;br/&gt;&lt;br/&gt;Q1 : W01–W13 · Q2 : W14–W26&lt;br/&gt;Q3 : W27–W39 · Q4 : W40–W52 (+overflow)&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Débordement :&lt;/b&gt; absorbé dans Q4&lt;br/&gt;2028 : Q4 = 4-4-6 · 2034 : idem" vertex="1">
+  <mxGeometry x="20" y="540" width="380" height="160" as="geometry"/>
+</mxCell>
+
+<mxCell id="cal_ancres" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=10;" value="&lt;b&gt;Ancres validées&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;2026 → 2026-01-05 lun · 52 sem&lt;br/&gt;2027 → 2027-01-04 lun · 52 sem&lt;br/&gt;2028 → 2028-01-03 lun · 53 sem ⚠️&lt;br/&gt;2029 → 2029-01-08 lun · 52 sem&lt;br/&gt;2030 → 2030-01-07 lun · 52 sem&lt;br/&gt;&lt;br/&gt;&lt;i style='font-size:9px'&gt;Gravées dans CalendarAnchorConfig (CAL-)&lt;br/&gt;Jamais recalculées à la volée&lt;/i&gt;" vertex="1">
+  <mxGeometry x="420" y="540" width="280" height="160" as="geometry"/>
+</mxCell>
+
+<mxCell id="cal_univers" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#3949ab;fontSize=11;" value="&lt;b&gt;Univers analytique&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;52 semaines × 7 jours × 6 blocs&lt;br/&gt;= &lt;b&gt;2 184 SKUs/an&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Atomes 15min = 34 944/an → ❌&lt;br/&gt;Atomes 5min = 104 832/an → ❌&lt;br/&gt;&lt;i style='font-size:9px;color:#555'&gt;(réservés à SessionPresence uniquement)&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;2 184 = assez pour piloter&lt;br/&gt;Pas assez pour noyer" vertex="1">
+  <mxGeometry x="720" y="540" width="280" height="160" as="geometry"/>
+</mxCell>
+
+<mxCell id="cal_pommes" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;fontStyle=2;" value="&lt;b style='font-size:13px;color:#1b5e20'&gt;Pommes avec pommes&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;2026Q1W065B6 = Ven 13 fév 2026&lt;br/&gt;2027Q1W065B6 = Ven 12 fév 2027&lt;br/&gt;2028Q1W065B6 = Ven 11 fév 2028&lt;br/&gt;&lt;br/&gt;Même position dans le cycle saisonnier.&lt;br/&gt;Même profil de demande attendu.&lt;br/&gt;Benchmarking inter-annuel fiable." vertex="1">
+  <mxGeometry x="1020" y="540" width="280" height="160" as="geometry"/>
+</mxCell>
+
+<!-- SECTION 3 : TROIS ÉTATS SÉPARÉS -->
+<mxCell id="s3_titre" parent="1" style="text;html=1;strokeColor=none;fillColor=#e3f2fd;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontStyle=1;" value="③ TROIS ÉTATS DE RENTABILITÉ SÉPARÉS · D-153 — LOI SKU-MOTEUR-01" vertex="1">
+  <mxGeometry x="20" y="730" width="1600" height="36" as="geometry"/>
+</mxCell>
+
+<!-- État 1 : Courtage -->
+<mxCell id="etat_courtage" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" value="&lt;b style='font-size:12px'&gt;📊 État 1 — Courtage&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Moteur : transaction (Engagement archivé)&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Unité : Engagement archivé&lt;br/&gt;Revenu reconnu : à l&apos;archivage (LOI LEDGER-01)&lt;br/&gt;Compte : 7110–7190&lt;br/&gt;&lt;br/&gt;Par RoleSKU × StyleSKU × PlageHoraireSKU :&lt;br/&gt;GMV brut · Commission MR · Frais Stripe&lt;br/&gt;Marge brute · Taux no-show · GMV médian&lt;br/&gt;&lt;br/&gt;Source : FinancialLedger(7110) × EngagementSKUTag" vertex="1">
+  <mxGeometry x="20" y="780" width="480" height="180" as="geometry"/>
+</mxCell>
+
+<!-- État 2 : SaaS -->
+<mxCell id="etat_saas" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#6a1b9a;fontSize=10;" value="&lt;b style='font-size:12px'&gt;📦 État 2 — SaaS Membership&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Moteur : période (mois / année)&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Unité : période de membership&lt;br/&gt;Revenu reconnu : pro-rata quotidien (D-050)&lt;br/&gt;Compte : 7210–7240 | Différé : 4535&lt;br/&gt;&lt;br/&gt;Par MembershipPlan (Freemium/Pro/Studio) :&lt;br/&gt;Revenu SaaS reconnu · Revenu différé restant&lt;br/&gt;&lt;br/&gt;Source : FinancialLedger(7210+) × UserMembership&lt;br/&gt;&lt;br/&gt;&lt;i style='color:#888'&gt;Séparé du courtage — horloge différente&lt;/i&gt;" vertex="1">
+  <mxGeometry x="520" y="780" width="480" height="180" as="geometry"/>
+</mxCell>
+
+<!-- Corrélation -->
+<mxCell id="etat_correlation" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;" value="&lt;b style='font-size:12px'&gt;🔗 Corrélation inter-moteurs&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Tableau de bord stratégique — JAMAIS comptabilité&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Question type :&lt;br/&gt;&lt;i&gt;Les talents PRO génèrent-ils 3× plus de GMV&lt;br/&gt;courtage dans les 12 mois post-upgrade ?&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Analyse : EngagementSKUTag.membershipTier&lt;br/&gt;× LedgerEntry(7110) · par cohorte d&apos;activation&lt;br/&gt;&lt;br/&gt;⚠️ Requête inter-moteurs exige paramètre&lt;br/&gt;&lt;b&gt;labelInterMoteur&lt;/b&gt; explicite — sinon rejeté&lt;br/&gt;par LedgerReportingService (D-155)" vertex="1">
+  <mxGeometry x="1020" y="780" width="600" height="180" as="geometry"/>
+</mxCell>
+
+<!-- SECTION 4 : ÉTATS FINANCIERS -->
+<mxCell id="s4_titre" parent="1" style="text;html=1;strokeColor=none;fillColor=#e3f2fd;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=14;fontStyle=1;" value="④ ÉTATS FINANCIERS — Ce que le LedgerReportingService produit · D-155" vertex="1">
+  <mxGeometry x="20" y="990" width="1600" height="36" as="geometry"/>
+</mxCell>
+
+<mxCell id="ef_bilan" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" value="&lt;b&gt;Bilan&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Soldes par compte à une date&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Actif : 4110–5900 solde Dr&lt;br/&gt;Passif : 1xxx–4xxx solde Cr&lt;br/&gt;Capitaux : 1100–1400&lt;br/&gt;&lt;br/&gt;Données présentes ✅&lt;br/&gt;Requête à construire" vertex="1">
+  <mxGeometry x="20" y="1040" width="260" height="130" as="geometry"/>
+</mxCell>
+
+<mxCell id="ef_resultats" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" value="&lt;b&gt;État des résultats&lt;/b&gt;&lt;br/&gt;&lt;i&gt;6xxx et 7xxx sur une période&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Produits : 7110–7990&lt;br/&gt;Charges : 6110–6690&lt;br/&gt;&lt;br/&gt;⚠️ Revenus in-flight en 4530&lt;br/&gt;(pas encore reconnus)&lt;br/&gt;&lt;i style='font-size:9px'&gt;ASPE/IFRS 15 conforme&lt;/i&gt;" vertex="1">
+  <mxGeometry x="300" y="1040" width="260" height="130" as="geometry"/>
+</mxCell>
+
+<mxCell id="ef_flux" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" value="&lt;b&gt;Flux de trésorerie · D-154&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Filtré par cashFlowType&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;EXPLOITATION · INVESTISSEMENT&lt;br/&gt;FINANCEMENT&lt;br/&gt;&lt;br/&gt;champ cashFlowType NOT NULL&lt;br/&gt;dans FinancialLedger&lt;br/&gt;&lt;i style='font-size:9px'&gt;Renseigné par le guard — jamais a posteriori&lt;/i&gt;" vertex="1">
+  <mxGeometry x="580" y="1040" width="260" height="130" as="geometry"/>
+</mxCell>
+
+<mxCell id="ef_sku" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" value="&lt;b&gt;Rentabilité par SKU&lt;/b&gt;&lt;br/&gt;&lt;i&gt;Courtage seulement · état séparé&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Join 7110 × EngagementSKUTag&lt;br/&gt;par (dateDebut, dateFin, skuCode)&lt;br/&gt;&lt;br/&gt;Exemple :&lt;br/&gt;RSK-DJ × SSK-HOUSE × PSK-2026Q1W065B6&lt;br/&gt;GMV · commission · marge · no-show" vertex="1">
+  <mxGeometry x="860" y="1040" width="300" height="130" as="geometry"/>
+</mxCell>
+
+<mxCell id="ef_interdit" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;fontSize=10;" value="&lt;b style='color:#c62828'&gt;❌ INTERDIT sans étiquette&lt;/b&gt;&lt;br/&gt;&lt;i&gt;sum(7110) + sum(7210) = rejeté&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;Agréger 7110 (courtage) + 7210 (SaaS)&lt;br/&gt;sans paramètre labelInterMoteur&lt;br/&gt;= erreur rejetée par LedgerReportingService&lt;br/&gt;&lt;br/&gt;LOI SKU-MOTEUR-01 — non-contamination" vertex="1">
+  <mxGeometry x="1180" y="1040" width="440" height="130" as="geometry"/>
+</mxCell>
+
+<!-- LÉGENDE -->
+<mxCell id="legende" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#aaa;fontSize=10;" value="&lt;b&gt;Couleurs&lt;/b&gt;&lt;br/&gt;🟢 Courtage / EngagementSKUTag&lt;br/&gt;🟣 SaaS Membership&lt;br/&gt;🔵 Calendrier 4-4-5&lt;br/&gt;🟠 Lois / interdits&lt;br/&gt;🔴 Rejeté / interdit absolu&lt;br/&gt;🟡 Corrélation stratégique&lt;br/&gt;&lt;br/&gt;Lois de cette carte :&lt;br/&gt;SKU-MOTEUR-01 · SKU-ATOME-01&lt;br/&gt;CALENDRIER-445-01 · LEDGER-01" vertex="1">
+  <mxGeometry x="20" y="1195" width="240" height="150" as="geometry"/>
+</mxCell>
+
+<mxCell id="phrase_cle" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;fontSize=12;fontStyle=2;" value="&lt;i&gt;«Un rôle dit qui. Un style dit comment. Une plage dit quand.&lt;br/&gt;Trois SKU pour une prestation — jamais un seul.»&lt;/i&gt;" vertex="1">
+  <mxGeometry x="280" y="1195" width="800" height="60" as="geometry"/>
+</mxCell>
+
+<mxCell id="version_tag" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=right;fontSize=9;fontColor=#aaa;" value="Micro Rave V3 · Carte 10 · Analytique SKU · BLOC 19 · OS V15 · 20 mai 2026" vertex="1">
+  <mxGeometry x="1300" y="1320" width="340" height="20" as="geometry"/>
+</mxCell>
+
+</root>
+</mxGraphModel>
+</diagram>
+</mxfile>

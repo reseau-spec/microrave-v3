@@ -1,552 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <mxfile host="app.diagrams.net">
-<diagram id="carte02_v4_04" name="V4_04 — OS V13 · D-019-A · D-019-B · contestation_window">
-<mxGraphModel dx="3025" dy="1920" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
-<root>
-<mxCell id="0"/>
-<mxCell id="1" parent="0"/>
-<mxCell id="ea11" edge="1" parent="1" source="withdrawn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="ea12" edge="1" parent="1" source="refunded" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="ea15" edge="1" parent="1" source="no_show_pre" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="ea8" edge="1" parent="1" source="disputed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#005700;strokeWidth=1.5;dashed=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;exitPerimeter=0;fillColor=#008a00;" target="payable" value="talent a raison">
-<mxGeometry relative="1" x="-0.0018" y="7" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-274" y="1678"/>
-</Array>
-<mxPoint x="610" y="1090" as="sourcePoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="ea9" edge="1" parent="1" source="disputed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="refunded" value="remboursement décidé">
-<mxGeometry relative="1" x="0.1731" y="5" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="705" y="1000"/>
-<mxPoint x="705" y="1360"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="ea13" edge="1" parent="1" source="cancelled_j30" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="ea14" edge="1" parent="1" source="cancelled_j7" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="ea4" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="transfer" value="talent cède sa place">
-<mxGeometry relative="1" x="0.4044" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="488" y="634"/>
-<mxPoint x="488" y="630"/>
-<mxPoint x="560" y="630"/>
-<mxPoint x="560" y="587"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="ea2" edge="1" parent="1" source="placed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="cancelled_pre" value="annulé avant acompte">
-<mxGeometry relative="1" x="0.1522" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="700" y="472"/>
-<mxPoint x="700" y="380"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="ea1" edge="1" parent="1" source="negotiating" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="withdrawn" value="talent/orga dit non">
-<mxGeometry relative="1" x="0.5466" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="270" y="154"/>
-<mxPoint x="270" y="210"/>
-<mxPoint x="770" y="210"/>
-<mxPoint x="770" y="198"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="<b style='font-size:18px'>Comment une promesse de performance devient réalité</b><br/><span style='font-size:11px;color:#666'>Machine d'état — Engagement · Micro Rave V4_04</span>" vertex="1">
-<mxGeometry height="50" width="780" x="30" y="-120" as="geometry"/>
-</mxCell>
-<mxCell id="leg_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontStyle=1;" value="<b>Légende</b>" vertex="1">
-<mxGeometry height="20" width="200" x="1100" y="-48" as="geometry"/>
-</mxCell>
-<mxCell id="leg1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" value="Étapes normales" vertex="1">
-<mxGeometry height="24" width="180" x="1100" y="-26" as="geometry"/>
-</mxCell>
-<mxCell id="leg2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="✅ Paiement au talent" vertex="1">
-<mxGeometry height="24" width="180" x="1100" y="2" as="geometry"/>
-</mxCell>
-<mxCell id="leg3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" value="❌ Annulation / problème" vertex="1">
-<mxGeometry height="24" width="180" x="1100" y="30" as="geometry"/>
-</mxCell>
-<mxCell id="leg4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="⚡ Litige en cours" vertex="1">
-<mxGeometry height="24" width="180" x="1100" y="58" as="geometry"/>
-</mxCell>
-<mxCell id="leg5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="🔄 Transfert" vertex="1">
-<mxGeometry height="24" width="180" x="1100" y="86" as="geometry"/>
-</mxCell>
-<mxCell id="worm_hier" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#d6b656;fontSize=10;align=center;spacingLeft=6;" value="<b>🔒 6 Moments WORM — hiérarchie officielle OS V13</b><div><br>🔒 W1 — ACCEPTED · DEPOSIT_SECURED · EVENT_COMPLETED · SOTS_WINDOW_CLOSED<br>→ verrouille les engagements contractuels<br>Toucher = erreur</div><div><br>Moment 2 : DEPOSIT_SECURED<br>Acompte reçu · surveillance solde activée · annulation J-6 armée</div><div><br>🔒🔒 W2 — EVENT_SEALED<br>→ verrouille les flux financiers complets<br>Toucher = fraude</div><div><br>🔒🔒🔒 W3 — ARCHIVED<br>→ verrouille tout pour toujours<br>Toucher = architecturalement impossible</div><div><br><i>Pierre de Rosette : accepted → deposit_secured → event_sealed → performed → payable → settled</i></div>" vertex="1">
-<mxGeometry height="240" width="346" x="1330" y="-18" as="geometry"/>
-</mxCell>
-<mxCell id="worm_expl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#d6b656;fontSize=10;align=center;spacingLeft=6;" value="<b>🔒 Qu'est-ce qu'un WORM ?</b><br>Write Once, Read Many.<div><br>Comme écrire à l'encre permanente.<br>Une fois écrit — on ne peut plus effacer.<br>On peut seulement lire.<br>Ça protège tout le monde contre la tricherie.<br>C'est la différence entre une mémoire et un mensonge.</div>" vertex="1">
-<mxGeometry height="110" width="346" x="1330" y="232" as="geometry"/>
-</mxCell>
-<mxCell id="entree_a" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;align=center;" value="<b>Entrée A — L'organisateur cherche un talent</b><br/><i style='color:#555'>Voie CreateEvent</i>" vertex="1">
-<mxGeometry height="50" width="250" x="30" y="-60" as="geometry"/>
-</mxCell>
-<mxCell id="entree_b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;align=center;" value="<b>Entrée B — Les talents forment une équipe</b><br/><i style='color:#555'>Voie QuickPlay · → Ici l'initiative s'inverse</i>" vertex="1">
-<mxGeometry height="50" width="250" x="330" y="-60" as="geometry"/>
-</mxCell>
-<mxCell id="proposed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="<b>🙋 Le talent lève la main</b><br/><i style='color:#555;font-size:10px'>proposed</i><br/><span style='font-size:10px'>Le talent dit : je veux faire ça</span>" vertex="1">
-<mxGeometry height="60" width="200" x="50" y="13" as="geometry"/>
-</mxCell>
-<mxCell id="negotiating" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="<b>🤝 Négociation du prix et des détails</b><br/><i style='font-size:10px;color:#555'>negotiating</i><br/><span style='font-size:10px'>Prix · rôle · style · heure<br/>(contre-offres possibles)</span>" vertex="1">
-<mxGeometry height="70" width="200" x="50" y="119" as="geometry"/>
-</mxCell>
-<mxCell id="lobby" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="<b>🎮 L'équipe se forme dans le lobby</b><br/><span style='font-size:10px'>Triple confirmation : roleMetier + style + cachet</span>" vertex="1">
-<mxGeometry height="70" width="220" x="340" y="13" as="geometry"/>
-</mxCell>
-<mxCell id="mission_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="<b>📤 Offre groupée envoyée</b><br/><span style='font-size:10px'>OUI à tout ou NON à tout — tout ou rien</span>" vertex="1">
-<mxGeometry height="60" width="220" x="340" y="129" as="geometry"/>
-</mxCell>
-<mxCell id="accepted" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="<b style='font-size:13px'>🔒 ACCORD SIGNÉ — on ne change plus rien</b><br/><i style='color:#a05000;font-size:10px'>accepted · WORM niveau 1</i><br/><span style='font-size:10px'>Le prix, le rôle, le style, l'heure sont gravés dans le marbre.<br/>ContractSnapshot phase 1. Toucher ici = erreur.</span>" vertex="1">
-<mxGeometry height="80" width="380" x="110" y="340" as="geometry"/>
-</mxCell>
-<mxCell id="placed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="<b>📋 Le talent est inscrit dans le programme</b><br/><i style='color:#555;font-size:10px'>placed — dans le Lineup</i>" vertex="1">
-<mxGeometry height="55" width="300" x="150" y="445" as="geometry"/>
-</mxCell>
-<mxCell id="deposit_pending" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="<b>💳 En attente de l'acompte</b><br/><i style='color:#555;font-size:10px'>deposit_pending</i><br/><span style='font-size:10px'>L'organisateur doit payer ≈20% pour réserver</span>" vertex="1">
-<mxGeometry height="65" width="300" x="150" y="524" as="geometry"/>
-</mxCell>
-<mxCell id="deposit_secured" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="<b style='font-size:13px'>🔒 L'acompte est reçu — le talent est réservé</b><br/><i style='color:#a05000;font-size:10px'>deposit_secured · WORM niveau 1</i><br/><span style='font-size:10px'>L'argent est protégé dans un coffre numérique.<br/>Les deux parties sont maintenant liées par contrat. Toucher ici = erreur.</span>" vertex="1">
-<mxGeometry height="80" width="380" x="110" y="614" as="geometry"/>
-</mxCell>
-<mxCell id="event_sealed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=4;" value="<b style='font-size:13px'>🔒🔒 Tout l'argent est en sécurité — le show est confirmé</b><br/><i style='color:#a05000;font-size:10px'>event_sealed · WORM niveau 2 — verrouille les flux financiers complets</i><br/><span style='font-size:10px'>Toucher ici = fraude. Le contrat est complet (ContractSnapshot phase 2).</span>" vertex="1">
-<mxGeometry height="80" width="414" x="93" y="830" as="geometry"/>
-</mxCell>
-<mxCell id="performed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="<b>🎤 Le talent est sur scène — le show commence</b><br/><i style='color:#555;font-size:10px'>performed</i><br/><span style='font-size:10px'>GPS · QR code · confirmation humaine<br/>LA PRÉSENCE EST PROUVÉE ICI.</span>" vertex="1">
-<mxGeometry height="70" width="300" x="145" y="1048" as="geometry"/>
-</mxCell>
-<mxCell id="event_completed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="<b style='font-size:13px'>🔒 Le show est terminé — tout le monde peut noter</b><br/><i style='color:#a05000;font-size:10px'>event_completed · WORM niveau 1</i><br/><span style='font-size:10px'>Fenêtre de 24h pour les notes SOTS.</span>" vertex="1">
-<mxGeometry height="75" width="380" x="110" y="1162" as="geometry"/>
-</mxCell>
-<mxCell id="sots_closed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="<b style='font-size:13px'>🔒 Les notes sont enregistrées pour toujours</b><br/><i style='color:#a05000;font-size:10px'>sots_window_closed · WORM niveau 1</i><br/><span style='font-size:10px'>La réputation est mise à jour. Le système décide si payable.</span>" vertex="1">
-<mxGeometry height="75" width="380" x="110" y="1282" as="geometry"/>
-</mxCell>
-<mxCell id="payable" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;" value="<b>✅ Tout est vérifié — le talent peut être payé</b><br/><i style='color:#3a7a2a;font-size:10px'>payable</i><br/><span style='font-size:10px'>11 conditions vérifiées (voir encart)<br/>PRÉSENCE PROUVÉE + ARGENT SÉCURISÉ = PAIEMENT</span>" vertex="1">
-<mxGeometry height="70" width="300" x="150" y="1626" as="geometry"/>
-</mxCell>
-<mxCell id="settled" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;" value="<b>💸 Le talent reçoit son argent</b><br/><i style='color:#3a7a2a;font-size:10px'>settled</i><br/><span style='font-size:10px'>Virement envoyé. Commission Micro Rave prélevée.<br/>Livres de compte équilibrés à zéro centime.</span>" vertex="1">
-<mxGeometry height="70" width="300" x="150" y="1753" as="geometry"/>
-</mxCell>
-<mxCell id="archived" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=6;shadow=1;" value="<b style='font-size:14px'>🔒🔒🔒 Tout est archivé — jamais modifier, jamais effacer</b><br/><i style='color:#a05000;font-size:10px'>archived · WORM niveau 3 — lecture seule globale · pour toujours</i><br/><span style='font-size:10px'>Le contrat, l'argent, les notes, la présence : tout est gravé pour toujours.<br/>Toucher ici = architecturalement impossible.</span>" vertex="1">
-<mxGeometry height="90" width="400" x="100" y="1884" as="geometry"/>
-</mxCell>
-<mxCell id="alt_title" parent="1" style="text;html=1;align=center;strokeColor=#b85450;fillColor=#fde9e8;rounded=1;fontSize=11;" value="<b>Chemins alternatifs</b>" vertex="1">
-<mxGeometry height="30" width="180" x="885" y="119" as="geometry"/>
-</mxCell>
-<mxCell id="withdrawn" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>🚪 Retraite (withdrawn)</b><br/><span style='font-size:9px'>Avant accord — pas de conséquences</span>" vertex="1">
-<mxGeometry height="55" width="180" x="884" y="170" as="geometry"/>
-</mxCell>
-<mxCell id="cancelled_pre" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>❌ Annulé avant acompte</b><br/><span style='font-size:9px'>cancelled_pre_deposit — sans frais</span>" vertex="1">
-<mxGeometry height="50" width="180" x="900" y="355" as="geometry"/>
-</mxCell>
-<mxCell id="cancelled_j30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>❌ Annulé >J-30</b><br/><span style='font-size:9px'>cancelled_J30 — acompte remboursé</span>" vertex="1">
-<mxGeometry height="50" width="180" x="760" y="860" as="geometry"/>
-</mxCell>
-<mxCell id="transfer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;" value="<b>🔄 Transfert (talent passe le flambeau)</b><br/><span style='font-size:9px'>transfer_requested → accepted/refused</span>" vertex="1">
-<mxGeometry height="55" width="180" x="885" y="559" as="geometry"/>
-</mxCell>
-<mxCell id="cancelled_j7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>❌ Paiement final non reçu à J-6</b><br/><span style='font-size:9px'>cancelled_J7 — acompte va aux talents</span>" vertex="1">
-<mxGeometry height="50" width="180" x="980" y="910" as="geometry"/>
-</mxCell>
-<mxCell id="no_show_pre" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>❌ No-show avant event</b><br/><span style='font-size:9px'>no_show_pre_event — compte dans la réputation</span>" vertex="1">
-<mxGeometry height="50" width="180" x="1180" y="985" as="geometry"/>
-</mxCell>
-<mxCell id="disputed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;points=[[0,0,0,0,0],[0,0.25,0,0,0],[0,0.5,0,0,0],[0,0.75,0,0,0],[0,1,0,0,0],[0.25,0,0,0,0],[0.25,1,0,0,0],[0.5,0,0,0,0],[0.5,1,0,0,0],[0.75,0,0,0,0],[0.75,1,0,0,0],[1,0,0,0,0],[1,0.25,0,0,0],[1,0.5,0,0,0],[1,0.75,0,0,0],[1,1,0,0,0]];" value="<div><b>⚡ Litige ouvert </b><br><i><font style="color: light-dark(rgb(85, 85, 85), rgb(128, 128, 128));">disputed</font></i></div><div>L'argent est gelé le temps d'enquête.</div><div>→ payable, partiel, ou remboursement</div><div>accessible depuis TOUS les états actifs</div><div>Poignée de frein d'urgence — lieu dangereux,</div><div>rupture contrat, non-paiement</div>" vertex="1">
-<mxGeometry height="158" width="225" x="-330" y="820" as="geometry"/>
-</mxCell>
-<mxCell id="no_show" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>❌ No-show au show</b><br/><span style='font-size:9px'>Talent = 0$. Organisateur remboursé.<br/>MR garde sa commission.</span>" vertex="1">
-<mxGeometry height="60" width="180" x="741" y="1208.5" as="geometry"/>
-</mxCell>
-<mxCell id="refunded" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>💰 Remboursement (refunded)</b><br/><span style='font-size:9px'>Selon la règle applicable.<br/>Tout passe par le registre.</span>" vertex="1">
-<mxGeometry height="50" width="180" x="741" y="1336" as="geometry"/>
-</mxCell>
-<mxCell id="e1" edge="1" parent="1" source="entree_a" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;" target="proposed">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e2" edge="1" parent="1" source="proposed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#001DBC;strokeWidth=2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="negotiating">
-<mxGeometry relative="1" as="geometry">
-<mxPoint x="150" y="134" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="e3" edge="1" parent="1" source="negotiating" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#001DBC;strokeWidth=2;" target="accepted">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e_b1" edge="1" parent="1" source="entree_b" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;" target="lobby">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e_b2" edge="1" parent="1" source="lobby" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;" target="mission_app">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e_b3" edge="1" parent="1" source="mission_app" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;dashed=1;" target="accepted" value="bypass négociation →">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e4" edge="1" parent="1" source="accepted" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="placed">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e5" edge="1" parent="1" source="placed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#001DBC;strokeWidth=2;" target="deposit_pending">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e6" edge="1" parent="1" source="deposit_pending" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="deposit_secured" value="acompte reçu ✓">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e10" edge="1" parent="1" source="event_sealed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="performed">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e11" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="event_completed" value="show terminé ✓">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e12" edge="1" parent="1" source="event_completed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="sots_closed" value="24h de notes ✓">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e14" edge="1" parent="1" source="payable" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;" target="settled" value="virement ✓">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="e15" edge="1" parent="1" source="settled" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=3;" target="archived">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="ea3" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="cancelled_j30" value="annulé >J-30">
-<mxGeometry relative="1" x="-0.1716" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="810" y="654"/>
-<mxPoint x="810" y="860"/>
-</Array>
-<mxPoint x="1020" y="835" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="ea6" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="0.0061" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="225" y="1040"/>
-<mxPoint x="-218" y="1040"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="ea10" edge="1" parent="1" source="no_show" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="refunded">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="lois_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=6;" value="<div><b>Lois de cette carte : </b>CO-DÉPENDANCE-01 · WORM-01/02/03 · PAIEMENT-11CONDITIONS · LOI TRANSITION-01</div><div>Interdits : voir Carte 06 § interdits 1,4,5 · Lois invariantes : Carte 08</div>" vertex="1">
-<mxGeometry height="40" width="540" x="30" y="2010" as="geometry"/>
-</mxCell>
-<mxCell id="QXs0jakQSQEAoEHUd_hZ-1" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="no_show_pre" value="talent ne trouve pas de remplaçant">
-<mxGeometry relative="1" x="-0.6667" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="1225" y="640"/>
-</Array>
-<mxPoint x="490" y="640" as="sourcePoint"/>
-<mxPoint x="1017" y="580" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="5krO5kU2CCWkjbVL6ESF-1" edge="1" parent="1" source="event_sealed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="0.0816" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="10" y="870"/>
-<mxPoint x="10" y="860"/>
-</Array>
-<mxPoint x="625" y="1159" as="sourcePoint"/>
-<mxPoint x="490" y="1080" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="5krO5kU2CCWkjbVL6ESF-4" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.3252" y="-4" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-217" y="674"/>
-</Array>
-<mxPoint x="550" y="729" as="sourcePoint"/>
-<mxPoint x="-230" y="900" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="5krO5kU2CCWkjbVL6ESF-5" edge="1" parent="1" source="deposit_pending" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.3627" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-217" y="557"/>
-</Array>
-<mxPoint x="530" y="667" as="sourcePoint"/>
-<mxPoint x="-210" y="810" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="5krO5kU2CCWkjbVL6ESF-7" edge="1" parent="1" source="placed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.422" y="4" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-217" y="486"/>
-</Array>
-<mxPoint x="490" y="524" as="sourcePoint"/>
-<mxPoint x="-200" y="810" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="5krO5kU2CCWkjbVL6ESF-8" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.5542" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-217" y="400"/>
-</Array>
-<mxPoint x="110" y="400" as="sourcePoint"/>
-<mxPoint x="-180" y="780" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="er6mtvMOVG047FEzwl9P-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;spacingLeft=6;" value="<div><b>⚔️ LOI TRANSITION-01 — la porte unique · section 2.7.1</b></div><div><p class="font-claude-response-body break-words whitespace-normal leading-[1.7]">Toute mutation du champ <code class="bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]" style="">status</code> d'un Engagement passe obligatoirement par <code class="bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]" style="">transitionEngagement()</code>. Jamais directement.</p><p class="font-claude-response-body break-words whitespace-normal leading-[1.7]">Code applicatif · script admin · migration · console de debug : aucun ne peut toucher <code class="bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]">status</code> autrement.</p><p class="font-claude-response-body break-words whitespace-normal leading-[1.7]">Toute tentative directe déclenche un <code class="bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]">AdminIncidentRecord</code> P0 bloquant — violation de Niveau 2 (fraude architecturale).</p><p class="font-claude-response-body break-words whitespace-normal leading-[1.7]">Une porte sans gardien n'est pas une porte — c'est une faille.</p></div><div><br></div>" vertex="1">
-<mxGeometry height="220" width="290" x="690" y="1534" as="geometry"/>
-</mxCell>
-<mxCell id="v403_e_dep_seal" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="event_sealed" value="solde reçu · scellement ✓">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="v403_e_dep_cj7" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" target="cancelled_j7" value="solde impayé J-6 · annulation auto">
-<mxGeometry relative="1" x="-0.6825" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="700" y="674"/>
-<mxPoint x="700" y="940"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="deposit_failed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>❌ Paiement Stripe échoué</b><br/><span style='font-size:9px'>deposit_failed — acompte refusé</span>" vertex="1">
-<mxGeometry height="50" width="180" x="888" y="490" as="geometry"/>
-</mxCell>
-<mxCell id="v403_e_dep_fail" edge="1" parent="1" source="deposit_pending" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="deposit_failed" value="paiement Stripe échoué">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="v403_e_dfail_arch" edge="1" parent="1" source="deposit_failed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#A50040;strokeWidth=1;dashed=1;endArrow=open;fillColor=#d80073;" target="archived" value="aucun fonds · archivé">
-<mxGeometry relative="1" x="-0.7902" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="1390" y="520"/>
-<mxPoint x="1390" y="1930"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_acc_cpd" edge="1" parent="1" source="accepted" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="cancelled_pre" value="annulé avant placement">
-<mxGeometry relative="1" as="geometry">
-<Array as="points">
-<mxPoint x="760" y="360"/>
-<mxPoint x="760" y="380"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_cpd_arch" edge="1" parent="1" source="cancelled_pre" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#A50040;strokeWidth=1;dashed=1;endArrow=open;fillColor=#d80073;" target="archived" value="">
-<mxGeometry relative="1" as="geometry">
-<Array as="points">
-<mxPoint x="1400" y="380"/>
-<mxPoint x="1400" y="1945"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_sots_nosh" edge="1" parent="1" source="sots_closed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="no_show" value="absent confirmé après SOTS">
-<mxGeometry relative="1" x="0.2767" y="-4" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="590" y="1320"/>
-<mxPoint x="590" y="1236"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="transfer_accepted" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;" value="<b>✅ Transfert accepté</b><br/><span style='font-size:9px'>transfer_accepted — talent B confirme</span>" vertex="1">
-<mxGeometry height="50" width="180" x="865" y="710" as="geometry"/>
-</mxCell>
-<mxCell id="transfer_refused" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="<b>❌ Transfert refusé</b><br/><span style='font-size:9px'>transfer_refused — talent B dit non</span>" vertex="1">
-<mxGeometry height="50" width="180" x="980" y="800" as="geometry"/>
-</mxCell>
-<mxCell id="v403_e_tr_acc" edge="1" parent="1" source="transfer" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;" target="transfer_accepted" value="talent B accepte">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="v403_e_tr_ref" edge="1" parent="1" source="transfer" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="transfer_refused" value="talent B refuse">
-<mxGeometry relative="1" x="0.6645" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="1090" y="600"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_tracc_placed" edge="1" parent="1" source="transfer_accepted" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;" target="placed" value="talent B confirmé · retour lineup">
-<mxGeometry relative="1" x="-0.0006" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="910" y="655"/>
-<mxPoint x="850" y="655"/>
-<mxPoint x="850" y="480"/>
-</Array>
-<mxPoint x="900" y="700" as="sourcePoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_trref_placed" edge="1" parent="1" source="transfer_refused" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="placed" value="retour à talent A">
-<mxGeometry relative="1" x="-0.815" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="840" y="825"/>
-<mxPoint x="840" y="490"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_tr_nsp" edge="1" parent="1" source="transfer" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;" target="no_show_pre" value="aucun remplaçant disponible">
-<mxGeometry relative="1" x="-0.3279" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="1270" y="580"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="partially_settled" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;" value="<b>💰 Règlement partiel</b><br/><span style='font-size:9px'>partially_settled — résolution de litige partielle</span>" vertex="1">
-<mxGeometry height="50" width="180" x="741" y="1440" as="geometry"/>
-</mxCell>
-<mxCell id="v403_e_disp_ps" edge="1" parent="1" source="disputed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;" target="partially_settled" value="résolution partielle">
-<mxGeometry relative="1" as="geometry">
-<Array as="points">
-<mxPoint x="950" y="959"/>
-<mxPoint x="950" y="1420"/>
-<mxPoint x="831" y="1420"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_ps_arch" edge="1" parent="1" source="partially_settled" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2D7600;strokeWidth=1;dashed=1;endArrow=open;fillColor=#60a917;" target="archived">
-<mxGeometry relative="1" as="geometry">
-<Array as="points">
-<mxPoint x="831" y="1520"/>
-<mxPoint x="670" y="1520"/>
-<mxPoint x="670" y="1910"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_prop_disp" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.7646" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-217" y="43"/>
-</Array>
-<mxPoint x="50" y="43" as="sourcePoint"/>
-<mxPoint x="-170" y="760" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_neg_disp" edge="1" parent="1" source="negotiating" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.7383" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-217" y="154"/>
-</Array>
-<mxPoint x="-160" y="780" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_ec_disp" edge="1" parent="1" source="event_completed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.188" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-218" y="1277"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_pay_disp" edge="1" parent="1" source="payable" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" target="disputed" value="quelqu'un conteste">
-<mxGeometry relative="1" x="-0.4001" y="-4" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-218" y="1643"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_prop_acc" edge="1" parent="1" source="proposed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" target="accepted" value="voie QuickPlay · bypass négociation">
-<mxGeometry relative="1" x="0.2426" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="50" y="60"/>
-<mxPoint y="60"/>
-<mxPoint y="380"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="v403_e_perf_pay" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=1.5;dashed=1;exitX=0;exitY=1;exitDx=0;exitDy=0;" target="payable" value="payout urgence · SoloFounderOverride">
-<mxGeometry relative="1" as="geometry">
-<Array as="points">
-<mxPoint x="150" y="1120"/>
-<mxPoint x="80" y="1120"/>
-<mxPoint x="80" y="1660"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="contestation_window" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=center;strokeWidth=2;" value="<b>⏳ Fenêtre de contestation</b><br/><i style='color:#a07000;font-size:10px'>contestation_window</i><br/><span style='font-size:10px'>24h pour contester la prestation · D-019-B<br/>Sans dispute → payout autorisé</span>" vertex="1">
-<mxGeometry height="65" width="300" x="150" y="1435" as="geometry"/>
-</mxCell>
-<mxCell id="v404_e_sots_cw" edge="1" parent="1" source="sots_closed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="contestation_window" value="fenêtre contestation ouverte">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="v404_e_cw_pay" edge="1" parent="1" source="contestation_window" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;" target="payable" value="expiré sans dispute · 11 cond. ✓">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="v404_e_cw_disp" edge="1" parent="1" source="contestation_window" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="disputed" value="quelqu'un conteste · Contestation de Prestation">
-<mxGeometry relative="1" as="geometry">
-<Array as="points">
-<mxPoint x="530" y="1468"/>
-<mxPoint x="530" y="1150"/>
-<mxPoint x="-217" y="1150"/>
-</Array>
-</mxGeometry>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6f3ff;strokeColor=#0057a8;fontSize=10;align=left;spacingLeft=8;spacingRight=6;" value="<b style='font-size:11px;color:#0057a8'>📐 Coefficient de vente — calculé ICI, gravé ici</b><br/><span style='font-size:10px'><b>Formule :</b> coefficient = prix vendu ÷ lineup signé<br/><br/><b>Exemple :</b> Lineup signé = 1 000$<br/>Prix vendu par le vendeur = 1 500$<br/>Coefficient = 1,5<br/><br/>DJ warmup signé 200$ → <b>300$ brut final</b> 🔒<br/>Headliner signé 800$ → <b>1 200$ brut final</b> 🔒<br/><br/>Ces montants sont WORM W2.<br/>Un no-show <u>après</u> ce point ne les modifie pas.<br/>Le warmup reste à 300$ même si le headliner est absent.</span>" vertex="1">
-<mxGeometry height="185" width="310" x="-830" y="589" as="geometry"/>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-2" edge="1" parent="1" source="GHq1jFF7FNUCI_MjxX5L-1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#0057a8;strokeWidth=1.5;dashed=1;endArrow=open;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="event_sealed" value="snapshoté ici">
-<mxGeometry relative="1" x="0.2245" as="geometry">
-<mxPoint as="offset"/>
-<Array as="points">
-<mxPoint x="-470" y="682"/>
-<mxPoint x="-470" y="740"/>
-<mxPoint x="197" y="740"/>
-</Array>
-<mxPoint x="-110" y="770" as="sourcePoint"/>
-<mxPoint x="303" y="877" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-6" edge="1" parent="1" source="GHq1jFF7FNUCI_MjxX5L-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;shape=link;fillColor=#60a917;strokeColor=#2D7600;" target="GHq1jFF7FNUCI_MjxX5L-5">
-<mxGeometry relative="1" as="geometry"/>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;align=center;strokeWidth=2;" value="<b style='color:#1b5e20;font-size:11px'>🎸 Extension de plage sur place</b><br/><i style='color:#2e7d32;font-size:9px'>EngagementAmendment — D-147</i><br/><span style='font-size:9px'>Double consentement : talent + organisateur<br/>Taux contractuel inchangé (WORM W2)<br/>Seule la plage horaire s'étend</span>" vertex="1">
-<mxGeometry height="75" width="210" x="-600" y="1052" as="geometry"/>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-4" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2e7d32;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" target="GHq1jFF7FNUCI_MjxX5L-3" value="accord mutuel sur place">
-<mxGeometry relative="1" x="-0.272" y="5" as="geometry">
-<mxPoint x="1" as="offset"/>
-<mxPoint x="150" y="1074" as="sourcePoint"/>
-<mxPoint x="-390" y="1073.5" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;align=left;spacingLeft=8;" value="<b style='color:#1b5e20'>Règles D-147</b><br/><span style='font-size:9px'>✅ Nouveau cachet = taux/h implicite × nouvelle durée<br/>✅ Headliner absent = no-show confirmé quand même<br/>✅ Réputation headliner affectée — toujours<br/>❌ Le taux signé ne change jamais<br/>❌ Seulement depuis l'état performed<br/>❌ Pas possible après event_completed</span>" vertex="1">
-<mxGeometry height="153" width="220" x="-605" y="1162" as="geometry"/>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-8" edge="1" parent="1" source="GHq1jFF7FNUCI_MjxX5L-3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2e7d32;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="performed" value="même engagement · nouvelle plage">
-<mxGeometry relative="1" x="0.2091" as="geometry">
-<mxPoint as="offset"/>
-<mxPoint x="-390" y="1098.25" as="sourcePoint"/>
-<mxPoint x="150" y="1097.5" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=8;" value="<b style="color: rgb(160, 0, 0);">D-044 — Engagements indépendants</b><br><span style="font-size:9px">Le no-show d'un talent n'affecte pas les autres présent.<br>Chaque Engagement suit sa propre logique.<br><br>Talent absent → 0$ · MR garde commission<br>Organisateur remboursé : cachet net des talents absents<br>− commission MR<br><br>Talent présent → payé via son ContractSnapshot W2.<br>Son cachet NE CHANGE PAS.</span>" vertex="1">
-<mxGeometry height="163.5" width="240" x="1040" y="1140" as="geometry"/>
-</mxCell>
-<mxCell id="GHq1jFF7FNUCI_MjxX5L-10" edge="1" parent="1" source="no_show" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1;dashed=1;endArrow=open;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="GHq1jFF7FNUCI_MjxX5L-9">
-<mxGeometry relative="1" as="geometry">
-<mxPoint x="1340" y="1490" as="sourcePoint"/>
-<mxPoint x="1404" y="1499" as="targetPoint"/>
-</mxGeometry>
-</mxCell>
-</root>
-</mxGraphModel>
-</diagram>
+  <diagram id="carte02_v4_04" name="V4_04 — OS V13 · D-019-A · D-019-B · contestation_window">
+    <mxGraphModel dx="2888" dy="1845" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ea11" edge="1" parent="1" source="withdrawn" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea12" edge="1" parent="1" source="refunded" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea15" edge="1" parent="1" source="no_show_pre" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea8" edge="1" parent="1" source="disputed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#005700;strokeWidth=1.5;dashed=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;exitPerimeter=0;fillColor=#008a00;" target="payable" value="talent a raison">
+          <mxGeometry relative="1" x="-0.0018" y="7" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-274" y="1678" />
+            </Array>
+            <mxPoint x="610" y="1090" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ea9" edge="1" parent="1" source="disputed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="refunded" value="remboursement décidé">
+          <mxGeometry relative="1" x="0.1731" y="5" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="705" y="1000" />
+              <mxPoint x="705" y="1360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ea13" edge="1" parent="1" source="cancelled_j30" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea14" edge="1" parent="1" source="cancelled_j7" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#aaa;strokeWidth=1;dashed=1;endArrow=open;" target="archived">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea4" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="transfer" value="talent cède sa place">
+          <mxGeometry relative="1" x="0.4044" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="488" y="634" />
+              <mxPoint x="488" y="630" />
+              <mxPoint x="560" y="630" />
+              <mxPoint x="560" y="587" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ea2" edge="1" parent="1" source="placed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="cancelled_pre" value="annulé avant acompte">
+          <mxGeometry relative="1" x="0.1522" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="700" y="472" />
+              <mxPoint x="700" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ea1" edge="1" parent="1" source="negotiating" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="withdrawn" value="talent/orga dit non">
+          <mxGeometry relative="1" x="0.5466" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="270" y="154" />
+              <mxPoint x="270" y="210" />
+              <mxPoint x="770" y="210" />
+              <mxPoint x="770" y="198" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="titre" parent="1" style="text;html=1;align=center;strokeColor=none;fillColor=none;" value="&lt;b style=&#39;font-size:18px&#39;&gt;Comment une promesse de performance devient réalité&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:11px;color:#666&#39;&gt;Machine d&#39;état — Engagement · Micro Rave V4_04&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="780" x="30" y="-120" as="geometry" />
+        </mxCell>
+        <mxCell id="leg_title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontStyle=1;" value="&lt;b&gt;Légende&lt;/b&gt;" vertex="1">
+          <mxGeometry height="20" width="200" x="1100" y="-48" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;" value="Étapes normales" vertex="1">
+          <mxGeometry height="24" width="180" x="1100" y="-26" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;" value="✅ Paiement au talent" vertex="1">
+          <mxGeometry height="24" width="180" x="1100" y="2" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;" value="❌ Annulation / problème" vertex="1">
+          <mxGeometry height="24" width="180" x="1100" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;" value="⚡ Litige en cours" vertex="1">
+          <mxGeometry height="24" width="180" x="1100" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;" value="🔄 Transfert" vertex="1">
+          <mxGeometry height="24" width="180" x="1100" y="86" as="geometry" />
+        </mxCell>
+        <mxCell id="worm_hier" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#d6b656;fontSize=10;align=center;spacingLeft=6;" value="&lt;b&gt;🔒 6 Moments WORM — hiérarchie officielle OS V13&lt;/b&gt;&lt;div&gt;&lt;br&gt;🔒 W1 — ACCEPTED · DEPOSIT_SECURED · EVENT_COMPLETED · SOTS_WINDOW_CLOSED&lt;br&gt;→ verrouille les engagements contractuels&lt;br&gt;Toucher = erreur&lt;/div&gt;&lt;div&gt;&lt;br&gt;Moment 2 : DEPOSIT_SECURED&lt;br&gt;Acompte reçu · surveillance solde activée · annulation J-6 armée&lt;/div&gt;&lt;div&gt;&lt;br&gt;🔒🔒 W2 — EVENT_SEALED&lt;br&gt;→ verrouille les flux financiers complets&lt;br&gt;Toucher = fraude&lt;/div&gt;&lt;div&gt;&lt;br&gt;🔒🔒🔒 W3 — ARCHIVED&lt;br&gt;→ verrouille tout pour toujours&lt;br&gt;Toucher = architecturalement impossible&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;i&gt;Pierre de Rosette : accepted → deposit_secured → event_sealed → performed → payable → settled&lt;/i&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="240" width="346" x="1330" y="-18" as="geometry" />
+        </mxCell>
+        <mxCell id="worm_expl" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3cd;strokeColor=#d6b656;fontSize=10;align=center;spacingLeft=6;" value="&lt;b&gt;🔒 Qu&#39;est-ce qu&#39;un WORM ?&lt;/b&gt;&lt;br&gt;Write Once, Read Many.&lt;div&gt;&lt;br&gt;Comme écrire à l&#39;encre permanente.&lt;br&gt;Une fois écrit — on ne peut plus effacer.&lt;br&gt;On peut seulement lire.&lt;br&gt;Ça protège tout le monde contre la tricherie.&lt;br&gt;C&#39;est la différence entre une mémoire et un mensonge.&lt;/div&gt;" vertex="1">
+          <mxGeometry height="110" width="346" x="1330" y="232" as="geometry" />
+        </mxCell>
+        <mxCell id="entree_a" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;align=center;" value="&lt;b&gt;Entrée A — L&#39;organisateur cherche un talent&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#555&#39;&gt;Voie CreateEvent&lt;/i&gt;" vertex="1">
+          <mxGeometry height="50" width="250" x="30" y="-60" as="geometry" />
+        </mxCell>
+        <mxCell id="entree_b" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;fontStyle=1;align=center;" value="&lt;b&gt;Entrée B — Les talents forment une équipe&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#555&#39;&gt;Voie QuickPlay · → Ici l&#39;initiative s&#39;inverse&lt;/i&gt;" vertex="1">
+          <mxGeometry height="50" width="250" x="330" y="-60" as="geometry" />
+        </mxCell>
+        <mxCell id="proposed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;🙋 Le talent lève la main&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#555;font-size:10px&#39;&gt;proposed&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Le talent dit : je veux faire ça&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="50" y="13" as="geometry" />
+        </mxCell>
+        <mxCell id="negotiating" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;🤝 Négociation du prix et des détails&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;font-size:10px;color:#555&#39;&gt;negotiating&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Prix · rôle · style · heure&lt;br/&gt;(contre-offres possibles)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="200" x="50" y="119" as="geometry" />
+        </mxCell>
+        <mxCell id="lobby" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="&lt;b&gt;🎮 L&#39;équipe se forme dans le lobby&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Triple confirmation : roleMetier + style + cachet&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="220" x="340" y="13" as="geometry" />
+        </mxCell>
+        <mxCell id="mission_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" value="&lt;b&gt;📤 Offre groupée envoyée&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;OUI à tout ou NON à tout — tout ou rien&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="220" x="340" y="129" as="geometry" />
+        </mxCell>
+        <mxCell id="accepted" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🔒 ACCORD SIGNÉ — on ne change plus rien&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a05000;font-size:10px&#39;&gt;accepted · WORM niveau 1&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Le prix, le rôle, le style, l&#39;heure sont gravés dans le marbre.&lt;br/&gt;ContractSnapshot phase 1. Toucher ici = erreur.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="380" x="110" y="340" as="geometry" />
+        </mxCell>
+        <mxCell id="placed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;📋 Le talent est inscrit dans le programme&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#555;font-size:10px&#39;&gt;placed — dans le Lineup&lt;/i&gt;" vertex="1">
+          <mxGeometry height="55" width="300" x="150" y="445" as="geometry" />
+        </mxCell>
+        <mxCell id="deposit_pending" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;💳 En attente de l&#39;acompte&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#555;font-size:10px&#39;&gt;deposit_pending&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;L&#39;organisateur doit payer ≈20% pour réserver&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="300" x="150" y="524" as="geometry" />
+        </mxCell>
+        <mxCell id="deposit_secured" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🔒 L&#39;acompte est reçu — le talent est réservé&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a05000;font-size:10px&#39;&gt;deposit_secured · WORM niveau 1&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;L&#39;argent est protégé dans un coffre numérique.&lt;br/&gt;Les deux parties sont maintenant liées par contrat. Toucher ici = erreur.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="380" x="110" y="614" as="geometry" />
+        </mxCell>
+        <mxCell id="event_sealed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=4;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🔒🔒 Tout l&#39;argent est en sécurité — le show est confirmé&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a05000;font-size:10px&#39;&gt;event_sealed · WORM niveau 2 — verrouille les flux financiers complets&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Toucher ici = fraude. Le contrat est complet (ContractSnapshot phase 2).&lt;/span&gt;" vertex="1">
+          <mxGeometry height="80" width="414" x="93" y="830" as="geometry" />
+        </mxCell>
+        <mxCell id="performed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" value="&lt;b&gt;🎤 Le talent est sur scène — le show commence&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#555;font-size:10px&#39;&gt;performed&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;GPS · QR code · confirmation humaine&lt;br/&gt;LA PRÉSENCE EST PROUVÉE ICI.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="300" x="145" y="1048" as="geometry" />
+        </mxCell>
+        <mxCell id="event_completed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🔒 Le show est terminé — tout le monde peut noter&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a05000;font-size:10px&#39;&gt;event_completed · WORM niveau 1&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Fenêtre de 24h pour les notes SOTS.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="75" width="380" x="110" y="1162" as="geometry" />
+        </mxCell>
+        <mxCell id="sots_closed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=3;" value="&lt;b style=&#39;font-size:13px&#39;&gt;🔒 Les notes sont enregistrées pour toujours&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a05000;font-size:10px&#39;&gt;sots_window_closed · WORM niveau 1&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;La réputation est mise à jour. Le système décide si payable.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="75" width="380" x="110" y="1282" as="geometry" />
+        </mxCell>
+        <mxCell id="payable" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;" value="&lt;b&gt;✅ Tout est vérifié — le talent peut être payé&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#3a7a2a;font-size:10px&#39;&gt;payable&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;11 conditions vérifiées (voir encart)&lt;br/&gt;PRÉSENCE PROUVÉE + ARGENT SÉCURISÉ = PAIEMENT&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="300" x="150" y="1626" as="geometry" />
+        </mxCell>
+        <mxCell id="settled" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=center;" value="&lt;b&gt;💸 Le talent reçoit son argent&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#3a7a2a;font-size:10px&#39;&gt;settled&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Virement envoyé. Commission Micro Rave prélevée.&lt;br/&gt;Livres de compte équilibrés à zéro centime.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="70" width="300" x="150" y="1753" as="geometry" />
+        </mxCell>
+        <mxCell id="archived" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d6b656;fontSize=12;align=center;fontStyle=1;strokeWidth=6;shadow=1;" value="&lt;b style=&#39;font-size:14px&#39;&gt;🔒🔒🔒 Tout est archivé — jamais modifier, jamais effacer&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a05000;font-size:10px&#39;&gt;archived · WORM niveau 3 — lecture seule globale · pour toujours&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;Le contrat, l&#39;argent, les notes, la présence : tout est gravé pour toujours.&lt;br/&gt;Toucher ici = architecturalement impossible.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="400" x="100" y="1884" as="geometry" />
+        </mxCell>
+        <mxCell id="alt_title" parent="1" style="text;html=1;align=center;strokeColor=#b85450;fillColor=#fde9e8;rounded=1;fontSize=11;" value="&lt;b&gt;Chemins alternatifs&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="180" x="885" y="119" as="geometry" />
+        </mxCell>
+        <mxCell id="withdrawn" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;🚪 Retraite (withdrawn)&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;Avant accord — pas de conséquences&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="180" x="884" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled_pre" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;❌ Annulé avant acompte&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;cancelled_pre_deposit — sans frais&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="900" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled_j30" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;❌ Annulé &gt;J-30&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;cancelled_J30 — acompte remboursé&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="760" y="860" as="geometry" />
+        </mxCell>
+        <mxCell id="transfer" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;" value="&lt;b&gt;🔄 Transfert (talent passe le flambeau)&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;transfer_requested → accepted/refused&lt;/span&gt;" vertex="1">
+          <mxGeometry height="55" width="180" x="885" y="559" as="geometry" />
+        </mxCell>
+        <mxCell id="cancelled_j7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;❌ Paiement final non reçu à J-6&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;cancelled_J7 — acompte va aux talents&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="980" y="910" as="geometry" />
+        </mxCell>
+        <mxCell id="no_show_pre" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;❌ No-show avant event&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;no_show_pre_event — compte dans la réputation&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="1180" y="985" as="geometry" />
+        </mxCell>
+        <mxCell id="disputed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=center;points=[[0,0,0,0,0],[0,0.25,0,0,0],[0,0.5,0,0,0],[0,0.75,0,0,0],[0,1,0,0,0],[0.25,0,0,0,0],[0.25,1,0,0,0],[0.5,0,0,0,0],[0.5,1,0,0,0],[0.75,0,0,0,0],[0.75,1,0,0,0],[1,0,0,0,0],[1,0.25,0,0,0],[1,0.5,0,0,0],[1,0.75,0,0,0],[1,1,0,0,0]];" value="&lt;div&gt;&lt;b&gt;⚡ Litige ouvert &lt;/b&gt;&lt;br&gt;&lt;i&gt;&lt;font style=&quot;color: light-dark(rgb(85, 85, 85), rgb(128, 128, 128));&quot;&gt;disputed&lt;/font&gt;&lt;/i&gt;&lt;/div&gt;&lt;div&gt;L&#39;argent est gelé le temps d&#39;enquête.&lt;/div&gt;&lt;div&gt;→ payable, partiel, ou remboursement&lt;/div&gt;&lt;div&gt;accessible depuis TOUS les états actifs&lt;/div&gt;&lt;div&gt;Poignée de frein d&#39;urgence — lieu dangereux,&lt;/div&gt;&lt;div&gt;rupture contrat, non-paiement&lt;/div&gt;" vertex="1">
+          <mxGeometry height="158" width="225" x="-330" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="no_show" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;❌ No-show au show&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;Talent = 0$. Organisateur remboursé.&lt;br/&gt;MR garde sa commission.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="180" x="741" y="1208.5" as="geometry" />
+        </mxCell>
+        <mxCell id="refunded" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;💰 Remboursement (refunded)&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;Selon la règle applicable.&lt;br/&gt;Tout passe par le registre.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="741" y="1336" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="entree_a" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6c8ebf;strokeWidth=2;" target="proposed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="proposed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#001DBC;strokeWidth=2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="negotiating">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="150" y="134" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="negotiating" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#001DBC;strokeWidth=2;" target="accepted">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_b1" edge="1" parent="1" source="entree_b" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;" target="lobby">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_b2" edge="1" parent="1" source="lobby" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;" target="mission_app">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_b3" edge="1" parent="1" source="mission_app" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=2;dashed=1;" target="accepted" value="bypass négociation →">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="accepted" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="placed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="placed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#001DBC;strokeWidth=2;" target="deposit_pending">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="deposit_pending" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="deposit_secured" value="acompte reçu ✓">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="event_sealed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="performed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="event_completed" value="show terminé ✓">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" edge="1" parent="1" source="event_completed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="sots_closed" value="24h de notes ✓">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" edge="1" parent="1" source="payable" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;" target="settled" value="virement ✓">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" edge="1" parent="1" source="settled" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=3;" target="archived">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ea3" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="cancelled_j30" value="annulé &gt;J-30">
+          <mxGeometry relative="1" x="-0.1716" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="810" y="654" />
+              <mxPoint x="810" y="860" />
+            </Array>
+            <mxPoint x="1020" y="835" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ea6" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="0.0061" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="225" y="1040" />
+              <mxPoint x="-218" y="1040" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ea10" edge="1" parent="1" source="no_show" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="refunded">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lois_app" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;align=left;spacingLeft=6;" value="&lt;div&gt;&lt;b&gt;Lois de cette carte : &lt;/b&gt;CO-DÉPENDANCE-01 · WORM-01/02/03 · PAIEMENT-11CONDITIONS · LOI TRANSITION-01&lt;/div&gt;&lt;div&gt;Interdits : voir Carte 06 § interdits 1,4,5 · Lois invariantes : Carte 08&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="540" x="30" y="2010" as="geometry" />
+        </mxCell>
+        <mxCell id="QXs0jakQSQEAoEHUd_hZ-1" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="no_show_pre" value="talent ne trouve pas de remplaçant">
+          <mxGeometry relative="1" x="-0.6667" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1225" y="640" />
+            </Array>
+            <mxPoint x="490" y="640" as="sourcePoint" />
+            <mxPoint x="1017" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5krO5kU2CCWkjbVL6ESF-1" edge="1" parent="1" source="event_sealed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="0.0816" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="10" y="870" />
+              <mxPoint x="10" y="860" />
+            </Array>
+            <mxPoint x="625" y="1159" as="sourcePoint" />
+            <mxPoint x="490" y="1080" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5krO5kU2CCWkjbVL6ESF-4" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="-0.3252" y="-4" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-217" y="674" />
+            </Array>
+            <mxPoint x="550" y="729" as="sourcePoint" />
+            <mxPoint x="-230" y="900" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5krO5kU2CCWkjbVL6ESF-5" edge="1" parent="1" source="deposit_pending" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="-0.3627" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-217" y="557" />
+            </Array>
+            <mxPoint x="530" y="667" as="sourcePoint" />
+            <mxPoint x="-210" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5krO5kU2CCWkjbVL6ESF-7" edge="1" parent="1" source="placed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="-0.422" y="4" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-217" y="486" />
+            </Array>
+            <mxPoint x="490" y="524" as="sourcePoint" />
+            <mxPoint x="-200" y="810" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="5krO5kU2CCWkjbVL6ESF-8" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="-0.5542" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-217" y="400" />
+            </Array>
+            <mxPoint x="110" y="400" as="sourcePoint" />
+            <mxPoint x="-180" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="er6mtvMOVG047FEzwl9P-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=left;spacingLeft=6;" value="&lt;div&gt;&lt;b&gt;⚔️ LOI TRANSITION-01 — la porte unique · section 2.7.1&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Toute mutation du champ &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot; style=&quot;&quot;&gt;status&lt;/code&gt; d&#39;un Engagement passe obligatoirement par &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot; style=&quot;&quot;&gt;transitionEngagement()&lt;/code&gt;. Jamais directement.&lt;/p&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Code applicatif · script admin · migration · console de debug : aucun ne peut toucher &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;status&lt;/code&gt; autrement.&lt;/p&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Toute tentative directe déclenche un &lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;AdminIncidentRecord&lt;/code&gt; P0 bloquant — violation de Niveau 2 (fraude architecturale).&lt;/p&gt;&lt;p class=&quot;font-claude-response-body break-words whitespace-normal leading-[1.7]&quot;&gt;Une porte sans gardien n&#39;est pas une porte — c&#39;est une faille.&lt;/p&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="220" width="290" x="690" y="1534" as="geometry" />
+        </mxCell>
+        <mxCell id="v403_e_dep_seal" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="event_sealed" value="solde reçu · scellement ✓">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v403_e_dep_cj7" edge="1" parent="1" source="deposit_secured" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.75;exitDx=0;exitDy=0;" target="cancelled_j7" value="solde impayé J-6 · annulation auto">
+          <mxGeometry relative="1" x="-0.6825" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="700" y="674" />
+              <mxPoint x="700" y="940" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="deposit_failed" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;❌ Paiement Stripe échoué&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;deposit_failed — acompte refusé&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="888" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="v403_e_dep_fail" edge="1" parent="1" source="deposit_pending" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="deposit_failed" value="paiement Stripe échoué">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v403_e_dfail_arch" edge="1" parent="1" source="deposit_failed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#A50040;strokeWidth=1;dashed=1;endArrow=open;fillColor=#d80073;" target="archived" value="aucun fonds · archivé">
+          <mxGeometry relative="1" x="-0.7902" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1390" y="520" />
+              <mxPoint x="1390" y="1930" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_acc_cpd" edge="1" parent="1" source="accepted" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" target="cancelled_pre" value="annulé avant placement">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="760" y="360" />
+              <mxPoint x="760" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_cpd_arch" edge="1" parent="1" source="cancelled_pre" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#A50040;strokeWidth=1;dashed=1;endArrow=open;fillColor=#d80073;" target="archived" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1400" y="380" />
+              <mxPoint x="1400" y="1945" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_sots_nosh" edge="1" parent="1" source="sots_closed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="no_show" value="absent confirmé après SOTS">
+          <mxGeometry relative="1" x="0.2767" y="-4" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="590" y="1320" />
+              <mxPoint x="590" y="1236" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="transfer_accepted" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;align=center;" value="&lt;b&gt;✅ Transfert accepté&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;transfer_accepted — talent B confirme&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="865" y="710" as="geometry" />
+        </mxCell>
+        <mxCell id="transfer_refused" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;align=center;" value="&lt;b&gt;❌ Transfert refusé&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;transfer_refused — talent B dit non&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="980" y="800" as="geometry" />
+        </mxCell>
+        <mxCell id="v403_e_tr_acc" edge="1" parent="1" source="transfer" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;" target="transfer_accepted" value="talent B accepte">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v403_e_tr_ref" edge="1" parent="1" source="transfer" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;" target="transfer_refused" value="talent B refuse">
+          <mxGeometry relative="1" x="0.6645" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1090" y="600" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_tracc_placed" edge="1" parent="1" source="transfer_accepted" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;" target="placed" value="talent B confirmé · retour lineup">
+          <mxGeometry relative="1" x="-0.0006" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="910" y="655" />
+              <mxPoint x="850" y="655" />
+              <mxPoint x="850" y="480" />
+            </Array>
+            <mxPoint x="900" y="700" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_trref_placed" edge="1" parent="1" source="transfer_refused" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="placed" value="retour à talent A">
+          <mxGeometry relative="1" x="-0.815" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="840" y="825" />
+              <mxPoint x="840" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_tr_nsp" edge="1" parent="1" source="transfer" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;" target="no_show_pre" value="aucun remplaçant disponible">
+          <mxGeometry relative="1" x="-0.3279" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="1270" y="580" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="partially_settled" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;align=center;" value="&lt;b&gt;💰 Règlement partiel&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;partially_settled — résolution de litige partielle&lt;/span&gt;" vertex="1">
+          <mxGeometry height="50" width="180" x="741" y="1440" as="geometry" />
+        </mxCell>
+        <mxCell id="v403_e_disp_ps" edge="1" parent="1" source="disputed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;" target="partially_settled" value="résolution partielle">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="950" y="959" />
+              <mxPoint x="950" y="1420" />
+              <mxPoint x="831" y="1420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_ps_arch" edge="1" parent="1" source="partially_settled" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2D7600;strokeWidth=1;dashed=1;endArrow=open;fillColor=#60a917;" target="archived">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="831" y="1520" />
+              <mxPoint x="670" y="1520" />
+              <mxPoint x="670" y="1910" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_prop_disp" edge="1" parent="1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="-0.7646" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-217" y="43" />
+            </Array>
+            <mxPoint x="50" y="43" as="sourcePoint" />
+            <mxPoint x="-170" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_neg_disp" edge="1" parent="1" source="negotiating" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="-0.7383" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-217" y="154" />
+            </Array>
+            <mxPoint x="-160" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_pay_disp" edge="1" parent="1" source="payable" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;" target="disputed" value="quelqu&#39;un conteste">
+          <mxGeometry relative="1" x="-0.4001" y="-4" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-218" y="1643" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_prop_acc" edge="1" parent="1" source="proposed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.75;exitDx=0;exitDy=0;" target="accepted" value="voie QuickPlay · bypass négociation">
+          <mxGeometry relative="1" x="0.2426" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="50" y="60" />
+              <mxPoint y="60" />
+              <mxPoint y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="v403_e_perf_pay" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=1.5;dashed=1;exitX=0;exitY=1;exitDx=0;exitDy=0;" target="payable" value="payout urgence · SoloFounderOverride">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="1120" />
+              <mxPoint x="80" y="1120" />
+              <mxPoint x="80" y="1660" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="contestation_window" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;align=center;strokeWidth=2;" value="&lt;b&gt;⏳ Fenêtre de contestation&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#a07000;font-size:10px&#39;&gt;contestation_window&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;24h pour contester la prestation · D-019-B&lt;br/&gt;Sans dispute → payout autorisé&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="300" x="150" y="1435" as="geometry" />
+        </mxCell>
+        <mxCell id="v404_e_sots_cw" edge="1" parent="1" source="sots_closed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=2;" target="contestation_window" value="fenêtre contestation ouverte">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v404_e_cw_pay" edge="1" parent="1" source="contestation_window" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#82b366;strokeWidth=2;" target="payable" value="expiré sans dispute · 11 cond. ✓">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v404_e_cw_disp" edge="1" parent="1" source="contestation_window" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#d6b656;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="disputed" value="quelqu&#39;un conteste · Contestation de Prestation">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-217" y="1468" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6f3ff;strokeColor=#0057a8;fontSize=10;align=left;spacingLeft=8;spacingRight=6;" value="&lt;b style=&#39;font-size:11px;color:#0057a8&#39;&gt;📐 Coefficient de vente — calculé ICI, gravé ici&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:10px&#39;&gt;&lt;b&gt;Formule :&lt;/b&gt; coefficient = prix vendu ÷ lineup signé&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Exemple :&lt;/b&gt; Lineup signé = 1 000$&lt;br/&gt;Prix vendu par le vendeur = 1 500$&lt;br/&gt;Coefficient = 1,5&lt;br/&gt;&lt;br/&gt;DJ warmup signé 200$ → &lt;b&gt;300$ brut final&lt;/b&gt; 🔒&lt;br/&gt;Headliner signé 800$ → &lt;b&gt;1 200$ brut final&lt;/b&gt; 🔒&lt;br/&gt;&lt;br/&gt;Ces montants sont WORM W2.&lt;br/&gt;Un no-show &lt;u&gt;après&lt;/u&gt; ce point ne les modifie pas.&lt;br/&gt;Le warmup reste à 300$ même si le headliner est absent.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="185" width="310" x="-830" y="589" as="geometry" />
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-2" edge="1" parent="1" source="GHq1jFF7FNUCI_MjxX5L-1" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#0057a8;strokeWidth=1.5;dashed=1;endArrow=open;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.25;entryY=0;entryDx=0;entryDy=0;" target="event_sealed" value="snapshoté ici">
+          <mxGeometry relative="1" x="0.2245" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="-470" y="682" />
+              <mxPoint x="-470" y="740" />
+              <mxPoint x="197" y="740" />
+            </Array>
+            <mxPoint x="-110" y="770" as="sourcePoint" />
+            <mxPoint x="303" y="877" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-6" edge="1" parent="1" source="GHq1jFF7FNUCI_MjxX5L-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;shape=link;fillColor=#60a917;strokeColor=#2D7600;" target="GHq1jFF7FNUCI_MjxX5L-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;align=center;strokeWidth=2;" value="&lt;b style=&#39;color:#1b5e20;font-size:11px&#39;&gt;🎸 Extension de plage sur place&lt;/b&gt;&lt;br/&gt;&lt;i style=&#39;color:#2e7d32;font-size:9px&#39;&gt;EngagementAmendment — D-147&lt;/i&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;Double consentement : talent + organisateur&lt;br/&gt;Taux contractuel inchangé (WORM W2)&lt;br/&gt;Seule la plage horaire s&#39;étend&lt;/span&gt;" vertex="1">
+          <mxGeometry height="75" width="210" x="-600" y="1052" as="geometry" />
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-4" edge="1" parent="1" source="performed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2e7d32;strokeWidth=1.5;dashed=1;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" target="GHq1jFF7FNUCI_MjxX5L-3" value="accord mutuel sur place">
+          <mxGeometry relative="1" x="-0.272" y="5" as="geometry">
+            <mxPoint x="1" as="offset" />
+            <mxPoint x="150" y="1074" as="sourcePoint" />
+            <mxPoint x="-390" y="1073.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;align=left;spacingLeft=8;" value="&lt;b style=&#39;color:#1b5e20&#39;&gt;Règles D-147&lt;/b&gt;&lt;br/&gt;&lt;span style=&#39;font-size:9px&#39;&gt;✅ Nouveau cachet = taux/h implicite × nouvelle durée&lt;br/&gt;✅ Headliner absent = no-show confirmé quand même&lt;br/&gt;✅ Réputation headliner affectée — toujours&lt;br/&gt;❌ Le taux signé ne change jamais&lt;br/&gt;❌ Seulement depuis l&#39;état performed&lt;br/&gt;❌ Pas possible après event_completed&lt;/span&gt;" vertex="1">
+          <mxGeometry height="153" width="220" x="-605" y="1162" as="geometry" />
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-8" edge="1" parent="1" source="GHq1jFF7FNUCI_MjxX5L-3" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2e7d32;strokeWidth=1.5;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" target="performed" value="même engagement · nouvelle plage">
+          <mxGeometry relative="1" x="0.2091" as="geometry">
+            <mxPoint as="offset" />
+            <mxPoint x="-390" y="1098.25" as="sourcePoint" />
+            <mxPoint x="150" y="1097.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fde9e8;strokeColor=#b85450;fontSize=10;align=left;spacingLeft=8;" value="&lt;b style=&quot;color: rgb(160, 0, 0);&quot;&gt;D-044 — Engagements indépendants&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;font-size:9px&quot;&gt;Le no-show d&#39;un talent n&#39;affecte pas les autres présent.&lt;br&gt;Chaque Engagement suit sa propre logique.&lt;br&gt;&lt;br&gt;Talent absent → 0$ · MR garde commission&lt;br&gt;Organisateur remboursé : cachet net des talents absents&lt;br&gt;− commission MR&lt;br&gt;&lt;br&gt;Talent présent → payé via son ContractSnapshot W2.&lt;br&gt;Son cachet NE CHANGE PAS.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="163.5" width="240" x="1040" y="1140" as="geometry" />
+        </mxCell>
+        <mxCell id="GHq1jFF7FNUCI_MjxX5L-10" edge="1" parent="1" source="no_show" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#b85450;strokeWidth=1;dashed=1;endArrow=open;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="GHq1jFF7FNUCI_MjxX5L-9">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1340" y="1490" as="sourcePoint" />
+            <mxPoint x="1404" y="1499" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
 </mxfile>
