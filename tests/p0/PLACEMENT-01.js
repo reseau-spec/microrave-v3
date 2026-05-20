@@ -19,6 +19,11 @@
  *
  * [D-014-B] :
  *   - payable : état opérationnel non-WORM, protégé par D-101
+ *
+ * [D-019-B] V13 :
+ *   - sots_window_closed→payable SUPPRIMÉ
+ *   - sots_window_closed→contestation_window AJOUTÉ
+ *   - contestation_window→payable AJOUTÉ (expiration fenêtre)
  * ============================================================
  */
 

@@ -4,7 +4,7 @@
 
 ---
 
-**Ce document contient uniquement ce qui a été explicitement validé par le fondateur.** Toute décision non présente ici est une hypothèse, pas une loi. Version : MVP V3 — Mai 2026 — V12 : D-014-A · D-014-B · balance_pending fusionné dans deposit_secured · payable défini souverainement · chemin nominal simplifié deposit_secured → event_sealed
+**Ce document contient uniquement ce qui a été explicitement validé par le fondateur.** Toute décision non présente ici est une hypothèse, pas une loi. Version : MVP V3 — 19 mai 2026, 18:07 EST — V13 : D-019-A (machine d'état V4) · D-019-B (Frein d'Urgence / Contestation de Prestation) · contestation_window · D-045 abrogé · SC-NO-SHOW-PRE · SC-DEPOSIT-FAIL · SC-08-PARTIEL
 
 ---
 
