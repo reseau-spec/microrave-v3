@@ -6,9 +6,9 @@
 
 ## **0\. Métadonnées de l'export**
 
-**Date de génération :** 13 mai 2026 · **Mise à jour :** 19 mai 2026, 18:07 EST **Portée :** BLOCs 0 à 18 — interrogatoire procédural complet **Total des décisions :** 156 décisions validées
+**Date de génération :** 13 mai 2026 · **Mise à jour :** 20 mai 2026 **Portée :** BLOCs 0 à 18 — interrogatoire procédural complet **Total des décisions :** 158 décisions validées
 
-**Liste des décisions principales :** D-001 à D-146 **Liste des décisions amendées :**
+**Liste des décisions principales :** D-001 à D-147 **Liste des décisions amendées :**
 
 * D-060-A — Ajout compte 6119 au LedgerCodeMap V3  
 * D-093-A — PresenceProofResolver précisions conditionnelles  
@@ -19,6 +19,8 @@
 * SC-NO-SHOW-PRE — Waterfall no\_show\_pre\_event → archived
 * SC-DEPOSIT-FAIL — Waterfall deposit\_failed → archived
 * SC-08-PARTIEL — Waterfall partially\_settled (deliveryRecognizedRatio)
+* D-147 — EngagementAmendment — extension de plage horaire sur accord mutuel
+* CT-014 — Clarification LOI NO-SHOW-01 multi-talent avec coefficient
 
 **Registres inclus :**
 
@@ -2215,6 +2217,42 @@ Reconnaissance pilote : tous acceptent explicitement *"Je comprends que je parti
 
 *Voir section 13 FIRST\_EVENT\_REGISTER pour checklist complète.*
 
+
+---
+
+### **D-147 | EngagementAmendment — Extension de plage horaire sur accord mutuel**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 1 — Ontologie du produit
+**Complète :** D-041, D-044, D-013
+**Distinct de :** Transfert (D-013 — changement de talent), No-show (D-041 — absence sans consentement)
+
+**Phrase canonique :** *"Un talent qui choisit de rester plus longtemps mérite d'être payé pour le temps réel qu'il passe. Le contrat ne change pas — il s'étend. Le taux est le même. La durée est différente. L'absent reste absent."*
+
+**Règle invariante :** Le taux contractuel est WORM W2 — immuable. Seule la durée change. Le no-show d'un talent sur le même event n'est jamais absorbé par les autres talents. Chaque Engagement est indépendant (D-044).
+
+**Contenu brut :**
+
+Un `EngagementAmendment` de type `PLAGE_EXTENSION` modifie la durée d'un Engagement existant en état `performed`, avec le double consentement talent + organisateur. Il ne crée pas de nouvel Engagement. Il s'appuie sur le taux horaire implicite dérivé du ContractSnapshot phase 2 (WORM W2).
+
+Formule canonique :
+
+taux\_horaire\_implicite\_cents = cachet\_brut\_final\_cents (CS phase 2) / duree\_signee\_minutes × 60
+nouveau\_cachet\_brut\_final\_cents = taux\_horaire\_implicite × new\_duration\_minutes / 60
+delta\_cachet\_cents = nouveau\_cachet\_brut\_final\_cents − cachet\_brut\_final\_cents
+delta\_commission\_mr\_cents = floor(delta\_cachet\_cents × taux\_effectif\_snapshot\_ppm / 1\_000\_000)
+delta\_talent\_net\_cents = delta\_cachet\_cents − delta\_commission\_mr\_cents
+
+Conditions : Engagement en état `performed` · double consentement talent + organisateur · avant `event_completed` · `newDurationMinutes > originalDurationMinutes` · dans la limite de `EngagementAmendmentPolicyConfig.maxExtensionMinutes`
+
+L'amendment est conforme à WORM-APPEND-01 : il ajoute des écritures ledger (delta), il ne modifie pas les écritures existantes du ContractSnapshot phase 2.
+
+**Objet `EngagementAmendment` champs minimaux :** id, systemId (AMD-), engagementId, amendmentType (`PLAGE_EXTENSION`), originalDurationMinutes, newDurationMinutes, originalCachetBrutFinalCents, newCachetBrutFinalCents, deltaCachetCents, deltaCommissionMrCents, deltaTalentNetCents, talentConsentAt, organizerConsentAt, adminActionId, reasonCode, createdAt \[immuable\]
+
+**Configs concernées :** `EngagementAmendmentPolicyConfig` (maxExtensionMinutes, requireDoubleConsent, allowedFromState)
+
+**Test P0 à créer :** AMENDMENT-01 — taux immuable · double consentement · uniquement depuis `performed` · LOI LEDGER-02 vérifiée après delta
+
+
 ---
 
 **FIN DE LA PARTIE 3 / 8**
@@ -2418,6 +2456,7 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 | CT-011 | payable comme état WORM W1 dans code sans décision D-0XX | Code commentaire "protection pragmatique" vs D-014 | D-014-B — payable défini souverainement comme non-WORM, protégé par D-101. | D-014-B |
 | CT-012 | Q3 (litige universel) vs D-045 (24h après event\_completed) — deadlock structurel | OS V12 Q3 vs D-045 REG | D-019-B — deux régimes distincts : Frein d'Urgence (pre-event) et Contestation de Prestation (post-SOTS). D-045 §fenêtre abrogé. | D-019-B |
 | CT-013 | D-019 original conservait balance\_pending et ancienne fenêtre dispute | D-014-A vs D-019 | D-019-A remplace D-019 intégralement. Machine d'état V4 sans balance\_pending, avec contestation\_window. | D-019-A |
+| CT-014 | LOI NO-SHOW-01 ne précisait pas la base de calcul du remboursement quand coefficient > 1 | D-041 + D-044 + D-049 vs ambiguïté ZA-07 audit 19/05 | CT-014 — Base = ContractSnapshot phase 2 (cachet\_brut\_final\_i, WORM W2). Le remboursement organisateur = cachet\_net\_final\_i = cachet\_brut\_final\_i − commission\_MR\_i. Le coefficient est déjà gravé — il s'applique. ZA-07 fermé. | D-041, D-044, D-147 |
 
 **Correction ontologique fondatrice (hors numérotation CT) :** *Event → Lineup ← Engagements* (pas "Event va dans Lineup"). Event possède Lineup. Lineup reçoit Engagements. MissionSlot exprime besoin. MissionApplication mène à Engagement.
 
@@ -2570,6 +2609,7 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 | SchedulerCreditBudget | Suivi mensuel des crédits cron | Santé opérationnelle | id, month, creditsConsumed, alertsTriggered, degradationsApplied | D-104 | MVP |
 | DataSubjectRequestRecord | Demande d'accès/effacement | Loi 25 | id, userId, requestType, receivedAt, resolvedAt, decisionSummary | D-096 | MVP |
 | ConflictOfInterestRecord | Conflit d'intérêt arbitre | Indépendance dispute | id, disputeRecordId, adminUserId, conflictType, declaredAt, recusalRequired, replacementAdminId | D-110 | MVP |
+| EngagementAmendment | Extension de plage horaire d'un Engagement en état performed | Amendment post-scellement avec consentement | id, systemId (AMD-), engagementId, amendmentType, originalDurationMinutes, newDurationMinutes, originalCachetBrutFinalCents, newCachetBrutFinalCents, deltaCachetCents, deltaCommissionMrCents, deltaTalentNetCents, talentConsentAt, organizerConsentAt, adminActionId, reasonCode, createdAt | D-147 | MVP |
 
 ---
 
@@ -2721,7 +2761,7 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 | SC-03 coeff | Coefficient de vente \> 1, prorata | Rehaussement lineup, commission par talent, seller commission | Conditionnel | Si seller-led pilote activé (D-116) | \+ 4330, 6150 | D-028, D-049, D-052 |
 | SC-05 annulation | Annulation \> J-30 | Remboursement dépôt − frais Stripe | Global | — | 4320, 4410, 4420 reversals, 5100 | D-039 |
 | SC-06 balance J-6 | Balance impayée J-6 | Annulation auto, payout dépôt aux talents | Global | — | 4320, 4310, 7120, 4410, 4420 | D-040, D-043 |
-| SC-07 no-show | Talent absent | Talent 0$, organisateur remboursé cachet net, MR conserve commission | Global | — | 4310 → 5100 (remboursement) \+ 7110 | D-041, D-044 |
+| SC-07 no-show | Talent absent | Talent 0$, organisateur remboursé cachet\_net\_final (ContractSnapshot phase 2 — coefficient inclus), MR conserve commission · **[CT-014]** base = cachet\_brut\_final\_i WORM W2 | Global | — | 4310 → 5100 (remboursement) \+ 7110 | D-041, D-044, D-147 |
 | SC-08 dispute | Litige ouvert | Gel chirurgical, résolution partielle via deliveryRecognizedRatio | Global | — | Holds \+ reversals selon résolution | D-045, D-047 |
 | SC-10 billetterie | Billets payants | Comptes billetterie ségrégués | Conditionnel | Si billets payants | 4540, 7410 | D-054, D-115 |
 | SC-11 gratuit | Billet 0$ | Droit SOTS audience, aucune fausse recette | Global | — | TicketAdmissionRight sans flux monétaire | D-054, D-115 |
@@ -2733,6 +2773,7 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 | SC-NO-SHOW-PRE | No-show pré-event après transfert échoué | Reversal complet depuis deposit\_secured · remboursement organisateur (dépôt − frais Stripe) · Talent A = 0$ · MR = 0$ | Global | Si transfert activé | 4310, 4530, 4410, 4420 reversals, 5200, 4190, 4320, 5100 | D-013, D-019-A |
 | SC-DEPOSIT-FAIL | Échec Stripe sur deposit\_pending | Zéro écriture ledger · EPR FAILED · SchedulerDueTasks CANCELLED | Global | — | Aucun | D-019-A |
 | SC-08-PARTIEL | Résolution partielle de litige | deliveryRecognizedRatio appliqué · commission MR proportionnelle · deux SettlementInstructions | Global | Si dispute partiellement résolue | 4310, 4530, 7110, 4410, 4420, 5100, 6110, 6119, 4190 | D-019-A, D-045, D-072 |
+| SC-07-AMENDMENT | No-show talent A + extension plage talent B (même event) | No-show headliner → remboursement cachet\_net\_final headliner (CS phase 2) · EngagementAmendment warmup → facturation delta payeur · Engagements indépendants · coefficient immuable | Conditionnel | Si EngagementAmendment activé | 4310, 4530, 7110, 5100, 6110 + delta entries | D-041, D-044, D-147, CT-014 |
 
 ---
 
@@ -3179,6 +3220,7 @@ Note : GPS spoofing seul \= HOLD \+ admin review (pas abort si faisceau alternat
 | **standing** | Droit conditionnel d'ouvrir un DisputeRecord bloquant. Calculé dynamiquement : rôle autorisé \+ relation directe avec l'objet contesté \+ statut actif \+ fenêtre temporelle. Snapshoté dans standingLevel \+ standingReasonCodes. (D-074) |
 | **PresenceProofResolver** | Logique de résolution de la présence par faisceau d'indices pondérés. GPS n'est pas obligatoire. Résultat : présence confirmée / présence probable / admin review / absence présumée. (D-093, D-093-A) |
 | **AbortProtocol** | Procédure d'arrêt immédiat en 8 étapes si un event pilote rencontre une condition bloquante. "Un event pilote peut échouer. Il ne doit jamais échouer silencieusement." (D-145) |
+| **EngagementAmendment** | Extension de la plage horaire d'un Engagement existant sur accord mutuel talent + organisateur, depuis l'état `performed`. Le taux contractuel (ContractSnapshot phase 2, WORM W2) est invariant — seule la durée change. Distinct du transfert (changement de talent) et du no-show (absence). (D-147) |
 | **deliveryRecognizedRatio** | Ratio de livraison reconnue dans une dispute partielle. DecisionRecord.recognizedAmount / initialAmount. Gouverne la distribution prorata talent/payeur/MR/vendeur. (D-045) |
 
 ---
@@ -3267,7 +3309,7 @@ Note : GPS spoofing seul \= HOLD \+ admin review (pas abort si faisceau alternat
 
 ## **Clôture de l'export**
 
-**Export brut — Registres Souverains Micro Rave V3** **Date :** 13 mai 2026 **Total décisions :** 150 (D-001 à D-146 \+ D-060-A \+ D-093-A \+ D-096-A \+ D-120-A) **BLOCs couverts :** 0 à 18 (19 blocs complets) **Registres exportés :** 16
+**Export brut — Registres Souverains Micro Rave V3** **Date :** 13 mai 2026 · **Mise à jour :** 20 mai 2026 **Total décisions :** 158 (D-001 à D-147 \+ D-060-A \+ D-093-A \+ D-096-A \+ D-120-A \+ D-019-A \+ D-019-B \+ D-014-A \+ D-014-B \+ CT-014) **BLOCs couverts :** 0 à 18 (19 blocs complets) **Registres exportés :** 16
 
 **Phrase de clôture :** *"Une capacité culturelle locale devient un engagement de prestation vérifiable, puis un règlement économique, puis une mémoire territoriale."*
 
