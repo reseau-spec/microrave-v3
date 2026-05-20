@@ -267,3 +267,64 @@ La machine d'état complète existe. Les 6 moments WORM sont propres. Le chemin 
 **Ce qui reste à corriger avant le premier événement réel :**
 
 Trois choses. Une seule est un bloqueur opérationnel : le webhook Stripe d'échec ne peut pas être traité (`EventPaymentGuard` manque `deposit_failed`). Les deux autres sont documentaires : l'en-tête de `SealingGuard` et l'IDFactory sans `AMD-`. Tout le reste est de la dette planifiée, connue, documentée — pas une violation constitutionnelle.
+
+
+Positionnement direct, sans concession.
+
+---
+
+## Ce qui est exact
+
+L'audit est rigoureux, sourcé, et honnête. La chronologie est correcte. La table des violations résolues est juste. Le jugement sur les 9 guards placeholder est précis — ce sont des portes ouvertes connues, pas des surprises.
+
+La phrase centrale est vraie : *"L'état ne se déclare pas. Il se prouve. Une porte sans gardien n'est pas une porte — c'est une faille."*
+
+---
+
+## Deux corrections de fond
+
+**1. Sur les 9 guards "placeholder" — la nuance compte**
+
+L'audit les traite comme une masse homogène. Ce n'est pas exact. Il y a trois niveaux de risque réel :
+
+**Niveau critique — risque pilote réel :**
+- `CancellationGuard` — un organisateur peut annuler n'importe quoi sans vérification
+- `DisputeGuard` — n'importe qui peut déclencher un litige depuis n'importe quel état
+
+**Niveau moyen — hors chemin pilote mais fréquent :**
+- `TransferGuard` — le remplacement de talent n'est pas gardé
+- `RefundGuard` — le remboursement post-no-show n'est pas gardé (NoShowGuard crée l'instruction, RefundGuard ne la valide pas)
+
+**Niveau faible pour J9 — les placeholders "opérationnels" :**
+- `PresenceWindowGuard`, `EventCompletionGuard`, `SOTSWindowGuard` — ces trois transitions ont des sémantiques simples (date passée, event terminé, fenêtre SOTS fermée) et leur placeholder `{ passed: true }` est, pour le pilote, **fonctionnellement correct** : aucune condition métier complexe n'est violée en laissant ces transitions passer. Pour un event pilote sans litige, sans annulation, sans transfert — le chemin nominal ne les traverse jamais en mode problématique.
+
+Donc : **6 guards sont des vraies failles, 3 sont des placeholders acceptables pour J9.** L'audit les met tous dans le même sac.
+
+**2. Sur `AMENDMENT-01` absent**
+
+L'audit dit "dette institutionnelle". C'est juste. Mais il y a un antécédent plus précis : D-147 a été ratifié aujourd'hui même, dans le commit OS V14. `AMD-` est dans IDFactory. Mais `EngagementAmendment` n'a pas de guard, pas de test, et surtout — **pas de transition dans la TRANSITION_TABLE**. Ce n'est pas seulement un test manquant. C'est une décision souveraine sans implémentation du tout. La dette est plus profonde que ce que l'audit signale.
+
+---
+
+## Ce que l'audit ne dit pas
+
+**Le vrai verrou avant J9 n'est pas les guards placeholder.**
+
+C'est l'absence totale de couche d'exécution Stripe. Aujourd'hui, `payable → settled` passe `LedgerInvariantGuard` mais **aucun Transfer Stripe ne part réellement**. La machine d'état dit que l'argent a bougé. L'argent n'a pas bougé.
+
+J8 est donc le vrai bloqueur structurel avant J9 — pas les guards placeholder qui, pour le chemin nominal pilote sans litige, ne seront pas traversés en mode critique.
+
+---
+
+## Verdict synthétique
+
+| Point | Position |
+|---|---|
+| Chronologie et table de violations | Exacte |
+| 9 guards = masse homogène | Trop grossier — 3 niveaux distincts |
+| `AMENDMENT-01` = dette test | Sous-estimé — c'est une décision sans corps |
+| "Prêt pour l'événement réel" | Vrai pour le chemin nominal sans litige |
+| Vrai bloqueur avant J9 | **Stripe Transfer absent** — non mentionné dans l'audit |
+
+L'audit donne un 9/10 à l'institution. Mérité. Mais il oublie de dire que le coffre-fort est vide — la mécanique de paiement réelle n'existe pas encore. C'est J8.
+
