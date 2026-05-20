@@ -31,6 +31,7 @@
 
 'use strict';
 
+const MoneyMath = require("../MoneyMath");
 const IDFactory = require('../IDFactory');
 
 /**
@@ -183,7 +184,7 @@ async function validate({
   }, 0);
 
   const coefficientPpm = totalLineupEffectifCents > 0
-    ? Math.max(1_000_000, Math.floor(prixVenduClientCents * 1_000_000 / totalLineupEffectifCents))
+    ? MoneyMath.lineupCoefficientPpm(prixVenduClientCents, totalLineupEffectifCents)
     : 1_000_000;
 
   // ── LOI LINEUP-02 : calcul waterfall complet ─────────────
@@ -197,10 +198,10 @@ async function validate({
     const baseContractuelle   = entry.cachetSigneCents;
     const poidsEffectif       = entry.cachetSigneCents > 0 ? entry.cachetSigneCents : freeWeightCents;
     const prorataPool         = totalLineupEffectifCents > 0
-      ? Math.floor(surplusPoolCents * poidsEffectif / totalLineupEffectifCents)
+      ? MoneyMath.prorataCents(surplusPoolCents, poidsEffectif, totalLineupEffectifCents)
       : 0;
     const cachetBrutFinalCents = baseContractuelle + prorataPool;
-    const commissionMrCents   = Math.floor(cachetBrutFinalCents * entry.tauxPpm / 1_000_000);
+    const commissionMrCents   = MoneyMath.applyRatePpm(cachetBrutFinalCents, entry.tauxPpm);
     const talentNetCents      = cachetBrutFinalCents - commissionMrCents;
 
     // Plancher contractuel — aucun talent ne reçoit moins que son cachet signé

@@ -28,6 +28,7 @@
 
 'use strict';
 
+const MoneyMath = require("../MoneyMath");
 const IDFactory = require('../IDFactory');
 
 /**
@@ -192,7 +193,7 @@ function validateAcceptance({ engagementId, actor, context }) {
   // ── Calcul de la commission MR ────────────────────────────
   // floor() sur la commission — MR ne sur-prélève jamais
   // Source : OS V10 section 3.3 LOI WATERFALL-01
-  const MoneyMath.applyRatePpm(cachetBrutCents, tauxPpm);
+  const commissionMrCents = MoneyMath.applyRatePpm(cachetBrutCents, tauxPpm);
   const talentNetCents    = cachetBrutCents - commissionMrCents;
 
   // ── Construction du ContractSnapshot phase 1 ─────────────

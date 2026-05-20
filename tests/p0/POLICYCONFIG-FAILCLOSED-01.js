@@ -77,18 +77,52 @@ async function run() {
     }
   });
 
-  test('Les 12 configs fondamentales sont toutes définies dans le schéma', () => {
-    const keys = POLICY_CONFIGS_FONDAMENTALES.map(c => c.key);
-    const required = [
-      'stripe_ppm', 'stripe_fixe_cents', 'payment_fees_tax_treatment',
-      'free_weight_cents', 'event_payment_cap_cents', 'deposit_ratio_ppm',
-      'tps_ppm', 'tvq_ppm',
-      'ledger_4310', 'ledger_4325', 'ledger_4326', 'ledger_4530',
-    ];
-    for (const r of required) {
-      if (!keys.includes(r))
-        throw new Error(`Config manquante dans le schéma : ${r}`);
+  test(`Les ${POLICY_CONFIGS_FONDAMENTALES.length} configs fondamentales sont complètes et cohérentes dans le schéma`, () => {
+    for (const config of POLICY_CONFIGS_FONDAMENTALES) {
+      if (!config.key)
+        throw new Error(`Config sans clé : ${JSON.stringify(config)}`);
+      if (!config.value && config.value !== '0')
+        throw new Error(`Config "${config.key}" sans valeur`);
+      if (!["INTEGER","PPM","CENTS","STRING","ENUM"].includes(config.value_type))
+        throw new Error(`Config "${config.key}" : value_type invalide "${config.value_type}"`);
+      if (!["CRITIQUE","ELEVE","STANDARD","OPERATIONNEL"].includes(config.category))
+        throw new Error(`Config "${config.key}" : category invalide "${config.category}"`);
+      if (!config.description || config.description.length < 10)
+        throw new Error(`Config "${config.key}" : description absente ou trop courte`);
     }
+  });
+
+  test("Configs de présence (A-056, A-057) : structure et types ratifiés", () => {
+    const gps = POLICY_CONFIGS_FONDAMENTALES.find(c => c.key === 'maxDistancePolicy');
+    if (!gps) throw new Error('maxDistancePolicy absent du schéma');
+    if (gps.value_type !== 'INTEGER') throw new Error('maxDistancePolicy doit être INTEGER');
+    if (gps.category !== 'CRITIQUE') throw new Error('maxDistancePolicy doit être CRITIQUE');
+    if (parseInt(gps.value, 10) <= 0) throw new Error('maxDistancePolicy doit être > 0');
+
+    const floor = POLICY_CONFIGS_FONDAMENTALES.find(c => c.key === 'minDurationFloorMinutes');
+    if (!floor) throw new Error('minDurationFloorMinutes absent du schéma');
+    if (floor.value_type !== 'INTEGER') throw new Error('minDurationFloorMinutes doit être INTEGER');
+    if (floor.category !== 'CRITIQUE') throw new Error('minDurationFloorMinutes doit être CRITIQUE');
+    if (parseInt(floor.value, 10) <= 0) throw new Error('minDurationFloorMinutes doit être > 0');
+
+    const ratio = POLICY_CONFIGS_FONDAMENTALES.find(c => c.key === 'minDurationRatioPpm');
+    if (!ratio) throw new Error('minDurationRatioPpm absent du schéma');
+    if (ratio.value_type !== 'PPM') throw new Error('minDurationRatioPpm doit être PPM');
+    if (ratio.category !== 'CRITIQUE') throw new Error('minDurationRatioPpm doit être CRITIQUE');
+    const ppm = parseInt(ratio.value, 10);
+    if (ppm <= 0 || ppm > 1_000_000) throw new Error(`minDurationRatioPpm hors domaine [1, 1_000_000] : ${ppm}`);
+
+    const window = POLICY_CONFIGS_FONDAMENTALES.find(c => c.key === 'contestationWindowDurationHours');
+    if (!window) throw new Error('contestationWindowDurationHours absent du schéma');
+    if (window.value_type !== 'INTEGER') throw new Error('contestationWindowDurationHours doit être INTEGER');
+    if (window.category !== 'CRITIQUE') throw new Error('contestationWindowDurationHours doit être CRITIQUE');
+    if (parseInt(window.value, 10) <= 0) throw new Error('contestationWindowDurationHours doit être > 0');
+
+    const old = POLICY_CONFIGS_FONDAMENTALES.find(c => c.key === 'minDurationPolicy');
+    if (old) throw new Error(
+      'minDurationPolicy (ancienne clé monolithique) est encore présente. ' +
+      'Elle doit être remplacée par minDurationFloorMinutes + minDurationRatioPpm.'
+    );
   });
 
   test('payment_fees_tax_treatment est CRITIQUE et vaut DEBOURS (Doctrine A Québec)', () => {
@@ -109,7 +143,7 @@ async function run() {
       'validateCriticalConfigs() — connexion database',
       `Manquant dans .env : ${manquant.join(', ')}.\n` +
       `   Ajouter BASE44_API_KEY (Base44 → Settings → API → api_key).\n` +
-      `   Les 12 configs sont confirmées en base (export CSV du 17 mai 2026).`
+      `   Les 16 configs sont confirmées en base via seed-policy-config.js.`
     );
   } else {
     await testAsync(

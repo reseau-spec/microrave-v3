@@ -1,11 +1,13 @@
 /**
  * MICRO RAVE V3 — MoneyMath
  * ============================================================
- * Standard numérique invariant — Source : D-063 · D-064 · OS V13
+ * Standard numérique invariant — Source : D-063 · D-064 · OS V14
  *
  * LOI D-063 : Toutes les règles d'arrondi vivent dans RoundingPolicyConfig.
  * Tous les calculs financiers passent par MoneyMath.
  * Aucun Math.round, Math.floor, Math.ceil libre dans le code métier.
+ * EXCEPTION UNIQUE : MoneyMath.js lui-même (ce fichier) est le seul
+ * endroit autorisé à appeler Math.floor directement.
  *
  * Unités invariantes (D-064) :
  *   - Le dollar est une unité d'affichage
@@ -82,4 +84,64 @@ function applyRatePpm(amountCents, ratePpm) {
   return Math.floor(amountCents * ratePpm / 1_000_000);
 }
 
-module.exports = { depositAmount, balanceDue, applyRatePpm };
+/**
+ * Calcule le prorata d'un montant selon un poids dans un total.
+ * Remplace Math.floor(amount * weight / total) dans les calculs de répartition lineup.
+ *
+ * Utilisé pour : distribution du surplusPool entre talents (LOI LINEUP-02).
+ * Arrondi floor — le résidu agrégé est tracé via roundingCents → compte 6591.
+ *
+ * @param {number} amountCents  - Montant à distribuer (entier >= 0)
+ * @param {number} weight       - Poids de la part (entier > 0)
+ * @param {number} total        - Total des poids (entier > 0)
+ * @returns {number}            - Part en centimes (floor)
+ * @throws {Error}              - Si les paramètres sont invalides
+ */
+function prorataCents(amountCents, weight, total) {
+  if (!Number.isInteger(amountCents) || amountCents < 0) {
+    throw new Error(
+      `MoneyMath.prorataCents: amountCents doit être un entier >= 0. Reçu: ${amountCents}`
+    );
+  }
+  if (!Number.isInteger(weight) || weight <= 0) {
+    throw new Error(
+      `MoneyMath.prorataCents: weight doit être un entier > 0. Reçu: ${weight}`
+    );
+  }
+  if (!Number.isInteger(total) || total <= 0) {
+    throw new Error(
+      `MoneyMath.prorataCents: total doit être un entier > 0. Reçu: ${total}`
+    );
+  }
+  // Arrondi floor — résidu agrégé tracé vers 6591 via roundingCents (D-070)
+  return Math.floor(amountCents * weight / total);
+}
+
+/**
+ * Calcule le coefficient de répartition en ppm (LOI LINEUP-01).
+ * Remplace Math.floor(prixVenduClientCents * 1_000_000 / totalLineupEffectifCents).
+ *
+ * coefficient = max(1_000_000, prix_vendu_client × 1_000_000 / total_lineup_effectif)
+ * Le plancher 1_000_000 (= 100%) garantit qu'aucun talent ne reçoit moins que son cachet signé.
+ *
+ * @param {number} prixVenduClientCents       - Prix total vendu au client (entier > 0)
+ * @param {number} totalLineupEffectifCents   - Somme des poids effectifs du lineup (entier > 0)
+ * @returns {number}                          - Coefficient en ppm (floor, min 1_000_000)
+ * @throws {Error}                            - Si les paramètres sont invalides
+ */
+function lineupCoefficientPpm(prixVenduClientCents, totalLineupEffectifCents) {
+  if (!Number.isInteger(prixVenduClientCents) || prixVenduClientCents <= 0) {
+    throw new Error(
+      `MoneyMath.lineupCoefficientPpm: prixVenduClientCents doit être un entier > 0. Reçu: ${prixVenduClientCents}`
+    );
+  }
+  if (!Number.isInteger(totalLineupEffectifCents) || totalLineupEffectifCents <= 0) {
+    throw new Error(
+      `MoneyMath.lineupCoefficientPpm: totalLineupEffectifCents doit être un entier > 0. Reçu: ${totalLineupEffectifCents}`
+    );
+  }
+  // LOI LINEUP-01 : plancher 1_000_000 ppm (= 1.0) — Source : OS V14 section 3.3
+  return Math.max(1_000_000, Math.floor(prixVenduClientCents * 1_000_000 / totalLineupEffectifCents));
+}
+
+module.exports = { depositAmount, balanceDue, applyRatePpm, prorataCents, lineupCoefficientPpm };

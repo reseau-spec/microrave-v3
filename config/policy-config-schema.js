@@ -79,27 +79,53 @@ const POLICY_CONFIGS_FONDAMENTALES = [
     description: 'Ratio du dépôt sur le total en parts par million. 200000 = 20%. Réserve le Lineup complet — pas un talent individuel.'
   },
 
-  // ── CONDITIONS DE PAYOUT ET LITIGES (A-056, A-057, D-045) ──
+  // ── CONDITIONS DE PAYOUT ET PRÉSENCE (A-056, A-057) ───────
+  //
+  // Logique de validation de présence (Condition 4 + Condition 5) :
+  //
+  //   Condition 4 — GPS :
+  //     distance réelle ≤ maxDistancePolicy (mètres)
+  //
+  //   Condition 5 — Durée :
+  //     La règle s'applique en deux couches :
+  //       a) Si durée contractuelle connue (ContractSnapshot.durationMinutes présent) :
+  //          durée_réelle ≥ max(minDurationFloorMinutes, durée_contractuelle × minDurationRatioPpm / 1_000_000)
+  //       b) Si durée contractuelle absente (champ non renseigné) :
+  //          durée_réelle ≥ minDurationFloorMinutes (plancher absolu)
+  //
+  //   Les deux clés sont indépendantes et malléables en database.
+  //   Modifier l'une n'affecte pas l'autre.
+  //   Source : D-075 Condition 5 — OS V14
+  //
   {
     key:         'maxDistancePolicy',
     value:       '500',
     value_type:  'INTEGER',
     category:    'CRITIQUE',
-    description: 'A-056 : Distance maximale (en mètres) tolérée pour la validation GPS de présence (Condition 4).'
+    description: 'A-056 : Distance maximale en mètres tolérée entre la position GPS du talent et le lieu de l\'événement pour valider la Condition 4 de présence. Malléable en database — jamais codé en dur. Valeur ratifiée par le fondateur le 2026-05-20.'
   },
   {
-    key:         'minDurationPolicy',
-    value:       '45',
+    key:         'minDurationFloorMinutes',
+    value:       '30',
     value_type:  'INTEGER',
     category:    'CRITIQUE',
-    description: 'A-057 : Durée minimale (en minutes) de présence vérifiée pour déclencher le payout (Condition 5).'
+    description: 'A-057a : Plancher absolu de durée de présence en minutes. S\'applique toujours, même si la durée contractuelle est absente du ContractSnapshot. La règle complète est : max(minDurationFloorMinutes, durée_contractuelle × minDurationRatioPpm / 1_000_000). Malléable en database — jamais codé en dur. Valeur ratifiée par le fondateur le 2026-05-20.'
   },
+  {
+    key:         'minDurationRatioPpm',
+    value:       '950000',
+    value_type:  'PPM',
+    category:    'CRITIQUE',
+    description: 'A-057b : Ratio minimal de présence en ppm exprimé en fraction de la durée contractuelle. 950000 = 95%. S\'applique quand ContractSnapshot.durationMinutes est présent. La règle complète est : max(minDurationFloorMinutes, durée_contractuelle × minDurationRatioPpm / 1_000_000). Malléable en database — jamais codé en dur. Valeur ratifiée par le fondateur le 2026-05-20.'
+  },
+
+  // ── FENÊTRE DE CONTESTATION (D-019-B) ──────────────────────
   {
     key:         'contestationWindowDurationHours',
     value:       '24',
     value_type:  'INTEGER',
     category:    'CRITIQUE',
-    description: 'D-045 : Délai maximum (en heures) après event_completed durant lequel un litige financier direct peut être ouvert.'
+    description: 'D-019-B : Durée en heures de la fenêtre de contestation ouverte après sots_window_closed. Passé ce délai sans litige, la transition contestation_window → payable est déclenchée automatiquement par SchedulerDueTask. Malléable en database — jamais codé en dur. Valeur ratifiée par le fondateur le 2026-05-20.'
   },
 
   // ── LEDGER — PLAN COMPTABLE ─────────────────────────────────
