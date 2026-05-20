@@ -79,6 +79,29 @@ const POLICY_CONFIGS_FONDAMENTALES = [
     description: 'Ratio du dépôt sur le total en parts par million. 200000 = 20%. Réserve le Lineup complet — pas un talent individuel.'
   },
 
+  // ── CONDITIONS DE PAYOUT ET LITIGES (A-056, A-057, D-045) ──
+  {
+    key:         'maxDistancePolicy',
+    value:       '500',
+    value_type:  'INTEGER',
+    category:    'CRITIQUE',
+    description: 'A-056 : Distance maximale (en mètres) tolérée pour la validation GPS de présence (Condition 4).'
+  },
+  {
+    key:         'minDurationPolicy',
+    value:       '45',
+    value_type:  'INTEGER',
+    category:    'CRITIQUE',
+    description: 'A-057 : Durée minimale (en minutes) de présence vérifiée pour déclencher le payout (Condition 5).'
+  },
+  {
+    key:         'contestationWindowDurationHours',
+    value:       '24',
+    value_type:  'INTEGER',
+    category:    'CRITIQUE',
+    description: 'D-045 : Délai maximum (en heures) après event_completed durant lequel un litige financier direct peut être ouvert.'
+  },
+
   // ── LEDGER — PLAN COMPTABLE ─────────────────────────────────
   {
     key:         'ledger_4310',

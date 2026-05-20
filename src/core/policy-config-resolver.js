@@ -25,6 +25,7 @@ const { CRITICAL_CONFIG_KEYS } = require('../../config/policy-config-schema');
 const VALUE_TYPES = {
   CENTS:   (v) => parseInt(v, 10),      // montant en cents entiers
   PPM:     (v) => parseInt(v, 10),      // parts par million (ex: 50000 = 5%)
+  INTEGER: (v) => parseInt(v, 10),      // 
   BOOLEAN: (v) => v === 'true',
   STRING:  (v) => String(v),
   ENUM:    (v) => String(v),            // valeur d'une liste définie
