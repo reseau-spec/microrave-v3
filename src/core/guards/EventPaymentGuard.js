@@ -38,6 +38,7 @@ const STRIPE_TOLERANCE_CENTS = 2;
 const COVERED_TRANSITIONS = new Set([
   'placed->deposit_pending',
   'deposit_pending->deposit_secured',
+  'deposit_pending->deposit_failed',  // [SC-DEPOSIT-FAIL] webhook Stripe payment_intent.payment_failed
 ]);
 
 async function validate({
@@ -64,6 +65,8 @@ async function validate({
       return validateDepositCreation({ engagementId, actor, context });
     case 'deposit_pending->deposit_secured':
       return validateDepositConfirmation({ engagementId, actor, context });
+    case 'deposit_pending->deposit_failed':
+      return validateDepositFailure({ engagementId, actor, context });
     default:
       return { passed: false, reason: `GUARD_UNKNOWN_TRANSITION: "${transitionKey}"` };
   }
@@ -202,6 +205,58 @@ function validateDepositConfirmation({ engagementId, actor, context }) {
   return {
     passed: true,
     audit: { stripePaymentIntentId, confirmedAmountCents, expectedDepositCents, ecart },
+  };
+}
+
+// ── deposit_pending → deposit_failed ─────────────────────────
+// [SC-DEPOSIT-FAIL] Webhook Stripe payment_intent.payment_failed
+// Source : OS V14 ligne 260 — aucun fonds capturé, zéro écriture ledger
+// EPR.status = FAILED · SchedulerDueTasks = CANCELLED
+function validateDepositFailure({ engagementId, actor, context }) {
+  const {
+    stripePaymentIntentId,  // ID du PaymentIntent Stripe échoué
+    stripeFailureCode,      // code d'échec Stripe (ex: card_declined, insufficient_funds)
+    stripeFailureMessage,   // message d'erreur Stripe
+  } = context;
+
+  // stripePaymentIntentId requis — traçabilité Stripe obligatoire (D-097)
+  if (!stripePaymentIntentId) {
+    return {
+      passed: false,
+      reason: 'DEPOSIT_FAIL_MISSING_INTENT: stripePaymentIntentId obligatoire pour ' +
+              "documenter l'échec Stripe. Source : D-097 règle 1 — traçabilité complète.",
+    };
+  }
+
+  // Confirmation explicite de l'échec requise — évite une transition accidentelle
+  if (!stripeFailureCode) {
+    return {
+      passed: false,
+      reason: 'DEPOSIT_FAIL_MISSING_CODE: stripeFailureCode obligatoire. ' +
+              'Doit provenir du webhook Stripe payment_intent.payment_failed. ' +
+              '[SC-DEPOSIT-FAIL] Source : OS V14 ligne 260.',
+    };
+  }
+
+  // [SC-DEPOSIT-FAIL] : aucun fonds capturé → zéro écriture ledger
+  // Pas de calcul financier ici — le guard documente l'échec, c'est tout.
+  return {
+    passed: true,
+    failureRecord: {
+      stripePaymentIntentId,
+      stripeFailureCode,
+      stripeFailureMessage: stripeFailureMessage || null,
+      failedAt:             new Date().toISOString(),
+      scenario:             'SC-DEPOSIT-FAIL',
+      ledgerEntries:        [],  // zéro écriture ledger (OS V14 [SC-DEPOSIT-FAIL])
+    },
+    audit: {
+      engagementId,
+      stripePaymentIntentId,
+      stripeFailureCode,
+      noFundsCaptured: true,
+      zeroLedgerEntries: true,
+    },
   };
 }
 

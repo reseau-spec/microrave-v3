@@ -32,6 +32,7 @@ const PREFIXES = {
   PolicyConfig:        'PCF',
   TalentRolePreference:'TRP',
   SchedulerDueTask:    'SCH',
+  EngagementAmendment: 'AMD',  // D-147 — Amendment durée accord mutuel
   SessionPresence:     'SPS',
   ContractSnapshotV1:  'CS1',  // Phase 1 WORM (accepted)
   ContractSnapshotV2:  'CS2',  // Phase 2 WORM (event_sealed)

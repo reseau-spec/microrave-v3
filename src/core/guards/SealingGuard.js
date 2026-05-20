@@ -1,8 +1,8 @@
 /**
  * MICRO RAVE V3 — SealingGuard
  * ============================================================
- * Guard spécifique à la transition : balance_pending → event_sealed
- * Source : OS V10 section 2.7.1
+ * Guard spécifique à la transition : deposit_secured → event_sealed [D-014-A]
+ * Source : OS V14 section 2.7.1
  *
  * C'est le moment WORM le plus critique du chemin nominal.
  * event_sealed = Moment WORM 3, Niveau 2 (Fraude si touché).
@@ -21,7 +21,7 @@
  *   LOI LINEUP-01 : coefficient = max(1, prix_vendu_client / total_lineup_effectif)
  *   LOI LINEUP-02 : talent gratuit → freeWeightCents (100 cents) comme poids
  *   LOI LEDGER-02 : sum(nets) + sum(commissions) + rounding = prix_vendu_client
- *   Source : OS V10 sections 3.3, 2.7.1, lois invariantes section 16
+ *   Source : OS V14 sections 3.3, 2.7.1, lois invariantes section 16
  *
  * Ce guard NE touche PAS Base44 directement.
  * Il construit le ContractSnapshot phase 2 et le retourne.
@@ -74,7 +74,7 @@ async function validate({
 
   // freeWeightCents depuis config — défaut 100 (1,00 $) si absent
   // TODO : passer via getConfig('free_weight_cents') quand PolicyConfig branché
-  // Source : OS V10 section 3.3 LOI LINEUP-02 + lois invariantes section 16
+  // Source : OS V14 section 3.3 LOI LINEUP-02 + lois invariantes section 16
   const freeWeightCents = (
     Number.isInteger(freeWeightCentsFromConfig) && freeWeightCentsFromConfig > 0
       ? freeWeightCentsFromConfig
@@ -87,7 +87,7 @@ async function validate({
       passed: false,
       reason: 'MISSING_CONTRACT_SNAPSHOT_PHASE1: Le ContractSnapshot phase 1 (CS1-*) est ' +
               'obligatoire pour créer le phase 2 à event_sealed. ' +
-              'Source : OS V10 section 2.7, Moment 1.',
+              'Source : OS V14 section 2.7, Moment 1.',
     };
   }
 
@@ -148,7 +148,7 @@ async function validate({
     return {
       passed: false,
       reason: 'EMPTY_LINEUP: lineupEntries obligatoire pour calculer le waterfall. ' +
-              'Source : OS V10 section 3.3 LOI LINEUP-01/02.',
+              'Source : OS V14 section 3.3 LOI LINEUP-01/02.',
     };
   }
 
@@ -176,7 +176,7 @@ async function validate({
 
   // ── LOI LINEUP-01 : coefficient de répartition ───────────
   // coefficient = max(1, prix_vendu_client / total_lineup_effectif)
-  // Source : OS V10 section 3.3 + lois invariantes section 16
+  // Source : OS V14 section 3.3 + lois invariantes section 16
   const totalLineupSigneCents = lineupEntries.reduce((sum, e) => sum + e.cachetSigneCents, 0);
 
   const totalLineupEffectifCents = lineupEntries.reduce((sum, e) => {
@@ -189,7 +189,7 @@ async function validate({
 
   // ── LOI LINEUP-02 : calcul waterfall complet ─────────────
   // Formule deux couches : base contractuelle + prorata du surplus
-  // Source : OS V10 section 3.3 LOI LINEUP-02
+  // Source : OS V14 section 3.3 LOI LINEUP-02
   const surplusPoolCents = totalLineupSigneCents > 0
     ? prixVenduClientCents - totalLineupSigneCents
     : prixVenduClientCents;
@@ -251,7 +251,7 @@ async function validate({
 
   // ── Construction du ContractSnapshot phase 2 ─────────────
   // WORM Niveau 2 — retourné, pas persisté ici.
-  // Source : OS V10 section 2.7, Moment 3
+  // Source : OS V14 section 2.7, Moment 3
   const contractSnapshotPhase2 = {
     systemId:                  IDFactory.generate('ContractSnapshotV2'),
     engagementId,
