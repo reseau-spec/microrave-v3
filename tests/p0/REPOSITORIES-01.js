@@ -54,6 +54,10 @@
  *   --- Interface D-101 complète ---
  *   T-27 : PaymentRepository satisfait l'interface complète PayoutExecutor
  *   T-28 : LedgerRepository.append auto-génère un systemId LDG-* cohérent
+ *
+ *   --- MembershipRepository ---
+ *   T-29 : findActiveByUserId() sans userId -> MEMBERSHIP_REPOSITORY_ERROR
+ *   T-30 : findPlanById() sans planId -> MEMBERSHIP_REPOSITORY_ERROR
  * ============================================================
  */
 
@@ -80,6 +84,7 @@ const AdminRepository          = require('../../src/repositories/AdminRepository
 const ReputationRepository     = require('../../src/repositories/ReputationRepository');
 const SOTSRepository           = require('../../src/repositories/SOTSRepository');
 const ContractSnapshotRepository = require('../../src/repositories/ContractSnapshotRepository');
+const MembershipRepository     = require('../../src/repositories/MembershipRepository');
 const IDFactory                = require('../../src/core/IDFactory');
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -393,6 +398,24 @@ async function run() {
     } finally {
       global.fetch = originalFetch;
     }
+  });
+
+
+  // -- MembershipRepository ------------------------------------------
+  console.log('\n  — MembershipRepository —');
+
+  await test('T-29 findActiveByUserId() sans userId -> MEMBERSHIP_REPOSITORY_ERROR', async () => {
+    await expectThrows(
+      () => MembershipRepository.findActiveByUserId(undefined),
+      'MEMBERSHIP_REPOSITORY_ERROR'
+    );
+  });
+
+  await test('T-30 findPlanById() sans planId -> MEMBERSHIP_REPOSITORY_ERROR', async () => {
+    await expectThrows(
+      () => MembershipRepository.findPlanById(undefined),
+      'MEMBERSHIP_REPOSITORY_ERROR'
+    );
   });
 
   // ── Résumé ────────────────────────────────────────────────

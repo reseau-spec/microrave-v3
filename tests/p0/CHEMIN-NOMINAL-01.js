@@ -65,6 +65,7 @@ const mockPolicyConfig = {
       contestationWindowDurationHours: '24',
           checkInWindowMinutes:             '60',
           sots_window_duration_hours:       '24',
+          balanceDeadlineDays:              6,    // [D-014-A] Phase 0.3 - SchedulerDueTask balance_deadline_check
     };
     if (!(key in db)) throw new Error(`POLICY_CONFIG_MISSING: "${key}" absent du mock`);
     return db[key];

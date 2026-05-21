@@ -213,6 +213,7 @@ async function run() {
       currentState: 'deposit_pending', targetState: 'deposit_secured',
       actor: 'USR-TEST-000001',
       context: { stripePaymentIntentId: 'pi_TEST_EXACT_000001', confirmedAmountCents: 5000, expectedDepositCents: 5000 },
+      repositories: { policyConfig: { getConfig: async (k) => k === 'balanceDeadlineDays' ? 6 : (() => { throw new Error('POLICY_CONFIG_MISSING: ' + k); })() } },
     });
     if (!result.passed) throw new Error(`Attendu passed:true — ${result.reason}`);
   });
@@ -223,6 +224,7 @@ async function run() {
       currentState: 'deposit_pending', targetState: 'deposit_secured',
       actor: 'USR-TEST-000001',
       context: { stripePaymentIntentId: 'pi_TEST_ARRONDI_000002', confirmedAmountCents: 4999, expectedDepositCents: 5000 },
+      repositories: { policyConfig: { getConfig: async (k) => k === 'balanceDeadlineDays' ? 6 : (() => { throw new Error('POLICY_CONFIG_MISSING: ' + k); })() } },
     });
     if (!result.passed) throw new Error(`Arrondi Stripe de 1 centime doit être toléré — ${result.reason}`);
   });

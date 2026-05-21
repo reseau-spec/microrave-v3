@@ -79,6 +79,23 @@ const POLICY_CONFIGS_FONDAMENTALES = [
     description: 'Ratio du dépôt sur le total en parts par million. 200000 = 20%. Réserve le Lineup complet — pas un talent individuel.'
   },
 
+  // [D-014-A] Délai de règlement du solde avant annulation automatique.
+  // Lue par EventPaymentGuard validateDepositConfirmation() — jamais hardcodée.
+  // Sans cette config, la SchedulerDueTask balance_deadline_check ne peut pas être créée.
+  // LOI ANNULATION-02 : si solde impayé à J-6, annulation automatique déclenchée.
+  // Source : D-014-A · OS V15 §2.7 · Plan Phase 0.3
+  {
+    key:         'balanceDeadlineDays',
+    value:       '6',
+    value_type:  'INTEGER',
+    category:    'CRITIQUE',
+    description: 'D-014-A : Nombre de jours avant l\'event à partir duquel la balance doit être réglée. ' +
+                 '6 = J-6. La SchedulerDueTask balance_deadline_check est créée à deposit_secured ' +
+                 'avec dueAt = Date.now() + balanceDeadlineDays × 86_400_000. ' +
+                 'LOI ANNULATION-02 : solde impayé à J-6 → annulation automatique. ' +
+                 'Malléable en database — jamais codé en dur.',
+  },
+
   // ── CONDITIONS DE PAYOUT ET PRÉSENCE (A-056, A-057) ───────
   //
   // Logique de validation de présence (Condition 4 + Condition 5) :

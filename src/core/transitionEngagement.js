@@ -358,6 +358,62 @@ async function transitionEngagement({
   }
   console.log('[AuditLogger]', JSON.stringify(auditEntry));
 
+  // [Phase 0.5] DataAccessLedger -- LOI TRANSITION-01
+  // Toute mutation de status produit une DataAccessLedgerEntry.
+  // Non-bloquant si repositories.admin absent (SoloFounderOverride Event 0 pilote).
+  // Source : D-095, D-107, AdminRepository.appendToDataAccessLedger()
+  if (repositories.admin && typeof repositories.admin.appendToDataAccessLedger === 'function') {
+    try {
+      await repositories.admin.appendToDataAccessLedger({
+        actorUserId:      actor,
+        actorRole:        'SYSTEM',
+        targetObjectType: 'Engagement',
+        targetObjectId:   engagementId,
+        accessType:       'TRANSITION',
+        justification:    transitionKey,
+        transitionKey,
+        guardApplied:     rule.guard,
+        wormLevel:        rule.worm || 'NONE',
+        createdAt:        auditEntry.timestamp,
+      });
+    } catch (dalErr) {
+      console.error(
+        '[transitionEngagement] DAL_WRITE_FAILED: DataAccessLedgerEntry non persistee. ' +
+        'EngagementId: ' + engagementId + '. Transition: ' + transitionKey + '. Erreur: ' + dalErr.message
+      );
+      // D-133 alerte 10 : echec ecriture DAL sur action sensible
+      if (typeof repositories.admin.createAdminIncidentRecord === 'function') {
+        try {
+          await repositories.admin.createAdminIncidentRecord({
+            incidentType: 'DAL_WRITE_FAILED',
+            severity:     'P0',
+            engagementId,
+            description:  'DataAccessLedgerEntry non persistee pour ' + transitionKey + '. ' + dalErr.message,
+            context:      { transitionKey, actor, guardApplied: rule.guard },
+          });
+        } catch (_) { /* incident non-bloquant */ }
+      }
+    }
+  }
+
+  // [Phase 0.3] Persistence SchedulerDueTask apres Guard 5
+  // Optionnel : ne bloque PAS si scheduler absent (SoloFounderOverride Event 0 pilote).
+  // Source : D-014-A, D-099, Plan Phase 0.3, EventPaymentGuard validateDepositConfirmation()
+  if (guardResult.schedulerTask && repositories.scheduler && typeof repositories.scheduler.createTask === 'function') {
+    try {
+      await repositories.scheduler.createTask(guardResult.schedulerTask);
+    } catch (schedulerErr) {
+      // Non-bloquant : transition deja validee par les 5 guards.
+      // Avertissement critique : LOI ANNULATION-02 non armee si cette tache est absente.
+      // Source : D-099, D-133 alerte 5 (SchedulerDueTask P0 expiree)
+      console.error(
+        `[transitionEngagement] SCHEDULER_PERSIST_FAILED: SchedulerDueTask ` +
+        `"${guardResult.schedulerTask.taskType}" non persistee. ` +
+        `EngagementId: ${engagementId}. Erreur: ${schedulerErr.message}`
+      );
+    }
+  }
+
   const result = {
     success: true, engagementId, previousState: currentState, newState: targetState,
     transition: transitionKey, guardApplied: rule.guard, timestamp: auditEntry.timestamp,
