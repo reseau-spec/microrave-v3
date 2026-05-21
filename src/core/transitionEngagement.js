@@ -64,6 +64,9 @@ const LedgerInvariantGuard    = require('./guards/LedgerInvariantGuard');
 const NoShowGuard             = require('./guards/NoShowGuard');
 const CancellationGuard       = require('./guards/CancellationGuard');
 const DisputeGuard            = require('./guards/DisputeGuard');
+const DisputeResolutionGuard   = require('./guards/DisputeResolutionGuard');
+const TransferGuard            = require('./guards/TransferGuard');
+const WithdrawalGuard          = require('./guards/WithdrawalGuard');
 const ArchiveWORMGuard        = require('./guards/ArchiveWORMGuard');
 const PayoutExecutor          = require('../services/PayoutExecutor');
 const PresenceWindowGuard     = require('./guards/PresenceWindowGuard');
@@ -439,6 +442,10 @@ async function transitionEngagement({
   if (guardResult.cancellationRecord)  result.cancellationRecord  = guardResult.cancellationRecord;
   // [Phase 2.3] DisputeGuard
   if (guardResult.disputeRecord)       result.disputeRecord       = guardResult.disputeRecord;
+  // [Phase 2.3] DisputeResolutionGuard / TransferGuard / WithdrawalGuard
+  if (guardResult.resolutionRecord)    result.resolutionRecord    = guardResult.resolutionRecord;
+  if (guardResult.transferRecord)      result.transferRecord      = guardResult.transferRecord;
+  if (guardResult.withdrawalRecord)    result.withdrawalRecord    = guardResult.withdrawalRecord;
   // schedulerTask (SOTSWindowGuard, ContestationWindowGuard, EventPaymentGuard Phase 0.3)
   if (guardResult.schedulerTask)     result.schedulerTask     = guardResult.schedulerTask;
   if (payoutBatchResult) {
@@ -521,19 +528,19 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return await DisputeGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'DisputeResolutionGuard':
-      console.log(`[DisputeResolutionGuard] résolution dispute — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      // [Phase 2.3] D-074 disputed->payable/partially_settled/refunded
+      return await DisputeResolutionGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'TransferGuard':
-      console.log(`[TransferGuard] transfert talent — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      // [Phase 2.3] D-074 transfer_requested pipeline
+      return await TransferGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'NoShowGuard':
       return await NoShowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'WithdrawalGuard':
-      console.log(`[WithdrawalGuard] retrait avant accord — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      // [Phase 2.3] D-074 proposed/negotiating->withdrawn
+      return await WithdrawalGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     default:
       throw new Error(
