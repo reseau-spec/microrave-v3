@@ -5,11 +5,8 @@
  *   - placed → deposit_pending       (calcul dépôt 20%)
  *   - deposit_pending → deposit_secured (confirmation Stripe)
  *
- * Source : OS V10.1 section 2.7.1 (patch)
+ * Source : OS section 2.7.1 (patch)
  *
- * NOTE V10.1 : deposit_secured→balance_pending est couvert par
- * BalanceRequestGuard (guard distinct). Ce guard couvre uniquement
- * les deux transitions de réception du dépôt.
  *
  * CONTRAT D'INTERFACE — totalCents :
  *   totalCents = prix_vendu_client TTC

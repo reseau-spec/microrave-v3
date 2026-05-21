@@ -370,6 +370,15 @@ async function transitionEngagement({
     result.depositCents    = guardResult.depositCents;
     result.balanceDueCents = guardResult.balanceDueCents;
   }
+  // [Phase 0.2] NoShowGuard — propagation des objets métier retournés
+  // no_show→refunded  : refundInstruction (LOI NO-SHOW-01 · CT-014)
+  // sots_window_closed→no_show : decisionRecord (GREFFIER-01)
+  // L'appelant persiste ces objets en database — transitionEngagement() ne le fait pas.
+  // Source : NoShowGuard.js validateRefundTrigger() · validateNoShowConfirmation()
+  if (guardResult.refundInstruction) result.refundInstruction = guardResult.refundInstruction;
+  if (guardResult.decisionRecord)    result.decisionRecord    = guardResult.decisionRecord;
+  // schedulerTask (SOTSWindowGuard, ContestationWindowGuard, EventPaymentGuard Phase 0.3)
+  if (guardResult.schedulerTask)     result.schedulerTask     = guardResult.schedulerTask;
   if (payoutBatchResult) {
     result.payoutBatch = {
       batchId:      payoutBatchResult.batchId,
@@ -429,8 +438,21 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return { passed: true, reason: 'placeholder' };
 
     case 'RefundGuard':
-      console.log(`[RefundGuard] remboursement — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      // [Phase 0.2] no_show→refunded : routage vers NoShowGuard.validateRefundTrigger()
+      // La logique de remboursement existe dans NoShowGuard (COVERED_TRANSITIONS L.41).
+      // RefundGuard est le nom de la TRANSITION_TABLE — NoShowGuard est l'implémentation.
+      // Les autres transitions RefundGuard futures (ex: disputed→refunded) auront leur
+      // propre guard dès Phase 2.3. Source : NoShowGuard.js L.41 · LOI NO-SHOW-01 · CT-014.
+      if (`${currentState}->${targetState}` === 'no_show->refunded') {
+        return await NoShowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
+      }
+      // Autres origines (ex: no_show→refunded via DisputeResolutionGuard — futur) :
+      // placeholder fail-closed jusqu'à implémentation Phase 2.3.
+      throw new Error(
+        `GUARD_NOT_IMPLEMENTED: RefundGuard pour "${currentState}->${targetState}" ` +
+        `n'est pas encore implémenté. Phase 2.3. ` +
+        `Seul no_show->refunded est couvert. Source : Plan d'implantation Phase 2.3.`
+      );
 
     case 'DisputeGuard':
       console.log(`[DisputeGuard] entrée dispute — à implémenter`);

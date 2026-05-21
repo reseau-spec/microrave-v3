@@ -7,7 +7,7 @@
 
 ---
 
-## Situation réelle au 21 mai 2026 10:06 EST
+## Situation réelle au 21 mai 2026 09:42 EST
 
 La constitution est opérationnelle. La logique de calcul est prouvée par 16 tests P0. La base est connectée et pilotable. Ce qui manque : la couche d'exécution — les services qui branchent les guards sur la réalité opérationnelle.
 
@@ -255,7 +255,7 @@ Tests à créer dans `tests/p0/` :
 ---
 
 ### 2.4 Test P1 d'intégration réelle — Market Pivot prouvé automatiquement
-**Source :** Discussion 21 mai 2026 10:06 EST
+**Source :** Discussion 21 mai 2026 09:42 EST
 
 Créer `tests/p1/POLICYCONFIG-INTEGRATION-01.js` :
 - Appelle `getConfig('maxDistancePolicy')` via le vrai `PolicyConfigAdapter` (réseau réel)
@@ -321,7 +321,7 @@ Non-bloquant pour SC-01 (DJ Alex seul). À implémenter avant tout event multi-t
 ---
 
 ### 3.4 Corrections documentaires résiduelles
-**Source :** Audit constitutionnel 21 mai 2026 10:06 EST
+**Source :** Audit constitutionnel 21 mai 2026 09:42 EST
 
 - Carte 08 `microrave_v4_08_lois_invariantes.drawio` : retirer `BALANCE_PENDING` de la liste WORM Niveau 1, ajouter note *"Retiré — D-014-A V12. Absorbé dans DEPOSIT_SECURED."*
 - `EventPaymentGuard.js` header : `Source : OS V10.1` → `Source : OS V14 · D-014-A`
@@ -352,4 +352,4 @@ Non-bloquant pour SC-01 (DJ Alex seul). À implémenter avant tout event multi-t
 
 ---
 
-*Document produit le 21 mai 2026 10:06 EST · Sourcé sur OS V15, EXPORT_BRUT Registres Souverains V3, Fiches d'évaluation A–J du 20 mai 2026 10:06 EST, audits constitutionnels du 19 et 21 mai 2026 10:06 EST.*
+*Document produit le 21 mai 2026 09:42 EST · Sourcé sur OS V15, EXPORT_BRUT Registres Souverains V3, Fiches d'évaluation A–J du 20 mai 2026 09:42 EST, audits constitutionnels du 19 et 21 mai 2026 09:42 EST.*
