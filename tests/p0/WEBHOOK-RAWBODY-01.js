@@ -41,8 +41,12 @@ function runTest() {
   const timestamp     = Math.floor(Date.now() / 1000);
   const signedPayload = `${timestamp}.${fakePayload}`;
   const crypto        = require('crypto');
+  // CORRECTION : Stripe SDK attend le secret complet (avec préfixe whsec_).
+  // Le HMAC doit être calculé avec le secret complet pour que
+  // constructEvent() valide correctement la signature.
+  // Source : Fiche C BLOQUANT-C2 — bug test corrigé 2026-05-21.
   const signature     = crypto
-    .createHmac('sha256', fakeSecret.replace('whsec_', ''))
+    .createHmac('sha256', fakeSecret)
     .update(signedPayload, 'utf8')
     .digest('hex');
   const stripeSignature = `t=${timestamp},v1=${signature}`;

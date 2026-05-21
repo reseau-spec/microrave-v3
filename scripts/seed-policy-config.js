@@ -1,7 +1,10 @@
 /**
  * MICRO RAVE V3 — Script de seed PolicyConfig
  * ============================================================
- * Insère les 12 configurations fondamentales dans Base44 V3.
+ * Insère les 20 configurations fondamentales dans Base44 V3.
+ * (Mise à jour 2026-05-21 : +4 configs guards post-event —
+ *  sots_window_duration_hours, checkInWindowMinutes,
+ *  amendment_max_extension_minutes, amendment_require_double_consent)
  *
  * À EXÉCUTER UNE SEULE FOIS.
  * Vérifier que BASE44_API_KEY est dans .env avant de lancer.

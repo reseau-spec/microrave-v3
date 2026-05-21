@@ -58,10 +58,10 @@ const MissionConversionGuard = require('./guards/MissionConversionGuard');
 const PlacementGuard         = require('./guards/PlacementGuard');
 const EventPaymentGuard      = require('./guards/EventPaymentGuard');
 const SealingGuard           = require('./guards/SealingGuard');
-const PresenceProofGuard      = require('./guards/Presenceproofguard');
+const PresenceProofGuard      = require('./guards/PresenceProofGuard');
 const ContestationWindowGuard = require('./guards/ContestationWindowGuard');
-const LedgerInvariantGuard    = require('./guards/Ledgerinvariantguard');
-const NoShowGuard             = require('./guards/Noshowguard');
+const LedgerInvariantGuard    = require('./guards/LedgerInvariantGuard');
+const NoShowGuard             = require('./guards/NoShowGuard');
 const ArchiveWORMGuard        = require('./guards/ArchiveWORMGuard');
 const PayoutExecutor          = require('../services/PayoutExecutor');
 const PresenceWindowGuard     = require('./guards/PresenceWindowGuard');
@@ -281,7 +281,7 @@ async function transitionEngagement({
 
   // ── GUARD 4 : FinancialInvariantGuard (LedgerInvariantGuard) ──────────
   if (rule.financialGuard) {
-    const { COVERED_TRANSITIONS: ledgerCovered } = require('./guards/Ledgerinvariantguard');
+    const { COVERED_TRANSITIONS: ledgerCovered } = require('./guards/LedgerInvariantGuard');
     if (ledgerCovered.has(transitionKey)) {
       const ledgerResult = await LedgerInvariantGuard.validate({
         engagementId, currentState, targetState, actor, context, repositories,
