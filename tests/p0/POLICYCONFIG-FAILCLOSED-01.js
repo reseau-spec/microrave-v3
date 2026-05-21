@@ -83,7 +83,7 @@ async function run() {
         throw new Error(`Config sans clé : ${JSON.stringify(config)}`);
       if (!config.value && config.value !== '0')
         throw new Error(`Config "${config.key}" sans valeur`);
-      if (!["INTEGER","PPM","CENTS","STRING","ENUM"].includes(config.value_type))
+      if (!["INTEGER","PPM","CENTS","STRING","ENUM","BOOLEAN"].includes(config.value_type))
         throw new Error(`Config "${config.key}" : value_type invalide "${config.value_type}"`);
       if (!["CRITIQUE","ELEVE","STANDARD","OPERATIONNEL"].includes(config.category))
         throw new Error(`Config "${config.key}" : category invalide "${config.category}"`);
