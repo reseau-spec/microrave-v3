@@ -40,6 +40,7 @@ const PREFIXES = {
   ReputationEntry:     'REP',
   WebhookRecord:       'WHK',
   IdMapping:           'IDM',
+  CancellationRecord:  'CXL',  // Phase 2.3 -- D-039/D-040 LOI ANNULATION-01/02
 };
 
 /**

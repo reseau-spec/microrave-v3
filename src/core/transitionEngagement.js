@@ -62,6 +62,8 @@ const PresenceProofGuard      = require('./guards/PresenceProofGuard');
 const ContestationWindowGuard = require('./guards/ContestationWindowGuard');
 const LedgerInvariantGuard    = require('./guards/LedgerInvariantGuard');
 const NoShowGuard             = require('./guards/NoShowGuard');
+const CancellationGuard       = require('./guards/CancellationGuard');
+const DisputeGuard            = require('./guards/DisputeGuard');
 const ArchiveWORMGuard        = require('./guards/ArchiveWORMGuard');
 const PayoutExecutor          = require('../services/PayoutExecutor');
 const PresenceWindowGuard     = require('./guards/PresenceWindowGuard');
@@ -431,8 +433,12 @@ async function transitionEngagement({
   // sots_window_closed→no_show : decisionRecord (GREFFIER-01)
   // L'appelant persiste ces objets en database — transitionEngagement() ne le fait pas.
   // Source : NoShowGuard.js validateRefundTrigger() · validateNoShowConfirmation()
-  if (guardResult.refundInstruction) result.refundInstruction = guardResult.refundInstruction;
-  if (guardResult.decisionRecord)    result.decisionRecord    = guardResult.decisionRecord;
+  if (guardResult.refundInstruction)   result.refundInstruction   = guardResult.refundInstruction;
+  if (guardResult.decisionRecord)      result.decisionRecord      = guardResult.decisionRecord;
+  // [Phase 2.3] CancellationGuard -- propagation cancellationRecord
+  if (guardResult.cancellationRecord)  result.cancellationRecord  = guardResult.cancellationRecord;
+  // [Phase 2.3] DisputeGuard
+  if (guardResult.disputeRecord)       result.disputeRecord       = guardResult.disputeRecord;
   // schedulerTask (SOTSWindowGuard, ContestationWindowGuard, EventPaymentGuard Phase 0.3)
   if (guardResult.schedulerTask)     result.schedulerTask     = guardResult.schedulerTask;
   if (payoutBatchResult) {
@@ -490,8 +496,8 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return await ArchiveWORMGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'CancellationGuard':
-      console.log(`[CancellationGuard] annulation — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      // [Phase 2.3] CancellationGuard implemente -- LOI ANNULATION-01/02 -- D-039 D-040 D-043
+      return await CancellationGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'RefundGuard':
       // [Phase 0.2] no_show→refunded : routage vers NoShowGuard.validateRefundTrigger()
@@ -511,8 +517,8 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       );
 
     case 'DisputeGuard':
-      console.log(`[DisputeGuard] entrée dispute — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      // [Phase 2.3] DisputeGuard -- D-019-B Frein Urgence + Contestation Prestation
+      return await DisputeGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'DisputeResolutionGuard':
       console.log(`[DisputeResolutionGuard] résolution dispute — à implémenter`);
