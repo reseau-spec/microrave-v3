@@ -119,6 +119,27 @@ const POLICY_CONFIGS_FONDAMENTALES = [
     description: 'A-057b : Ratio minimal de présence en ppm exprimé en fraction de la durée contractuelle. 950000 = 95%. S\'applique quand ContractSnapshot.durationMinutes est présent. La règle complète est : max(minDurationFloorMinutes, durée_contractuelle × minDurationRatioPpm / 1_000_000). Malléable en database — jamais codé en dur. Valeur ratifiée par le fondateur le 2026-05-20.'
   },
 
+  // ── ENGAGEMENT AMENDMENT (D-147) ───────────────────────────
+  //
+  // Paramètres du sous-processus d'extension de plage horaire.
+  // Tous malléables en database — jamais codés en dur.
+  // Source : D-147 · OS V14 section 2.7.2 · EngagementAmendmentPolicyConfig
+  //
+  {
+    key:         'amendment_max_extension_minutes',
+    value:       '180',
+    value_type:  'INTEGER',
+    category:    'STANDARD',
+    description: 'D-147 : Extension maximale autorisée en minutes au-delà de la durée contractuelle originale. 180 = 3h max. Malléable en database — jamais codé en dur.',
+  },
+  {
+    key:         'amendment_require_double_consent',
+    value:       'true',
+    value_type:  'BOOLEAN',
+    category:    'CRITIQUE',
+    description: 'D-147 Condition 2 : Double consentement talent + organisateur obligatoire. true = talentConsentAt et organizerConsentAt obligatoires. Malléable en database — jamais codé en dur.',
+  },
+
   // ── FENÊTRE DE CONTESTATION (D-019-B) ──────────────────────
   {
     key:         'contestationWindowDurationHours',

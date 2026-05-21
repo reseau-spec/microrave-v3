@@ -58,11 +58,12 @@ const MissionConversionGuard = require('./guards/MissionConversionGuard');
 const PlacementGuard         = require('./guards/PlacementGuard');
 const EventPaymentGuard      = require('./guards/EventPaymentGuard');
 const SealingGuard           = require('./guards/SealingGuard');
-const PresenceProofGuard      = require('./guards/PresenceProofGuard');
-const ContestationWindowGuard = require('./guards/ContestationWindowGuard');
-const LedgerInvariantGuard    = require('./guards/LedgerInvariantGuard');
-const NoShowGuard             = require('./guards/NoShowGuard');
+const PresenceProofGuard      = require('./guards/Presenceproofguard');
+const ContestationWindowGuard = require('./guards/Contestationwindowguard');
+const LedgerInvariantGuard    = require('./guards/Ledgerinvariantguard');
+const NoShowGuard             = require('./guards/Noshowguard');
 const ArchiveWORMGuard        = require('./guards/ArchiveWORMGuard');
+const PayoutExecutor          = require('../services/PayoutExecutor');
 
 // ── Table souveraine — Source : D-019-A + OS V13 section 2.7.1 ──
 const TRANSITION_TABLE = {
@@ -273,7 +274,7 @@ async function transitionEngagement({
 
   // ── GUARD 4 : FinancialInvariantGuard (LedgerInvariantGuard) ──────────
   if (rule.financialGuard) {
-    const { COVERED_TRANSITIONS: ledgerCovered } = require('./guards/LedgerInvariantGuard');
+    const { COVERED_TRANSITIONS: ledgerCovered } = require('./guards/Ledgerinvariantguard');
     if (ledgerCovered.has(transitionKey)) {
       const ledgerResult = await LedgerInvariantGuard.validate({
         engagementId, currentState, targetState, actor, context, repositories,
@@ -286,11 +287,68 @@ async function transitionEngagement({
     }
   }
 
+  // ── GUARD 4.5 : PayoutExecutor — payable → settled uniquement ──────────
+  // Déclenché APRÈS LedgerInvariantGuard (waterfall vérifié) et AVANT AuditLogger.
+  // L'argent bouge ici — la transition est irréversible après ce point.
+  //
+  // context requis pour payable→settled :
+  //   context.talentPayouts : [{ talentUserId, talentNetCents, settlementInstruction }]
+  //   context.contractSnapshotPhase2 : ContractSnapshot W2
+  //   context.engagementStatus : 'payable' (redondant mais vérifié par PayoutExecutor)
+  //   context.currency : 'cad' (défaut)
+  //
+  // Source : D-101 (6 verrous) · PayoutExecutor · OS V14 J8
+  let payoutBatchResult = null;
+
+  if (transitionKey === 'payable->settled') {
+    const {
+      talentPayouts,
+      contractSnapshotPhase2: csPhase2,
+      currency = 'cad',
+    } = context;
+
+    if (!talentPayouts || !Array.isArray(talentPayouts) || talentPayouts.length === 0) {
+      throw new Error(
+        `PAYOUT_MISSING_TALENTS: payable→settled exige context.talentPayouts non vide. ` +
+        `Fournir [{ talentUserId, talentNetCents, settlementInstruction }]. ` +
+        `EngagementId: ${engagementId}`
+      );
+    }
+
+    payoutBatchResult = await PayoutExecutor.executePayoutBatch({
+      engagementId,
+      talentPayouts,
+      engagementStatus:       'payable',
+      contractSnapshotPhase2: csPhase2,
+      currency,
+      repositories,
+    });
+
+    if (!payoutBatchResult.allExecuted) {
+      // Identifier quel talent a bloqué
+      const blocked = payoutBatchResult.results
+        .filter(r => !r.executed)
+        .map(r => `${r.talentUserId}: ${r.blockReason} — ${r.detail}`)
+        .join(' | ');
+
+      throw new Error(
+        `PAYOUT_BATCH_FAILED: Un ou plusieurs payouts ont échoué. ` +
+        `La transition payable→settled est bloquée jusqu'à résolution. ` +
+        `Détails: ${blocked}. EngagementId: ${engagementId}`
+      );
+    }
+  }
+
   // ── GUARD 5 : AuditLogger ─────────────────────────────────
   const auditEntry = {
     engagementId, transition: transitionKey, actor,
     timestamp: new Date().toISOString(), guardApplied: rule.guard, wormLevel: rule.worm || 'NONE',
   };
+  if (payoutBatchResult) {
+    auditEntry.payoutBatchId  = payoutBatchResult.batchId;
+    auditEntry.payoutExecuted = payoutBatchResult.allExecuted;
+    auditEntry.transferIds    = payoutBatchResult.results.map(r => r.stripeTransferId).filter(Boolean);
+  }
   console.log('[AuditLogger]', JSON.stringify(auditEntry));
 
   const result = {
@@ -304,6 +362,13 @@ async function transitionEngagement({
   if (guardResult.depositCents !== undefined) {
     result.depositCents    = guardResult.depositCents;
     result.balanceDueCents = guardResult.balanceDueCents;
+  }
+  if (payoutBatchResult) {
+    result.payoutBatch = {
+      batchId:      payoutBatchResult.batchId,
+      allExecuted:  payoutBatchResult.allExecuted,
+      results:      payoutBatchResult.results,
+    };
   }
 
   return result;

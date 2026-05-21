@@ -29,6 +29,18 @@
 
 'use strict';
 
+// ── Mock Stripe pour GUARD 4.5 (PayoutExecutor) ───────────────
+process.env.STRIPE_SECRET_KEY     = 'sk_test_MOCK_NOMINAL';
+process.env.STRIPE_WEBHOOK_SECRET = 'whsec_MOCK_NOMINAL';
+require.cache[require.resolve('stripe')] = {
+  id: require.resolve('stripe'), filename: require.resolve('stripe'), loaded: true,
+  exports: () => ({
+    transfers: {
+      create: async (params) => ({ id: `tr_NOMINAL_${params.metadata.talentUserId}`, ...params }),
+    },
+  }),
+};
+
 const { transitionEngagement } = require('../../src/core/transitionEngagement');
 
 let passed = 0;
@@ -343,24 +355,57 @@ async function run() {
   // ÉTAPE 11 : payable → settled
   // LedgerInvariantGuard — Σ nets + Σ commissions = prix_vendu
   // 26400 + 3600 = 30000 ✓
+  // PayoutExecutor (GUARD 4.5) — Transfer Stripe mocké
   // ════════════════════════════════════════════════
   await testAsync('ÉTAPE 11 : payable → settled (LedgerInvariantGuard — invariant zéro cent)', async () => {
     assert(contractSnapshotPhase2, 'contractSnapshotPhase2 absent');
+
+    // Mock PayoutExecutor repos requis par GUARD 4.5
+    const reposWithPayout = {
+      ...repositories,
+      payoutExecutionRecords: {
+        async findByEngagementId() { return null; },
+        async create(data) { return { id: 'PER-NOMINAL-001', ...data }; },
+      },
+      talentPaymentProfiles: {
+        async findByTalentUserId(id) {
+          return { kycStatus: 'VERIFIED', stripeAccountId: 'acct_NOMINAL_ALEX', talentUserId: id };
+        },
+      },
+      settlementInstructions: {
+        async markConsumed(id, data) { return { id, ...data }; },
+      },
+      ledgerRecords: {
+        async append(entry) { return { id: `LDG-${Date.now()}`, ...entry }; },
+      },
+    };
+
+    const snapshotForSettled = { ...contractSnapshotPhase2, prixVenduClientCents: 30_000 };
+
     const result = await transitionEngagement({
       engagementId: ENG_ID,
       currentState: 'payable',
       targetState:  'settled',
       actor:        ACTOR_ID,
       context: {
-        contractSnapshotPhase2: {
-          ...contractSnapshotPhase2,
-          prixVenduClientCents: 30_000,
-        },
+        contractSnapshotPhase2: snapshotForSettled,
+        talentPayouts: [{
+          talentUserId:  TALENT_ID,
+          talentNetCents: 26_400,
+          settlementInstruction: {
+            id: 'SI-NOMINAL-001', engagementId: ENG_ID,
+            talentUserId: TALENT_ID, amountCents: 26_400, consumedAt: null,
+          },
+        }],
+        currency: 'cad',
+        goNoGoDecisionRecord:  { decision: 'GO', engagementId: ENG_ID, systemId: 'ADM-NOMINAL-GONOGO0' },
+        ledgerBalanced: true,
       },
-      repositories,
+      repositories: reposWithPayout,
     });
     assert(result.success, `Attendu success:true — ${JSON.stringify(result)}`);
     assert(result.newState === 'settled', `newState=${result.newState}`);
+    assert(result.payoutBatch?.allExecuted, 'payoutBatch.allExecuted doit être true');
   });
 
   // ════════════════════════════════════════════════
