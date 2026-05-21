@@ -59,11 +59,14 @@ const PlacementGuard         = require('./guards/PlacementGuard');
 const EventPaymentGuard      = require('./guards/EventPaymentGuard');
 const SealingGuard           = require('./guards/SealingGuard');
 const PresenceProofGuard      = require('./guards/Presenceproofguard');
-const ContestationWindowGuard = require('./guards/Contestationwindowguard');
+const ContestationWindowGuard = require('./guards/ContestationWindowGuard');
 const LedgerInvariantGuard    = require('./guards/Ledgerinvariantguard');
 const NoShowGuard             = require('./guards/Noshowguard');
 const ArchiveWORMGuard        = require('./guards/ArchiveWORMGuard');
 const PayoutExecutor          = require('../services/PayoutExecutor');
+const PresenceWindowGuard     = require('./guards/PresenceWindowGuard');
+const EventCompletionGuard    = require('./guards/EventCompletionGuard');
+const SOTSWindowGuard         = require('./guards/SOTSWindowGuard');
 
 // ── Table souveraine — Source : D-019-A + OS V13 section 2.7.1 ──
 const TRANSITION_TABLE = {
@@ -117,8 +120,12 @@ const TRANSITION_TABLE = {
   'contestation_window->payable':            { guard: 'PresenceProofGuard',       worm: null, financialGuard: true  },
   'contestation_window->disputed':           { guard: 'DisputeGuard',             worm: null, financialGuard: true  },
 
-  // [D-014-B] payable : état opérationnel, non-WORM, protégé par D-101
-  'payable->settled':                        { guard: 'LedgerInvariantGuard',     worm: 'W3', financialGuard: true  },
+  // [D-014-B] payable : état opérationnel, non-WORM, protégé par D-101.
+  // worm:null — settled n'est PAS dans WORM_STATES et n'est PAS un moment WORM officiel
+  // (D-014-B). L'irréversibilité de ce saut est garantie par D-101 (6 verrous
+  // PayoutExecutor + Transfer Stripe réel via GUARD 4.5), pas par l'architecture WORM.
+  // Annoter worm:'W3' ici serait une fausse documentation. Source : OS V14 §2.7, D-014-B.
+  'payable->settled':                        { guard: 'LedgerInvariantGuard',     worm: null,  financialGuard: true  },
   'settled->archived':                       { guard: 'ArchiveWORMGuard',         worm: 'W3', financialGuard: true  },
 
   // ── Frein d'Urgence — Régime 1 (D-019-B) ───────────────────
@@ -400,16 +407,13 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return await ContestationWindowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'PresenceWindowGuard':
-      console.log(`[PresenceWindowGuard] ouverture fenêtre check-in — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await PresenceWindowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'EventCompletionGuard':
-      console.log(`[EventCompletionGuard] complétion event — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await EventCompletionGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'SOTSWindowGuard':
-      console.log(`[SOTSWindowGuard] fermeture fenêtre SOTS — à implémenter`);
-      return { passed: true, reason: 'placeholder' };
+      return await SOTSWindowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'PresenceProofGuard':
       return await PresenceProofGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });

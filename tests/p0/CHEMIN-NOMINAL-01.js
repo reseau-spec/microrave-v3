@@ -63,6 +63,8 @@ const mockPolicyConfig = {
       minDurationFloorMinutes:        '30',
       minDurationRatioPpm:            '950000',   // 95%
       contestationWindowDurationHours: '24',
+          checkInWindowMinutes:             '60',
+          sots_window_duration_hours:       '24',
     };
     if (!(key in db)) throw new Error(`POLICY_CONFIG_MISSING: "${key}" absent du mock`);
     return db[key];
@@ -243,15 +245,19 @@ async function run() {
 
   // ════════════════════════════════════════════════
   // ÉTAPE 6 : event_sealed → performed
-  // PresenceWindowGuard (placeholder) — event en cours
+  // PresenceWindowGuard — fenêtre check-in ouverte + SessionPresence initiée
   // ════════════════════════════════════════════════
-  await testAsync('ÉTAPE 6 : event_sealed → performed (PresenceWindowGuard)', async () => {
+  await testAsync('ÉTAPE 6 : event_sealed → performed (PresenceWindowGuard — fenêtre ouverte + SPR)', async () => {
     const result = await transitionEngagement({
       engagementId: ENG_ID,
       currentState: 'event_sealed',
       targetState:  'performed',
       actor:        ACTOR_ID,
-      context: {},
+      context: {
+        // PresenceWindowGuard — fenêtre ouverte (event il y a 1h, checkIn 60min avant)
+        eventScheduledStartAt: new Date(Date.now() - 60 * 60 * 1_000).toISOString(),
+        sessionPresenceId:     'SPR-NOMINAL-TEST001',
+      },
       repositories,
     });
     assert(result.success, `Attendu success:true — ${JSON.stringify(result)}`);
@@ -260,15 +266,20 @@ async function run() {
 
   // ════════════════════════════════════════════════
   // ÉTAPE 7 : performed → event_completed
-  // EventCompletionGuard (placeholder) — event terminé
+  // EventCompletionGuard — tous talents performed · lineup complet
   // ════════════════════════════════════════════════
-  await testAsync('ÉTAPE 7 : performed → event_completed (EventCompletionGuard)', async () => {
+  await testAsync('ÉTAPE 7 : performed → event_completed (EventCompletionGuard — lineup résolu)', async () => {
     const result = await transitionEngagement({
       engagementId: ENG_ID,
       currentState: 'performed',
       targetState:  'event_completed',
       actor:        ACTOR_ID,
-      context: {},
+      context: {
+        // EventCompletionGuard — lineup complet, talent unique DJ Alex en performed
+        lineupEngagements: [
+          { engagementId: ENG_ID, talentUserId: TALENT_ID, status: 'performed' },
+        ],
+      },
       repositories,
     });
     assert(result.success, `Attendu success:true — ${JSON.stringify(result)}`);
@@ -277,15 +288,19 @@ async function run() {
 
   // ════════════════════════════════════════════════
   // ÉTAPE 8 : event_completed → sots_window_closed
-  // SOTSWindowGuard (placeholder) — fenêtre SOTS fermée
+  // SOTSWindowGuard — fenêtre 24h écoulée · sotsConsolidated=true
   // ════════════════════════════════════════════════
-  await testAsync('ÉTAPE 8 : event_completed → sots_window_closed (SOTSWindowGuard)', async () => {
+  await testAsync('ÉTAPE 8 : event_completed → sots_window_closed (SOTSWindowGuard — 24h écoulées)', async () => {
     const result = await transitionEngagement({
       engagementId: ENG_ID,
       currentState: 'event_completed',
       targetState:  'sots_window_closed',
       actor:        ACTOR_ID,
-      context: {},
+      context: {
+        // SOTSWindowGuard — fenêtre de 24h écoulée (event il y a 26h)
+        sotsWindowOpenedAt: new Date(Date.now() - 26 * 60 * 60 * 1_000).toISOString(),
+        sotsConsolidated:   true,
+      },
       repositories,
     });
     assert(result.success, `Attendu success:true — ${JSON.stringify(result)}`);

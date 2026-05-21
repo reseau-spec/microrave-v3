@@ -119,6 +119,34 @@ const POLICY_CONFIGS_FONDAMENTALES = [
     description: 'A-057b : Ratio minimal de présence en ppm exprimé en fraction de la durée contractuelle. 950000 = 95%. S\'applique quand ContractSnapshot.durationMinutes est présent. La règle complète est : max(minDurationFloorMinutes, durée_contractuelle × minDurationRatioPpm / 1_000_000). Malléable en database — jamais codé en dur. Valeur ratifiée par le fondateur le 2026-05-20.'
   },
 
+  // ── SOTS WINDOW (SOTSWindowGuard) ───────────────────────────
+  //
+  // Durée de la fenêtre de soumission des scores post-event.
+  // Lue en DB par SOTSWindowGuard — jamais hardcodée.
+  // Source : OS V14 §2.7.1 · SOTSWindowGuard
+  //
+  {
+    key:         'sots_window_duration_hours',
+    value:       '24',
+    value_type:  'INTEGER',
+    category:    'STANDARD',
+    description: 'Durée en heures de la fenêtre de soumission SOTS (Score of the Show) ouverte après event_completed. 24 = 24h. Passé ce délai, la transition event_completed → sots_window_closed est déclenchée automatiquement par SchedulerDueTask. Malléable en database — jamais codé en dur.',
+  },
+
+  // ── PRESENCE WINDOW (PresenceWindowGuard) ────────────────────
+  //
+  // Combien de minutes avant l'event la fenêtre check-in s'ouvre.
+  // Lue en DB par PresenceWindowGuard — jamais hardcodée.
+  // Source : OS V14 §2.7.1 · PresenceWindowGuard
+  //
+  {
+    key:         'checkInWindowMinutes',
+    value:       '60',
+    value_type:  'INTEGER',
+    category:    'STANDARD',
+    description: 'Nombre de minutes avant le début de l\'event où la fenêtre de check-in s\'ouvre. 60 = le talent peut passer en performed jusqu\'à 1h avant. Malléable en database — jamais codé en dur.',
+  },
+
   // ── ENGAGEMENT AMENDMENT (D-147) ───────────────────────────
   //
   // Paramètres du sous-processus d'extension de plage horaire.
