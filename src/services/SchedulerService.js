@@ -75,7 +75,7 @@ async function runDueTasks({ repositories, nowOverride }) {
     startedAt: new Date(nowMs).toISOString(),
     nowMs,
   });
-  const runBase44Id = runRecord.id || runBase44Id;
+  const runBase44Id = runRecord.id
 
   // ── Etape 2 : Lire les taches dues ───────────────────────
   const dueTasks = await scheduler.findDueTasks(nowMs);
