@@ -1,0 +1,278 @@
+# MARCHE À SUIVRE — DE MAINTENANT AU SUCCÈS
+Évaluateur A 
+2026-05-22 23:44 EST
+
+**Arbitrage central ratifié :** Phase 1 PROUVER avec intervention humaine documentée → Phase 2 RAFFINER → Phase 3 AUTOMATISER.
+
+Ce qui change tout :  
+SoloFounderOverride n'est plus une *béquille honteuse* contournant la doctrine. C'est désormais la **méthode officielle** de la Phase 1. Chaque intervention humaine devient un livrable documenté du système, pas une violation. La doctrine D-106 prévoit exactement cela — *"exception qui doit rester exceptionnelle"* — mais qui doit être tracée chaque fois qu'elle se produit. Frédérik dispose déjà de l'infrastructure pour ça : AdminAction, AdminIncidentRecord, DataAccessLedgerEntry, PolicyConfigChangeRecord. Aucune de ces interventions ne sera invisible.
+
+La conséquence opérationnelle est immédiate : on n'a plus besoin de corriger les bugs d'intégration **avant** la première transaction. On peut corriger après, à partir d'un retour terrain réel.
+
+---
+
+## PHASE 1 — PROUVER (Event 0A, CONTROLLED SUCCESS)
+
+### Étape 1.1 — Décision technique préalable (J-7)
+
+Une seule décision à prendre avant tout le reste : **Stripe test ou Stripe live ?**
+
+| | Stripe test | Stripe live |
+|---|---|---|
+| Cachet DJ Alex | Fictif | Réel (300$ CAD) |
+| Valeur de preuve | Logique seulement | Logique + économique |
+| Risque financier | Zéro | 300$ + frais |
+| Crédibilité institutionnelle | Faible | Maximale |
+| Délai KYC | N/A | Critique |
+
+Recommandation : **Stripe live avec petit montant réel.** Parce que CONTROLLED SUCCESS au sens D-144 a besoin de la friction économique. Un payout test ne prouve pas la vérité économique du système — il prouve seulement que les API se parlent. La fonction de Pierre de Rosette est de prouver que de l'argent change de mains entre des entités juridiquement distinctes, donc Stripe live.
+
+### Étape 1.2 — Vérification KYC DJ Alex (J-7, en parallèle)
+
+Action immédiate. Le KYC est le seul bloquant qu'aucun code ne peut contourner. Stripe Connect refuse physiquement un Transfer vers un compte non VERIFIED. Si l'état est PENDING, le délai Stripe est de quelques heures à quelques jours selon les pièces fournies.
+
+**Pour cette étape, exécuter dans l'ordre :**
+
+1. `node scripts/seed-policy-config.js` (s'assurer que les 20 configs PolicyConfig sont en base)
+2. `node scripts/seed-pilot-data.js` (créer les 6 objets pilotes, dont le User DJ Alex et le UserMembership Freemium)
+3. `node scripts/run-j9-pilot.js --step=onboard` (générer le lien Stripe Connect Express pour DJ Alex)
+4. Envoyer le lien à DJ Alex avec instruction claire (carte d'identité, infos bancaires, formulaire fiscal)
+5. `node scripts/run-j9-pilot.js --step=kyc` jusqu'à VERIFIED
+
+Tant que KYC ≠ VERIFIED, **rien d'autre n'avance**. C'est le verrou strict.
+
+### Étape 1.3 — Corrections de code minimales (J-5)
+
+Trois corrections de code seulement, pas plus. Tout le reste sera fait par intervention humaine documentée en Phase 1.
+
+**Correction 1 — Bug `runBase44Id` ligne 78 de SchedulerService.js (5 minutes).**  
+Supprimer la ligne `const runBase44Id = runRecord.id || runBase44Id;` qui contient la référence circulaire. La variable est correctement déclarée sous le nom `runDbId` ligne 86. Si cette ligne n'est pas corrigée, `cron.js` lève une ReferenceError au premier appel en strict mode.
+
+**Correction 2 — Incohérence de nommage `checkInAt` vs `checkedInAt` (10 minutes).**  
+Aligner les deux. La voie la moins coûteuse : renommer dans `SessionPresenceService.create()` pour écrire `checkedInAt`, parce que le guard est plus rigide à modifier que le service. Sans cette correction, même une SessionPresence inscrite manuellement en base sera invisible au guard.
+
+**Correction 3 — 4 interfaces manquantes dans `src/repositories/index.js` (2-3 heures).**  
+Ajouter : `webhookProcessedLogs`, `stripePaymentSignals`, `findByStripeAccountId` dans talentPaymentProfiles, et `upsert` dans talentPaymentProfiles. Sans ces interfaces, **aucun webhook Stripe ne peut transitionner l'état**. C'est la seule correction qui touche la chaîne automatique — donc elle est obligatoire même pour CONTROLLED SUCCESS, parce que `deposit_pending → deposit_secured` doit se faire automatiquement à la réception du paiement (sinon on demande à DJ Alex de payer et on bloque sa transition pendant qu'on insère manuellement en base — c'est inacceptable opérationnellement).
+
+**Aucune autre correction de code en Phase 1.** Tous les autres bloquants seront résolus par intervention humaine documentée.
+
+### Étape 1.4 — Rédaction du Runbook SoloFounderOverride (J-5)
+
+Document opérationnel, pas doctrinal. Pour chaque BLOQUANT identifié, il décrit l'intervention humaine en termes mécaniques : qui, quand, quoi insérer en base, quel AdminIncidentRecord créer, quel DataAccessLedgerEntry produire.
+
+Structure minimale du Runbook :
+
+```
+RUNBOOK SOLOFOUNDEROVERRIDE — EVENT 0A
+─────────────────────────────────────────
+
+OPS-01 : Création SettlementInstruction
+  Quand : juste avant transition payable→settled
+  Quoi : INSERT SettlementInstruction { systemId: STI-*, 
+         engagementId, talentUserId, amountCents, 
+         createdBy: USR-FOUNDER-*, consumed: false }
+  AdminIncidentRecord : type=SOLO_FOUNDER_OVERRIDE, 
+                        severity=INFO, 
+                        reasonCode=MANUAL_SETTLEMENT_INSTRUCTION_CREATION
+  DAL : appendToDataAccessLedger marqueur FOUNDER_SOLO_OVERRIDE
+
+OPS-02 : Création SessionPresence check-in
+  ...
+
+OPS-03 : Création SessionPresence checkout
+  ...
+
+OPS-04 : Assemblage contexte PresenceProofGuard
+  ...
+
+OPS-05 : Bypass SOTS (transition performed→payable directe)
+  ...
+
+OPS-06 : Lancement manuel cron.js
+  ...
+
+OPS-07 : Transition settled→archived avec GoNoGoDecisionRecord
+  ...
+```
+
+Chaque OPS est numéroté, chaque intervention est tracée. Le SoloFounderOverride devient un acteur documenté du système, pas un trou.
+
+### Étape 1.5 — Configuration `stripeWebhook` Base44 (J-3)
+
+Choix entre deux options :
+
+| | Option A — Fonction Base44 | Option B — Proxy autonome |
+|---|---|---|
+| Code | Écrire fonction dans Base44 UI | Déployer `stripe-webhook-proxy/index.js` sur Railway/Render |
+| Time-to-prod | 1 jour | 4 heures |
+| Maintenance | Couplé à Base44 | Indépendant |
+| Coût | 0$ | ~5$/mois |
+
+Recommandation : **Option B (proxy autonome).** Plus rapide, plus portable (cohérent avec D-127), plus testable. Le proxy existe déjà dans le ZIP, il manque le déploiement et la configuration de l'endpoint dans Stripe Dashboard.
+
+### Étape 1.6 — Préparation du déroulé du jour J (J-2)
+
+Document opérationnel d'une page. Heure par heure. Qui fait quoi.
+
+```
+DÉROULÉ JOUR J — SC-01 PIERRE DE ROSETTE
+─────────────────────────────────────────
+
+18:00  Fondateur arrive au Bar Le Trèfle
+       Vérifie : Engagement ENG-* en état placed
+       Si autre état : OPS-?? (à définir selon état observé)
+
+18:30  Trèfle paie le solde via Stripe Checkout
+       Webhook reçu → transition deposit_secured automatique
+       Vérifier en base que la transition a eu lieu
+       Si non : OPS-?? (intervention manuelle)
+
+19:00  Transition deposit_secured → event_sealed
+       (fondateur déclenche manuellement — OPS-08)
+
+20:00  DJ Alex arrive
+       Fondateur insère SessionPresence check-in (OPS-02)
+       Transition event_sealed → performed (OPS-09)
+
+22:00  Fin du set DJ Alex
+       Fondateur insère checkout (OPS-03)
+
+22:30  Assemblage contexte + bypass SOTS (OPS-04, OPS-05)
+       Création SettlementInstruction (OPS-01)
+       Transition performed → payable
+       Transition payable → settled (PayoutExecutor)
+
+23:00  Transition settled → archived (OPS-07)
+       GoNoGoDecisionRecord = GO créé
+       Première transaction complétée ✓
+
+23:30  Champagne / debrief immédiat / capture des frictions
+```
+
+Le déroulé est explicite, pas approximatif. Chaque heure a un acteur, une action, et un plan B (l'OPS-??).
+
+### Étape 1.7 — Le jour J
+
+Exécution du déroulé. Le fondateur a son téléphone, ses scripts, son Runbook, son déroulé.
+
+Critère de succès Phase 1 = **CONTROLLED SUCCESS au sens D-144 :**
+1. DJ Alex reçoit son cachet net sur son compte bancaire
+2. Le ledger est à zéro cent
+3. Tous les ContractSnapshot et LedgerRecord sont en base
+4. Tous les SoloFounderOverride sont tracés via AdminIncidentRecord + DAL
+5. GoNoGoDecisionRecord = GO est créé
+
+Critère d'échec acceptable : si une OPS est manquante du Runbook et qu'une intervention non documentée doit être improvisée. Cela ne disqualifie pas Event 0A — cela alimente la Phase 2.
+
+---
+
+## PHASE 2 — RAFFINER (post-mortem, J+1 à J+14)
+
+La logique build-measure-learn s'active ici. Le terrain a généré des données réelles. On les utilise.
+
+### Étape 2.1 — Post-mortem opérationnel (J+1)
+
+Une seule journée. Document de 5 pages maximum. Trois sections :
+
+**Section 1 — Frictions observées.** Chaque moment où le fondateur a hésité, improvisé, ou été ralenti. Chaque OPS qui s'est avérée mal calibrée. Chaque champ de base qui n'avait pas la forme attendue.
+
+**Section 2 — Bugs révélés.** Les vrais bugs (pas les manques de UI). Ce qui a planté, ce qui a renvoyé null là où on attendait une valeur, ce qui a passé un test unitaire mais échoué en intégration. La liste sera courte si les Évaluateurs A et B ont bien travaillé — elle sera longue s'ils ont manqué des choses, et c'est une information précieuse en soi.
+
+**Section 3 — Décisions doctrinales à prendre.** Tout angle mort INFÉRENCE NON DOCUMENTÉE des fiches A et B qui s'est révélé en pratique. Par exemple : faut-il un DisputeRepository ? Quel champ User correspond aux rôles D-105 ? Le seuil GPS 500m est-il adapté ?
+
+### Étape 2.2 — Roadmap des corrections (J+2)
+
+Le post-mortem produit une liste numérotée et priorisée. Chaque correction est classée selon une grille à deux dimensions :
+
+```
+                 BLOQUE EVENT 0B           NE BLOQUE PAS EVENT 0B
+                 ─────────────────────     ──────────────────────
+EFFORT < 4h   |  PRIORITÉ 1 (immédiat)     PRIORITÉ 3 (back-burner)
+EFFORT > 4h   |  PRIORITÉ 2 (sprint)       PRIORITÉ 4 (V3.1)
+```
+
+La PRIORITÉ 1 contient typiquement les bugs (correction 1-2-3 de la Phase 1 a déjà été faite). La PRIORITÉ 2 contient les manques structurels (UserRepository, CheckpointRepository, SettlementInstructionService, MoneyMovementRouter).
+
+### Étape 2.3 — Exécution PRIORITÉ 1 + 2 (J+3 à J+14)
+
+Deux semaines de sprint focalisé. Pas de fonctionnalité nouvelle. Uniquement des corrections issues du post-mortem.
+
+Livrables minimaux pour clôturer la Phase 2 :
+- `SettlementInstructionService` créé et testé
+- Orchestrateur de contexte PresenceProofGuard implémenté
+- `consolidate()` SOTS appelée automatiquement par SchedulerService
+- Job `seal_event` D-100 créé
+- Calcul GPS Haversine + CheckpointRepository
+- `UserRepository` créé (D-128 complet)
+- Test `AUTH-SYSTEMID-01` créé
+- Toutes les OPS du Runbook qui peuvent être automatisées le sont
+
+À la fin de la Phase 2, le Runbook SoloFounderOverride doit être **réduit de 80%**. Idéalement, il ne reste que les OPS irréductibles (par exemple : déclencher manuellement le payout pour double-vérification fondateur sur les premiers events, ce qui est sain).
+
+---
+
+## PHASE 3 — AUTOMATISER (vers FULL SUCCESS D-144)
+
+Cette phase ne commence que quand la Phase 2 est close. Pas avant. Parce qu'on ne déploie pas un système automatique tant qu'on ne sait pas exactement ce qu'il doit automatiser — et seul Event 0A nous apprend cela.
+
+### Étape 3.1 — Event 0B avec couverture humaine résiduelle (J+15 à J+30)
+
+Deuxième événement réel. Cette fois, le fondateur est présent mais **n'intervient que si une OPS du Runbook réduit se déclenche**. Si la chaîne tourne seule du début à la fin, c'est la **première vraie validation** de la doctrine D-117.
+
+### Étape 3.2 — Déploiement du rail cron externe
+
+Pas plus tôt. Parce qu'avant la Phase 2 close, déployer un cron qui exécute des transitions cassées propage des incidents.
+
+Choix recommandé : Railway scheduled job (cron toutes les 5 minutes). Configuration `railway.toml`, variables d'environnement, monitoring HEARTBEAT externe (cron-job.org gratuit comme watchdog).
+
+### Étape 3.3 — Construction de la couche UX (J+30 à J+60)
+
+L'UX devient pertinente quand la mécanique tourne. Pas avant. Parce que construire une UX sur une chaîne cassée demande de retoucher l'UX à chaque correction de la chaîne — c'est un gaspillage.
+
+Trois pages essentielles, dans l'ordre :
+1. **Page talent** : ventilation D-024 + check-in (bouton "Je suis arrivé") + état payout 5 éléments D-084
+2. **Page payeur** : fonds protégés D-085 + facture 5 lignes D-025
+3. **Dashboard organisateur** : timeline incident D-089 + état du lineup
+
+Stratégie : adapter les pages V1 microrave.ca, ne pas repartir de zéro. Le Plan Implantation §3.1 l'avait déjà identifié comme stratégie correcte.
+
+### Étape 3.4 — Event 1 public (J+60+)
+
+Premier événement sans fondateur sur place. Critère FULL SUCCESS D-144. Si tout fonctionne, la doctrine D-117 est validée empiriquement. C'est le seuil au-delà duquel Micro Rave devient un système institutionnel autonome, plus une opération artisanale.
+
+---
+
+## TABLEAU DE BORD DES PHASES
+
+```
+PHASE              | DURÉE      | LIVRABLE TERMINAL          | CRITÈRE D-144
+───────────────────|────────────|────────────────────────────|──────────────────
+1. PROUVER         | J-7 à J    | Event 0A complété          | CONTROLLED SUCCESS
+2. RAFFINER        | J+1 à J+14 | Runbook réduit de 80%      | (transition)
+3.a Event 0B       | J+15-J+30  | Deuxième event sans OPS    | (validation)
+3.b Rail cron      | parallèle  | Cron déployé externe       | (infrastructure)
+3.c UX             | J+30-J+60  | 3 pages V3 en production   | (interface)
+3.d Event 1        | J+60+      | Premier event public       | FULL SUCCESS
+```
+
+---
+
+## OBSTACLES IMMÉDIATS (PROCHAINES 48 HEURES)
+
+Trois actions à exécuter avant tout le reste, dans l'ordre :
+
+1. **Vérifier KYC DJ Alex dans Stripe Dashboard** (5 min). Si PENDING, lancer l'onboarding immédiatement parce que le délai Stripe est hors du contrôle technique. C'est le seul bloquant qu'aucun code ne peut contourner.
+
+2. **Corriger les 3 bugs de code de l'étape 1.3** (4 heures total). Tant qu'ils ne sont pas corrigés, Event 0A est techniquement impossible. Le bug L.78 est trivial, le nommage checkInAt/checkedInAt aussi, les interfaces index.js demandent 2-3 heures.
+
+3. **Rédiger le Runbook SoloFounderOverride** (4 heures). Le document devient le **livrable institutionnel principal de la Phase 1**. Sans lui, l'intervention humaine est de l'improvisation. Avec lui, l'intervention humaine est une exécution doctrinale.
+
+---
+
+**Ce que cette marche à suivre dit, au fond :**
+
+Frédérik a fait un choix qui change la nature du problème. Avant l'arbitrage, la question était *"quand le système sera-t-il prêt ?"*. C'est une question d'ingénierie sans fin — il y a toujours une finition de plus à faire. Après l'arbitrage, la question devient *"quand DJ Alex sera-t-il payé pour son set au Trèfle ?"*. C'est une question opérationnelle bornée. La réponse est : **dans 7 à 10 jours si KYC est VERIFIED, ou dans 7-10 jours plus le délai KYC sinon**.
+
+L'arbitrage est intelligent parce qu'il reconnaît que la doctrine V3 a été construite avec exactement cette possibilité en tête. D-106 (SoloFounderOverride avec trace), D-144 (CONTROLLED SUCCESS vs FULL SUCCESS), D-117 (premier event réel), D-118 (critères de complétude) : ces décisions n'ont pas été prises pour exclure l'intervention humaine, mais pour l'encadrer institutionnellement. La Phase 1 utilise enfin ces décisions pour ce qu'elles sont — des autorisations doctrinales, pas des contournements.
+
+Le succès n'est plus un horizon mouvant. C'est un calendrier.

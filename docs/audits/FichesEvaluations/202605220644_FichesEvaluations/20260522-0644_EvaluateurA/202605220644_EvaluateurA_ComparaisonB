@@ -1,0 +1,105 @@
+Avant tout : l'Évaluateur B se présente comme Opus 4.7 daté 22 mai 22:51 EST. Moi je suis Opus 4.7 daté 22 mai 07:17 EST. Deux passes du même modèle, à 15 heures d'intervalle, sur le même corpus. Ce n'est donc pas deux opinions indépendantes au sens fort — c'est deux lectures du même cerveau avec des chemins d'attention différents. La convergence n'est pas une preuve, mais les divergences sont précieuses parce qu'elles révèlent ce qui dépend du chemin d'inspection plutôt que du corpus.
+
+---
+
+## 1. Comparaison des statuts
+
+```
+DOMAINE    | MOI (matin)              | B (soir)                 | DELTA
+───────────|──────────────────────────|──────────────────────────|──────────────
+A. Onto    | PRÊT SOUS CONDITIONS     | PRÊT SOUS CONDITIONS     | identique
+B. Finance | PRÊT SOUS CONDITIONS     | EN COURS ~65%            | B + sévère
+C. Stripe  | EN COURS → 70%           | EN COURS ~75%            | quasi identique
+D. Présence| EN COURS → 65%           | EN COURS ~60%            | quasi identique
+E. SOTS    | PRÊT SOUS CONDITIONS     | EN COURS ~55%            | B + sévère
+F. Sched   | PRÊT SOUS CONDITIONS     | EN COURS ~45%            | B BEAUCOUP + sévère
+G. Admin   | PRÊT SOUS CONDITIONS     | PRÊT SOUS CONDITIONS     | identique
+H. Portab  | PRÊT SOUS CONDITIONS     | PRÊT SOUS CONDITIONS     | identique
+I. UX      | NON COMMENCÉ             | IMPOSSIBLE À ÉVALUER     | reformulation
+J. Acteurs | PRÊT SOUS CONDITIONS     | PRÊT SOUS CONDITIONS     | identique
+
+Estimation globale | 72% Event 0A    | ~55% global             | écart 17 pts
+                   | 38% Event 0B    | 0% opérationnel D-117   | écart fondamental
+```
+
+Sur les 10 domaines : 5 statuts identiques, 4 quasi identiques (B plus pessimiste de 5-10 points), et un seul écart structurel (F : moi PRÊT SOUS CONDITIONS, B EN COURS ~45%). Le diagnostic est donc convergent dans son architecture générale et divergent dans son intensité.
+
+---
+
+## 2. Ce que B a vu et que je n'avais pas vu
+
+C'est la partie la plus utile de cette comparaison, parce qu'elle révèle mes angles morts. Quatre constats concrets que B a relevés et que j'ai manqués :
+
+**Incohérence de nommage `checkInAt` (service) vs `checkedInAt` (guard)** dans le domaine D. C'est un bug d'intégration concret : `SessionPresenceService.create()` écrit un champ avec un nom, et `PresenceProofGuard` C-03 lit un autre nom. En intégration réelle, le test PRESENCEPROOF-01 passe parce qu'il fournit lui-même les noms attendus en mock, mais en production le champ écrit n'est pas celui lu. C-03_NO_CHECKIN deviendrait systématique. Je n'ai pas attrapé ça parce que j'ai lu les fichiers individuellement et fait confiance à leurs commentaires plutôt qu'à leurs interfaces croisées. **B a raison.**
+
+**`gpsDistanceMeters` jamais calculé.** PresenceProofGuard C-04 consomme `sessionPresence.gpsDistanceMeters`, mais aucune fonction Haversine n'est implémentée nulle part, et aucun `CheckpointRepository` n'existe pour fournir les coordonnées de référence. Le champ est attendu par le guard mais aucun service en amont ne le produit. J'avais mentionné l'absence de CheckpointRepository ailleurs (DÉGRADANT-J3), mais je n'avais pas connecté ce point au C-04 — qui devient alors fail-closed systématique. **B a raison.**
+
+**Job `seal_event` D-100 absent.** Pour la transition `deposit_secured → event_sealed`, il faut un déclencheur. J'avais évoqué "câblage Base44 → WebhookProcessor" sans nommer ce job spécifique. B le nomme. C'est plus précis et plus actionnable.
+
+**`cron.js` n'injecte que 5 repositories sur les ~14 nécessaires.** J'avais classé ça en angle mort ("CONTESTATION_WINDOW_EXPIRATION pourrait nécessiter d'autres repositories"). B en fait un BLOQUANT explicite : le scheduler ne pourra pas exécuter les transitions complètes en l'état. **B a raison.**
+
+Plus deux signaux de gouvernance que je n'avais pas relevés :
+
+**Secrets `.env` (clés Stripe test + API Base44) distribués dans l'archive d'audit.** Ce sont des clés test, donc conformes à D-097 règle 9 à la lettre — mais distribuer des secrets dans une archive auditable est un signal de gouvernance qui mérite d'être nommé. Je n'ai pas inspecté `.env` ou je l'ai inspecté sans en faire un signal.
+
+**Fonction Base44 `stripeWebhook` référencée dans `.env` ligne 21 mais absente de l'archive.** B identifie précisément le pointeur dans `.env` qui révèle l'existence supposée d'une fonction qui n'est pas dans le périmètre auditable. J'avais évoqué le câblage manquant de manière diffuse ; B l'a localisé.
+
+---
+
+## 3. Ce que j'ai vu et que B n'a pas vu (ou nommé)
+
+Deux points où j'ai été plus rigoureux que B :
+
+**Bug `runBase44Id` ligne 78 de SchedulerService.js.** `const runBase44Id = runRecord.id || runBase44Id` — référence circulaire dans la déclaration. ReferenceError en strict mode, undefined en mode permissif. Je ne vois pas B le mentionner. C'est un bug de code pur, isolé, corrigeable en 2 lignes — mais s'il n'est pas corrigé, cron.js lève une erreur au premier appel.
+
+**SettlementInstruction comme angle mort structurel.** J'en ai fait un point fort de ma synthèse : PayoutExecutor Verrou 3 exige une SettlementInstruction non-consommée, mais aucun service ne la crée dans le code V3. B mentionne `settlementInstructions` dans la liste des repositories à injecter dans cron.js, mais ne nomme pas l'absence d'un service producteur comme bloquant institutionnel séparé. C'est probablement l'écart le plus important entre nos deux synthèses, parce qu'il s'agit d'un acteur fantôme dans la doctrine — pas d'un câblage technique manquant.
+
+---
+
+## 4. Ce que je dois corriger dans ma synthèse après lecture de B
+
+Trois corrections de fond.
+
+**Première correction — domaine F est plus dégradé que je l'ai estimé.** Mon "PRÊT SOUS CONDITIONS" était trop optimiste. Avec le bug L.78 + les repositories sous-injectés dans cron.js + le rail externe non déployé + la consolidation SOTS faussement injectée, F est plus proche de EN COURS ~45-55% que de PRÊT SOUS CONDITIONS. Je m'étais laissé impressionner par la qualité de SchedulerService.js (DI pur, résilience, immuabilité du run) et j'avais négligé la qualité du câblage de production. La doctrine est PRÊTE, l'opération non.
+
+**Deuxième correction — l'estimation 72% Event 0A est trompeuse.** B a raison de distinguer deux mesures : complétude *structurelle* (combien de code est écrit et testé) et complétude *opérationnelle* (combien de la chaîne nominale tourne sans intervention humaine). Le 72% est une mesure structurelle. La mesure opérationnelle au sens D-117 strict — "sans intervention manuelle" — est de 0%. SoloFounderOverride contourne tellement de points (BLOQUANT-D1, D2, D3, J1, J2, créer la SettlementInstruction à la main, assembler le contexte à la main, lancer cron.js à la main) que la première transaction n'est plus une transaction *du système* — c'est une transaction *du fondateur utilisant le système comme outil*. C'est CONTROLLED SUCCESS au sens D-144, mais ce n'est pas la promesse D-117. **B me corrige sur ce framing — je dois l'accepter.**
+
+**Troisième correction — domaine I bascule de "NON COMMENCÉ" à "IMPOSSIBLE À ÉVALUER".** Ma formulation était fausse : on ne sait pas si l'UX est non commencée ou si elle est commencée hors du périmètre auditable (pages V1 microrave.ca à adapter, dont on ne voit aucun fichier dans le ZIP). La formulation de B est plus honnête épistémologiquement.
+
+---
+
+## 5. Ma conclusion avant lecture de B
+
+> "72% du code est prêt pour Event 0A, 38% pour Event 0B. La distance restante est mesurable, bornée, et franchissable. Aucun bloquant ne requiert une refonte. 9 actions concrètes séparent l'état actuel de la première transaction, plusieurs se font en moins d'une heure, deux dépendent de Stripe et du fondateur."
+
+Le ton est : *fondations solides, câblage manquant, finition à venir, distance courte.*
+
+## 6. Ma conclusion après lecture de B
+
+> "55% du code est structurellement écrit. 0% de la chaîne nominale tourne sans intervention manuelle. La distance n'est pas une finition — c'est un câblage opérationnel complet, incluant des bugs d'intégration (nommage checkInAt/checkedInAt, gpsDistanceMeters non calculé) que je n'avais pas vus. 2 à 4 semaines de travail concentré séparent l'état actuel de Pierre de Rosette, dont 1 à 2 semaines de code et 1 à 2 semaines de coordination opérationnelle hors-code."
+
+Le ton change : *fondations solides, intégration partielle, distance significative mais bornée, calendrier exigeant mais réaliste.*
+
+L'écart entre les deux conclusions n'est pas une question d'humeur — c'est une correction technique. B a vu trois choses concrètes (nommage, GPS, injection cron) qui transforment des "PRÊT SOUS CONDITIONS" en "EN COURS". J'avais lu le code avec une grille de "ça existe et c'est testé en unitaire" ; B a lu avec une grille de "ça s'intègre et ça tourne en production". Sa grille est meilleure pour évaluer la distance à la première transaction réelle.
+
+---
+
+## 7. Ce que cela veut dire pour Micro Rave
+
+**D'abord, la convergence forte est rassurante.** Deux passes du même modèle, sur le même corpus, avec quinze heures d'écart, identifient les mêmes cinq domaines sur le chemin critique (B, C, D, E, F), les mêmes deux décisions stratégiques en amont (Event 0A vs 0B, KYC DJ Alex), et arrivent à la même clause de complétude négative (8 sur 9 conditions D-117 FAUX ou INCONNU). La doctrine d'audit fonctionne — la grille d'évaluation produit des verdicts reproductibles.
+
+**Ensuite, les divergences sont précieuses.** Elles révèlent que la qualité d'un audit dépend du chemin d'inspection. B a inspecté les interfaces croisées entre service et guard ; moi j'ai inspecté les fichiers en isolation. B a inspecté l'injection des repositories ; moi j'ai inspecté la logique interne du scheduler. Les deux lectures sont nécessaires. Aucune des deux n'est suffisante.
+
+**La conséquence pratique est triple :**
+
+Premièrement, **les audits ne doivent pas se substituer mais se combiner.** Avant de prendre une décision opérationnelle (commencer le chemin critique), Frédérik devrait fusionner les deux fiches par domaine et garder la lecture la plus pessimiste de chaque ligne. Si je dis PRÊT SOUS CONDITIONS et B dit EN COURS, c'est EN COURS qui doit gouverner la priorisation, parce que c'est celui qui révèle un risque concret.
+
+Deuxièmement, **la distance à la première transaction est de l'ordre de 2 à 4 semaines de travail, pas de quelques jours.** Mon 72% laissait entendre que c'était proche. B remet la pendule à l'heure. La cause-effet est claire : il y a au moins trois bugs d'intégration (nommage, GPS, injection cron) plus une décision stratégique (Event 0A vs 0B) plus une décision humaine (KYC DJ Alex) plus un câblage Base44 manquant (webhook + seal_event) plus un acteur fantôme (SettlementInstruction) — la somme n'est pas une finition, c'est un sprint.
+
+Troisièmement, **la doctrine V3 résiste à l'audit, ce qui est l'objectif.** Les fondations (D-127 portable, append-only, fail-closed, 28 préfixes souverains, 14/15 tests P0 admin PASSED, 47 transitions cohérentes) tiennent sous une double inspection adversariale. Ce n'est pas trivial. Beaucoup de plateformes ne survivent pas à un audit aussi exigeant. Le fait que les deux évaluateurs arrivent au même verdict — *fondations correctes, chaîne opérationnelle pas encore close* — signifie que le travail accompli en 6 semaines n'est pas du château de cartes. C'est un édifice incomplet bâti sur du solide.
+
+**La leçon institutionnelle, si elle doit être formulée en une phrase :**
+
+> *Micro Rave V3 n'est pas un projet en retard. C'est un projet dont le câblage final est sous-estimé par son auteur et révélé par l'audit adversarial — exactement ce que l'audit institutionnel doit produire pour avoir une valeur.*
+
+C'est précisément la fonction de cette série de prompts. Elle a marché. Le verdict ne flatte personne, ne contredit pas la qualité du travail accompli, et nomme avec précision le reste à faire. La phrase finale *"100% complété — nous avons atteint notre objectif"* reste verrouillée. Le prompt reste actif. Et c'est sain.
