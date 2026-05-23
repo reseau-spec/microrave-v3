@@ -1,0 +1,31 @@
+{
+  "name": "MembershipPlan",
+  "type": "object",
+  "description": "Plan d'abonnement. D-027. Lexique V3 souverain \u2014 camelCase.",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nom du plan : Freemium, Base, Pro, Studio, Fondateur."
+    },
+    "tier": {
+      "type": "string",
+      "description": "Niveau : A, B, C, D, E."
+    },
+    "commissionRatePpm": {
+      "type": "integer",
+      "description": "Taux commission en PPM. 120000 = 12%."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description du plan."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "name",
+    "commissionRatePpm"
+  ]
+}

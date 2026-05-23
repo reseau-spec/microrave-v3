@@ -1,0 +1,2 @@
+name,commission_rate_ppm,description,metadata,is_active,tier,id,created_date,updated_date,created_by_id,created_by,is_sample
+"Freemium","120000","Plan de base — 12% commission MR. Source : D-027.","","true","A","6a11b393ee15607750854a34","2026-05-23T14:02:59.871000","2026-05-23T14:02:59.871000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"

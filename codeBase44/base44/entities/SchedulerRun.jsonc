@@ -1,0 +1,38 @@
+{
+  "name": "SchedulerRun",
+  "type": "object",
+  "description": "Ex\u00e9cution du dispatcher cron. D-099/D-107 #13 immuable apr\u00e8s compl\u00e9tion.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory SCH-* (le run est lui-m\u00eame un systemId)."
+    },
+    "startedAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 d\u00e9but."
+    },
+    "completedAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 fin."
+    },
+    "status": {
+      "type": "string",
+      "description": "running, completed."
+    },
+    "tasksProcessed": {
+      "type": "integer",
+      "description": "Nombre t\u00e2ches trait\u00e9es."
+    },
+    "tasksFailed": {
+      "type": "integer",
+      "description": "Nombre t\u00e2ches \u00e9chou\u00e9es."
+    },
+    "nowMs": {
+      "type": "integer",
+      "description": "Timestamp ms du run."
+    }
+  },
+  "required": [
+    "systemId"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "ContractSnapshot",
+  "type": "object",
+  "description": "Snapshot WORM du contrat. Phases 1 (CS1-*) et 2 (CS2-*). D-014.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory CS1-* ou CS2-*."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "phase": {
+      "type": "integer",
+      "description": "1 ou 2."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "systemId",
+    "engagementId",
+    "phase"
+  ]
+}

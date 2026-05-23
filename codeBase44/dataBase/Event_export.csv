@@ -1,0 +1,2 @@
+venue,createdAt,systemId,scheduledStartAt,name,organizerUserId,status,id,created_date,updated_date,created_by_id,created_by,is_sample
+"Bar Le Trèfle, Montréal","2026-05-23T14:46:08.436Z","EVT-MPIGOBK2-C0RXZ5","2026-05-30T14:46:08.436Z","SC-01 Pilote — Bar Le Trèfle","USR-MPIGOAKA-S5NIIG","draft","6a11bdb091daac1d99bb1aae","2026-05-23T14:46:08.293000","2026-05-23T14:46:08.293000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"

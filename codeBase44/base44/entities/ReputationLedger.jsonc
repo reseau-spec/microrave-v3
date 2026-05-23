@@ -1,0 +1,36 @@
+{
+  "name": "ReputationLedger",
+  "type": "object",
+  "description": "Entr\u00e9e r\u00e9putation append-only. D-077/D-107 #2.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory REP-*."
+    },
+    "userId": {
+      "type": "string",
+      "description": "USR-* du talent not\u00e9."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "entryType": {
+      "type": "string",
+      "description": "SOTS_SCORE, REVERSAL, etc."
+    },
+    "scoreValue": {
+      "type": "number",
+      "description": "Valeur num\u00e9rique du score."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "systemId",
+    "userId",
+    "engagementId"
+  ]
+}

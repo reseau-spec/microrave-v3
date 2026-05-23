@@ -1,0 +1,36 @@
+{
+  "name": "MissionSlot",
+  "type": "object",
+  "description": "Slot dans un Lineup. D-016.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory MSL-*."
+    },
+    "lineupId": {
+      "type": "string",
+      "description": "LBY-*."
+    },
+    "talentUserId": {
+      "type": "string",
+      "description": "USR-*."
+    },
+    "roleMetier": {
+      "type": "string",
+      "description": "DJ, photographe, MC, etc."
+    },
+    "status": {
+      "type": "string",
+      "description": "proposed, accepted, etc."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "systemId",
+    "lineupId",
+    "roleMetier"
+  ]
+}

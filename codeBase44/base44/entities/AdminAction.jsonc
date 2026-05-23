@@ -1,0 +1,39 @@
+{
+  "name": "AdminAction",
+  "type": "object",
+  "description": "Action administrative trac\u00e9e. D-107 #8 append-only.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory ADM-*."
+    },
+    "actorUserId": {
+      "type": "string",
+      "description": "USR-* de l'admin."
+    },
+    "actionType": {
+      "type": "string",
+      "description": "MANUAL_ACCEPTANCE, SOLO_FOUNDER_OVERRIDE, etc."
+    },
+    "reasonCode": {
+      "type": "string",
+      "description": "Code raison normalis\u00e9."
+    },
+    "targetId": {
+      "type": "string",
+      "description": "ID de l'entit\u00e9 cible."
+    },
+    "detail": {
+      "type": "object",
+      "description": "D\u00e9tails suppl\u00e9mentaires JSON."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "actorUserId",
+    "actionType"
+  ]
+}

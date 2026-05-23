@@ -1,0 +1,31 @@
+{
+  "name": "SOTSScoreSnapshot",
+  "type": "object",
+  "description": "Snapshot consolid\u00e9 WORM Moment 5. D-077.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory SOT-*."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "aggregatedScore": {
+      "type": "number",
+      "description": "Score agr\u00e9g\u00e9."
+    },
+    "submissionCount": {
+      "type": "integer",
+      "description": "Nombre de soumissions."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "systemId",
+    "engagementId"
+  ]
+}

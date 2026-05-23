@@ -1,7 +1,7 @@
 {
-  "name": "PayoutExecutionRecord",
+  "name": "EventPaymentRequest",
   "type": "object",
-  "description": "Record payout ex\u00e9cut\u00e9. Verrou 2 idempotency. D-101.",
+  "description": "PaymentIntent Stripe associ\u00e9 \u00e0 un Engagement.",
   "properties": {
     "systemId": {
       "type": "string",
@@ -11,29 +11,21 @@
       "type": "string",
       "description": "ENG-*."
     },
-    "talentUserId": {
+    "stripePaymentIntentId": {
       "type": "string",
-      "description": "USR-*."
-    },
-    "stripeTransferId": {
-      "type": "string",
-      "description": "tr_* Stripe."
+      "description": "pi_* Stripe."
     },
     "amountCents": {
       "type": "integer",
       "description": "Montant en cents."
     },
-    "currency": {
+    "phase": {
       "type": "string",
-      "description": "cad."
+      "description": "deposit ou balance."
     },
-    "executedAt": {
+    "status": {
       "type": "string",
-      "description": "Timestamp ex\u00e9cution."
-    },
-    "verrouxPassed": {
-      "type": "array",
-      "description": "Liste des verrous pass\u00e9s."
+      "description": "pending, succeeded, failed."
     },
     "createdAt": {
       "type": "string",
@@ -42,7 +34,6 @@
   },
   "required": [
     "engagementId",
-    "talentUserId",
     "amountCents"
   ]
 }

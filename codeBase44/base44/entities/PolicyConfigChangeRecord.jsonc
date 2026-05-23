@@ -1,0 +1,39 @@
+{
+  "name": "PolicyConfigChangeRecord",
+  "type": "object",
+  "description": "Trace de modification PolicyConfig. D-108.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory."
+    },
+    "configKey": {
+      "type": "string",
+      "description": "Cl\u00e9 config modifi\u00e9e."
+    },
+    "changedBy": {
+      "type": "string",
+      "description": "USR-* de l'auteur."
+    },
+    "adminActionId": {
+      "type": "string",
+      "description": "ID AdminAction associ\u00e9e."
+    },
+    "oldValue": {
+      "type": "string",
+      "description": "Ancienne valeur."
+    },
+    "newValue": {
+      "type": "string",
+      "description": "Nouvelle valeur."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "configKey",
+    "changedBy"
+  ]
+}

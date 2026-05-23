@@ -1,0 +1,47 @@
+{
+  "name": "SessionPresence",
+  "type": "object",
+  "description": "Pr\u00e9sence talent sur le lieu. D-093/D-075. Bouton 'Je suis arriv\u00e9'.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory SPR-*."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "talentUserId": {
+      "type": "string",
+      "description": "USR-* du talent."
+    },
+    "checkInAt": {
+      "type": "integer",
+      "description": "Timestamp ms check-in."
+    },
+    "checkOutAt": {
+      "type": "string",
+      "description": "Timestamp ISO checkout (null si pas encore)."
+    },
+    "gpsCoordinates": {
+      "type": "object",
+      "description": "{ lat, lng, accuracyMeters }."
+    },
+    "signalTypes": {
+      "type": "array",
+      "description": "['GPS', 'WIFI', 'MANUAL']."
+    },
+    "finalDurationMinutes": {
+      "type": "integer",
+      "description": "Dur\u00e9e finale en minutes (apr\u00e8s checkout)."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "engagementId",
+    "talentUserId"
+  ]
+}

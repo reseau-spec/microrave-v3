@@ -1,0 +1,27 @@
+{
+  "name": "RoundingReconciliationRecord",
+  "type": "object",
+  "description": "Record d'arrondi D-070.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "roundingCents": {
+      "type": "integer",
+      "description": "R\u00e9sidu d'arrondi en cents."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "engagementId",
+    "roundingCents"
+  ]
+}

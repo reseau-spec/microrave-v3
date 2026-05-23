@@ -1,0 +1,52 @@
+{
+  "name": "SchedulerDueTask",
+  "type": "object",
+  "description": "T\u00e2che planifi\u00e9e. D-099. Le cron r\u00e9veille, la t\u00e2che dit quoi faire.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory SCH-*."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "taskType": {
+      "type": "string",
+      "description": "BALANCE_DEADLINE_CHECK, SOTS_WINDOW_EXPIRATION, CONTESTATION_WINDOW_EXPIRATION."
+    },
+    "dueAt": {
+      "type": "integer",
+      "description": "Timestamp Unix ms \u00e9ch\u00e9ance."
+    },
+    "status": {
+      "type": "string",
+      "description": "pending, processing, done, failed, cancelled."
+    },
+    "lockedByRunId": {
+      "type": "string",
+      "description": "SCH-* du run qui a verrouill\u00e9 cette t\u00e2che."
+    },
+    "attemptCount": {
+      "type": "integer",
+      "description": "Nombre de tentatives."
+    },
+    "contextOverrides": {
+      "type": "object",
+      "description": "JSON context pour la transition."
+    },
+    "cancelReason": {
+      "type": "string",
+      "description": "Raison annulation."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "engagementId",
+    "taskType",
+    "dueAt"
+  ]
+}

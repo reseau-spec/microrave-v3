@@ -1,0 +1,27 @@
+{
+  "name": "Lineup",
+  "type": "object",
+  "description": "Lineup d'un \u00e9v\u00e9nement. D-016.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory LBY-*."
+    },
+    "eventId": {
+      "type": "string",
+      "description": "EVT-*."
+    },
+    "status": {
+      "type": "string",
+      "description": "draft, confirmed, etc."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "systemId",
+    "eventId"
+  ]
+}

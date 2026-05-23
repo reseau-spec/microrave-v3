@@ -1,0 +1,2 @@
+consumed,stripeTransferId,createdAt,systemId,amountCents,talentUserId,decisionRecordId,currency,type,consumedAt,engagementId,id,created_date,updated_date,created_by_id,created_by,is_sample
+"","tr_1TaHDt2eLVUrCnnJyDflLNEa","2026-05-23T15:00:48.074Z","","26400","USR-MPIG0A0O-9CZ5JA","","cad","PAYOUT","2026-05-23T15:22:02.081Z","ENG-MPIG0BUZ-N084HN","6a11c11f5bec82d61059ca94","2026-05-23T15:00:47.956000","2026-05-23T15:22:02.997000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"

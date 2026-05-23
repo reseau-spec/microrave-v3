@@ -1,0 +1,48 @@
+{
+  "name": "SOTSSubmission",
+  "type": "object",
+  "description": "Soumission de note SOTS. D-077/D-094 pattern 6.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory SOT-*."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "submittedBy": {
+      "type": "string",
+      "description": "USR-* du noteur."
+    },
+    "talentUserId": {
+      "type": "string",
+      "description": "USR-* du talent not\u00e9."
+    },
+    "role": {
+      "type": "string",
+      "description": "R\u00f4le du noteur : talent, organisateur, vendeur."
+    },
+    "scores": {
+      "type": "object",
+      "description": "JSON scores par dimension."
+    },
+    "consolidated": {
+      "type": "boolean",
+      "description": "true apr\u00e8s consolidation."
+    },
+    "consolidatedAt": {
+      "type": "string",
+      "description": "Timestamp consolidation."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "systemId",
+    "engagementId",
+    "submittedBy"
+  ]
+}

@@ -1,71 +1,39 @@
 {
   "name": "WebhookProcessedLog",
   "type": "object",
-  "description": "Journal d'idempotence des webhooks re\u00e7us. Emp\u00eache le double traitement. Chaque webhook entrant est logg\u00e9 ici avant traitement. Source : OS V10 section 10.1.",
+  "description": "Log webhook Stripe idempotent. D-097 r\u00e8gle 7.",
   "properties": {
-    "provider": {
+    "stripeEventId": {
       "type": "string",
-      "enum": [
-        "STRIPE",
-        "INTERNAL"
-      ],
-      "description": "Source du webhook. STRIPE = \u00e9v\u00e9nement Stripe, INTERNAL = \u00e9v\u00e9nement syst\u00e8me."
+      "description": "evt_* Stripe \u2014 cl\u00e9 d'idempotency."
     },
-    "event_id": {
+    "eventType": {
       "type": "string",
-      "description": "ID unique de l'\u00e9v\u00e9nement fourni par le provider. Cl\u00e9 d'idempotence. Ex: evt_1234567890 pour Stripe."
+      "description": "payment_intent.succeeded, account.updated, etc."
     },
-    "event_type": {
+    "receivedAt": {
       "type": "string",
-      "description": "Type de l'\u00e9v\u00e9nement. Ex: payment_intent.succeeded, transfer.created."
+      "description": "Timestamp r\u00e9ception."
     },
-    "status": {
+    "processingStatus": {
       "type": "string",
-      "enum": [
-        "RECEIVED",
-        "PROCESSING",
-        "PROCESSED",
-        "FAILED",
-        "SKIPPED"
-      ],
-      "default": "RECEIVED",
-      "description": "Statut du traitement. SKIPPED = d\u00e9j\u00e0 trait\u00e9 (idempotence). FAILED = erreur de traitement."
+      "description": "IN_PROGRESS, COMPLETED."
     },
-    "processing_attempts": {
-      "type": "integer",
-      "default": 0,
-      "description": "Nombre de tentatives de traitement. > 1 = retry."
-    },
-    "received_at": {
+    "completedAt": {
       "type": "string",
-      "format": "date-time",
-      "description": "Date/heure de r\u00e9ception du webhook."
+      "description": "Timestamp compl\u00e9tion."
     },
-    "processed_at": {
+    "action": {
       "type": "string",
-      "format": "date-time",
-      "description": "Date/heure de traitement r\u00e9ussi. Null si non trait\u00e9."
+      "description": "Action prise par le dispatcher."
     },
-    "error_message": {
+    "createdAt": {
       "type": "string",
-      "description": "Message d'erreur si status = FAILED."
-    },
-    "raw_payload": {
-      "type": "object",
-      "description": "Payload brut du webhook (JSON). Conserv\u00e9 pour debug et audit."
-    },
-    "related_entity_type": {
-      "type": "string",
-      "description": "Type de l'entit\u00e9 cr\u00e9\u00e9e ou modifi\u00e9e par ce webhook. Ex: PayoutExecutionRecord."
-    },
-    "related_entity_id": {
-      "type": "string",
-      "description": "ID de l'entit\u00e9 cr\u00e9\u00e9e ou modifi\u00e9e par ce webhook."
+      "description": "Timestamp ISO 8601."
     }
   },
   "required": [
-    "provider",
-    "event_id",
-    "event_type"
+    "stripeEventId",
+    "eventType"
   ]
 }

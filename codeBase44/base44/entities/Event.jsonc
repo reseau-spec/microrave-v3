@@ -1,103 +1,40 @@
 {
   "name": "Event",
   "type": "object",
-  "description": "\u00c9v\u00e9nement organis\u00e9 sur la plateforme Micro Rave V3. Contient les informations logistiques et financi\u00e8res de l'\u00e9v\u00e9nement. Source : OS V10 section 5.3.",
+  "description": "\u00c9v\u00e9nement Micro Rave V3. D-016. Lexique V3 souverain.",
   "properties": {
-    "organizer_id": {
+    "systemId": {
       "type": "string",
-      "description": "R\u00e9f\u00e9rence vers l'organisateur (User.id)."
+      "description": "IDFactory EVT-*."
     },
-    "title": {
+    "organizerUserId": {
       "type": "string",
-      "description": "Titre de l'\u00e9v\u00e9nement."
+      "description": "USR-* de l'organisateur."
     },
-    "description": {
+    "name": {
       "type": "string",
-      "description": "Description d\u00e9taill\u00e9e de l'\u00e9v\u00e9nement."
+      "description": "Nom de l'\u00e9v\u00e9nement."
+    },
+    "venue": {
+      "type": "string",
+      "description": "Lieu de l'\u00e9v\u00e9nement."
+    },
+    "scheduledStartAt": {
+      "type": "string",
+      "description": "Date/heure pr\u00e9vue ISO 8601."
     },
     "status": {
       "type": "string",
-      "enum": [
-        "DRAFT",
-        "PUBLISHED",
-        "CANCELLED",
-        "COMPLETED"
-      ],
-      "default": "DRAFT",
-      "description": "Statut de publication de l'\u00e9v\u00e9nement."
+      "description": "draft, published, cancelled, completed."
     },
-    "event_type": {
+    "createdAt": {
       "type": "string",
-      "enum": [
-        "MICRO_RAVE",
-        "CONCERT",
-        "WORKSHOP",
-        "PRIVATE",
-        "OTHER"
-      ],
-      "description": "Type d'\u00e9v\u00e9nement."
-    },
-    "venue_name": {
-      "type": "string",
-      "description": "Nom du lieu."
-    },
-    "venue_address": {
-      "type": "string",
-      "description": "Adresse compl\u00e8te du lieu."
-    },
-    "city": {
-      "type": "string",
-      "description": "Ville de l'\u00e9v\u00e9nement."
-    },
-    "province": {
-      "type": "string",
-      "description": "Province canadienne. Ex: QC, ON."
-    },
-    "starts_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Date et heure de d\u00e9but de l'\u00e9v\u00e9nement."
-    },
-    "ends_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Date et heure de fin de l'\u00e9v\u00e9nement."
-    },
-    "capacity": {
-      "type": "integer",
-      "description": "Capacit\u00e9 maximale d'accueil."
-    },
-    "ticket_price_cents": {
-      "type": "integer",
-      "description": "Prix du billet en cents CAD. Ex: 2500 = 25,00$."
-    },
-    "currency": {
-      "type": "string",
-      "default": "CAD",
-      "description": "Devise de l'\u00e9v\u00e9nement."
-    },
-    "is_private": {
-      "type": "boolean",
-      "default": false,
-      "description": "\u00c9v\u00e9nement priv\u00e9 (sur invitation uniquement)."
-    },
-    "published_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Date/heure de publication. Null si DRAFT."
-    },
-    "cancelled_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Date/heure d'annulation. Null si non annul\u00e9."
-    },
-    "metadata": {
-      "type": "object",
-      "description": "Donn\u00e9es suppl\u00e9mentaires arbitraires (JSON)."
+      "description": "Timestamp ISO 8601."
     }
   },
   "required": [
-    "organizer_id",
-    "title"
+    "systemId",
+    "organizerUserId",
+    "name"
   ]
 }

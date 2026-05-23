@@ -1,84 +1,57 @@
 {
   "name": "LedgerRecord",
   "type": "object",
-  "description": "Entr\u00e9e comptable immuable du grand livre. Chaque mouvement financier g\u00e9n\u00e8re une entr\u00e9e. Append-only \u2014 aucune modification autoris\u00e9e. Source : OS V10 section 8.1.",
+  "description": "\u00c9criture comptable append-only. LOI LEDGER-02. D-038.",
   "properties": {
-    "entry_type": {
+    "systemId": {
       "type": "string",
-      "enum": [
-        "PLATFORM_FEE_COLLECTED",
-        "TALENT_PAYOUT_INITIATED",
-        "TALENT_PAYOUT_SUCCEEDED",
-        "TALENT_PAYOUT_FAILED",
-        "TAX_COLLECTED",
-        "REFUND_ISSUED",
-        "DISPUTE_DEBIT",
-        "ADJUSTMENT"
-      ],
-      "description": "Type d'entr\u00e9e comptable. Source : OS V10 section 8.2 \u2014 classification des mouvements."
+      "description": "IDFactory LDG-*."
     },
-    "amount_cents": {
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-*."
+    },
+    "type": {
+      "type": "string",
+      "description": "Type d'\u00e9criture : deposit_secured, payout_executed, etc."
+    },
+    "talentUserId": {
+      "type": "string",
+      "description": "USR-* du talent."
+    },
+    "amountCents": {
       "type": "integer",
-      "description": "Montant en cents CAD. Toujours positif \u2014 le signe est d\u00e9termin\u00e9 par entry_type et direction."
+      "description": "Montant en cents."
     },
-    "currency": {
+    "account": {
       "type": "string",
-      "default": "CAD",
-      "description": "Devise de l'entr\u00e9e."
+      "description": "Code comptable LedgerCodeMap V3."
     },
     "direction": {
       "type": "string",
-      "enum": [
-        "DEBIT",
-        "CREDIT"
-      ],
-      "description": "Sens du mouvement comptable. DEBIT = sortie de fonds, CREDIT = entr\u00e9e."
+      "description": "DEBIT ou CREDIT."
     },
-    "reference_type": {
+    "stripeTransferId": {
       "type": "string",
-      "enum": [
-        "Engagement",
-        "SettlementInstruction",
-        "PayoutExecutionRecord",
-        "StripePaymentSignal"
-      ],
-      "description": "Type de l'entit\u00e9 source de ce mouvement."
+      "description": "ID Transfer Stripe si applicable."
     },
-    "reference_id": {
+    "executedAt": {
       "type": "string",
-      "description": "ID de l'entit\u00e9 source (selon reference_type)."
+      "description": "Timestamp ex\u00e9cution."
     },
-    "engagement_id": {
+    "note": {
       "type": "string",
-      "description": "R\u00e9f\u00e9rence vers Engagement.id (d\u00e9normalis\u00e9 pour requ\u00eates)."
+      "description": "Note libre."
     },
-    "talent_id": {
+    "createdAt": {
       "type": "string",
-      "description": "R\u00e9f\u00e9rence vers le talent concern\u00e9 (User.id, d\u00e9normalis\u00e9)."
-    },
-    "balance_after_cents": {
-      "type": "integer",
-      "description": "Solde cumulatif de la plateforme apr\u00e8s cette entr\u00e9e (si applicable)."
-    },
-    "description": {
-      "type": "string",
-      "description": "Description lisible de l'entr\u00e9e comptable."
-    },
-    "recorded_at": {
-      "type": "string",
-      "format": "date-time",
-      "description": "Date/heure d'enregistrement. Doit \u00eatre l'heure r\u00e9elle du mouvement."
-    },
-    "recorded_by": {
-      "type": "string",
-      "description": "Email ou identifiant du syst\u00e8me ayant g\u00e9n\u00e9r\u00e9 l'entr\u00e9e."
+      "description": "Timestamp ISO 8601."
     }
   },
   "required": [
-    "entry_type",
-    "amount_cents",
-    "direction",
-    "reference_type",
-    "reference_id"
+    "engagementId",
+    "type",
+    "amountCents",
+    "direction"
   ]
 }

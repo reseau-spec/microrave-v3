@@ -1,0 +1,35 @@
+{
+  "name": "UserMembership",
+  "type": "object",
+  "description": "Liaison User \u2194 MembershipPlan. Lexique V3 souverain.",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "USR-* du talent."
+    },
+    "planId": {
+      "type": "string",
+      "description": "ID Base44 du MembershipPlan."
+    },
+    "status": {
+      "type": "string",
+      "description": "active | inactive | cancelled."
+    },
+    "commissionRatePpm": {
+      "type": "integer",
+      "description": "PPM d\u00e9normalis\u00e9 depuis le plan."
+    },
+    "startedAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "userId",
+    "planId"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "DataAccessLedgerEntry",
+  "type": "object",
+  "description": "Journal d'audit. LOI GREFFIER-01. D-107 #9/#12.",
+  "properties": {
+    "actorUserId": {
+      "type": "string",
+      "description": "USR-* de l'acteur."
+    },
+    "actorRole": {
+      "type": "string",
+      "description": "SYSTEM, FOUNDER, admin, etc."
+    },
+    "targetObjectType": {
+      "type": "string",
+      "description": "Engagement, PolicyConfig, etc."
+    },
+    "targetObjectId": {
+      "type": "string",
+      "description": "ID de l'objet cibl\u00e9."
+    },
+    "accessType": {
+      "type": "string",
+      "description": "TRANSITION, READ, WRITE, OVERRIDE."
+    },
+    "justification": {
+      "type": "string",
+      "description": "Raison / transitionKey."
+    },
+    "transitionKey": {
+      "type": "string",
+      "description": "proposed->accepted, etc."
+    },
+    "guardApplied": {
+      "type": "string",
+      "description": "Nom du guard ex\u00e9cut\u00e9."
+    },
+    "wormLevel": {
+      "type": "string",
+      "description": "W1, W2, W3, NONE."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "actorUserId",
+    "accessType"
+  ]
+}

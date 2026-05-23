@@ -1,0 +1,30 @@
+{
+  "name": "User",
+  "type": "object",
+  "description": "Utilisateur Micro Rave V3 \u2014 talent, organisateur, payeur, admin. Lexique V3 souverain.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory USR-* \u2014 identifiant souverain immuable."
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Nom d'affichage UX."
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "talent",
+        "organisateur",
+        "payeur",
+        "admin",
+        "FOUNDER"
+      ],
+      "description": "R\u00f4le principal."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 de cr\u00e9ation."
+    }
+  }
+}

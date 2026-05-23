@@ -1,0 +1,43 @@
+{
+  "name": "AdminIncidentRecord",
+  "type": "object",
+  "description": "Incident administratif. D-107 #14 append-only.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory."
+    },
+    "incidentType": {
+      "type": "string",
+      "description": "SCHEDULER_TASK_FAILED, DAL_WRITE_FAILED, etc."
+    },
+    "severity": {
+      "type": "string",
+      "description": "P0, P1, P2."
+    },
+    "engagementId": {
+      "type": "string",
+      "description": "ENG-* si applicable."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description de l'incident."
+    },
+    "context": {
+      "type": "object",
+      "description": "Contexte JSON."
+    },
+    "resolvedAt": {
+      "type": "string",
+      "description": "null \u00e0 la cr\u00e9ation."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601."
+    }
+  },
+  "required": [
+    "incidentType",
+    "severity"
+  ]
+}
