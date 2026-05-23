@@ -39,20 +39,20 @@ function buildHeaders() {
   return { 'Content-Type': 'application/json', 'api_key': apiKey };
 }
 
-async function get(path) {
-  const res = await fetch(`${BASE44_BASE_URL}${path}`, { headers: buildHeaders() });
+async function get(apiPath) {
+  const res = await fetch(`${BASE44_BASE_URL}${apiPath}`, { headers: buildHeaders() });
   if (!res.ok) return null;
   const json = await res.json();
   return Array.isArray(json) ? json : (json.data || json);
 }
 
-async function post(path, data) {
-  const res = await fetch(`${BASE44_BASE_URL}${path}`, {
+async function post(apiPath, data) {
+  const res = await fetch(`${BASE44_BASE_URL}${apiPath}`, {
     method: 'POST', headers: buildHeaders(), body: JSON.stringify(data),
   });
   if (!res.ok) {
     const b = await res.text().catch(() => '');
-    throw new Error(`BASE44_HTTP_${res.status}: POST ${path} — ${b}`);
+    throw new Error(`BASE44_HTTP_${res.status}: POST ${apiPath} — ${b}`);
   }
   return res.json();
 }
