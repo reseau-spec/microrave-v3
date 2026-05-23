@@ -1,0 +1,46 @@
+{
+  "name": "PolicyConfig",
+  "type": "object",
+  "description": "Table de configuration souveraine Micro Rave V3. Source : OS V10 section 4.5 \u2014 aucune constante financi\u00e8re dans le code. Toute valeur absente = erreur bloquante (fail-closed).",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Cl\u00e9 unique de configuration. Format snake_case. Immuable apr\u00e8s cr\u00e9ation. Ex: tps_ppm, stripe_fixe_cents."
+    },
+    "value": {
+      "type": "string",
+      "description": "Valeur de la configuration. Toujours stock\u00e9e en string \u2014 le resolver la parse selon value_type."
+    },
+    "value_type": {
+      "type": "string",
+      "enum": [
+        "PPM",
+        "CENTS",
+        "ENUM",
+        "STRING",
+        "BOOLEAN",
+        "JSON",
+        "URL",
+        "NUMBER"
+      ],
+      "description": "Type de la valeur. PPM = parts par million (taux). CENTS = montant entier en cents CAD. ENUM = valeur d'une liste d\u00e9finie. STRING = texte. Source : OS V10 section 3.2 standard num\u00e9rique invariant."
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "CRITIQUE",
+        "ELEVE",
+        "STANDARD",
+        "OPERATIONNEL"
+      ],
+      "description": "Niveau de criticit\u00e9 selon OS V10 section 9.6. CRITIQUE = double validation requise (TaxConfig, LedgerCodeMap, MembershipPlan). ELEVE = PresencePolicyConfig, KYCPolicyConfig. STANDARD = EventPaymentConfig, DisputePolicyConfig. OPERATIONNEL = SchedulerCreditBudget, SOTSCalculationPolicyConfig."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description lisible par un humain. Doit expliquer l'impact m\u00e9tier de la valeur, pas seulement son nom."
+    }
+  },
+  "required": [
+    "key"
+  ]
+}

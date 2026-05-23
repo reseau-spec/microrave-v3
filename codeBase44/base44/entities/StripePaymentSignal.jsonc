@@ -1,0 +1,92 @@
+{
+  "name": "StripePaymentSignal",
+  "type": "object",
+  "description": "Signal de paiement Stripe normalis\u00e9. Repr\u00e9sente un \u00e9v\u00e9nement Stripe traduit en signal m\u00e9tier Micro Rave. Cr\u00e9\u00e9 par le webhook handler. Source : OS V10 section 10.2.",
+  "properties": {
+    "webhook_log_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers WebhookProcessedLog.id. Tra\u00e7abilit\u00e9 obligatoire."
+    },
+    "stripe_event_id": {
+      "type": "string",
+      "description": "ID de l'\u00e9v\u00e9nement Stripe original. Ex: evt_1234567890."
+    },
+    "stripe_object_id": {
+      "type": "string",
+      "description": "ID de l'objet Stripe concern\u00e9. Ex: pi_1234 (PaymentIntent), tr_1234 (Transfer)."
+    },
+    "stripe_object_type": {
+      "type": "string",
+      "enum": [
+        "payment_intent",
+        "transfer",
+        "payout",
+        "charge",
+        "refund",
+        "dispute"
+      ],
+      "description": "Type d'objet Stripe."
+    },
+    "signal_type": {
+      "type": "string",
+      "enum": [
+        "PAYMENT_SUCCEEDED",
+        "PAYMENT_FAILED",
+        "PAYMENT_CANCELLED",
+        "TRANSFER_CREATED",
+        "TRANSFER_REVERSED",
+        "PAYOUT_PAID",
+        "PAYOUT_FAILED",
+        "DISPUTE_CREATED",
+        "DISPUTE_CLOSED",
+        "REFUND_CREATED"
+      ],
+      "description": "Type de signal m\u00e9tier normalis\u00e9. Source : OS V10 section 10.3."
+    },
+    "amount_cents": {
+      "type": "integer",
+      "description": "Montant en cents CAD de l'\u00e9v\u00e9nement."
+    },
+    "currency": {
+      "type": "string",
+      "default": "CAD",
+      "description": "Devise du signal."
+    },
+    "engagement_id": {
+      "type": "string",
+      "description": "Engagement associ\u00e9 si r\u00e9solu depuis les metadata Stripe."
+    },
+    "talent_id": {
+      "type": "string",
+      "description": "Talent concern\u00e9 si r\u00e9solu depuis les metadata Stripe."
+    },
+    "stripe_account_id": {
+      "type": "string",
+      "description": "Compte Stripe Connect concern\u00e9 (si transfer ou payout)."
+    },
+    "processed": {
+      "type": "boolean",
+      "default": false,
+      "description": "True si ce signal a d\u00e9j\u00e0 d\u00e9clench\u00e9 une action m\u00e9tier."
+    },
+    "processed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de traitement m\u00e9tier. Null si non trait\u00e9."
+    },
+    "stripe_created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de cr\u00e9ation de l'\u00e9v\u00e9nement c\u00f4t\u00e9 Stripe."
+    },
+    "raw_stripe_object": {
+      "type": "object",
+      "description": "Objet Stripe brut (JSON). Conserv\u00e9 pour audit et debug."
+    }
+  },
+  "required": [
+    "stripe_event_id",
+    "stripe_object_type",
+    "signal_type"
+  ]
+}

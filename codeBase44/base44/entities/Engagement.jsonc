@@ -1,0 +1,95 @@
+{
+  "name": "Engagement",
+  "type": "object",
+  "description": "Contrat de prestation entre un talent et un organisateur d'\u00e9v\u00e9nement. Unit\u00e9 de facturation centrale. Source : OS V10 section 5.2.",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers l'\u00e9v\u00e9nement (Event.id)."
+    },
+    "talent_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers le talent (User.id)."
+    },
+    "organizer_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers l'organisateur (User.id)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "DRAFT",
+        "CONFIRMED",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "CANCELLED",
+        "DISPUTED"
+      ],
+      "default": "DRAFT",
+      "description": "Statut du cycle de vie de l'engagement."
+    },
+    "fee_cents": {
+      "type": "integer",
+      "description": "Montant brut de la prestation en cents CAD. Ex: 50000 = 500,00$."
+    },
+    "platform_fee_cents": {
+      "type": "integer",
+      "description": "Commission plateforme en cents CAD. Calcul\u00e9e selon PolicyConfig.platform_fee_ppm."
+    },
+    "tps_cents": {
+      "type": "integer",
+      "description": "Montant TPS en cents CAD. Calcul\u00e9 selon PolicyConfig.tps_ppm."
+    },
+    "tvq_cents": {
+      "type": "integer",
+      "description": "Montant TVQ en cents CAD. Calcul\u00e9 selon PolicyConfig.tvq_ppm."
+    },
+    "net_talent_cents": {
+      "type": "integer",
+      "description": "Montant net vers\u00e9 au talent apr\u00e8s d\u00e9ductions. En cents CAD."
+    },
+    "currency": {
+      "type": "string",
+      "default": "CAD",
+      "description": "Devise de l'engagement."
+    },
+    "start_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de d\u00e9but de la prestation."
+    },
+    "end_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de fin de la prestation."
+    },
+    "confirmed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de confirmation de l'engagement."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de compl\u00e9tion de l'engagement."
+    },
+    "cancelled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure d'annulation. Null si non annul\u00e9."
+    },
+    "cancellation_reason": {
+      "type": "string",
+      "description": "Raison de l'annulation. Obligatoire si status = CANCELLED."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes internes sur l'engagement."
+    }
+  },
+  "required": [
+    "event_id",
+    "talent_id",
+    "organizer_id"
+  ]
+}

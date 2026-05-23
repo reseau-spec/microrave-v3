@@ -1,0 +1,2 @@
+kyc_status,kyc_verified_at,metadata,payout_schedule,stripe_account_id,stripe_account_status,default_currency,talent_id,id,created_date,updated_date,created_by_id,created_by,is_sample
+"VERIFIED","2026-05-22T00:19:00.000Z","","MANUAL","cus_UYoP24Lpf11APC","PENDING","CAD","USR-XXXXXXXX-XXXX","6a0fa074cea9ee12ce2a55dd","2026-05-22T00:16:52.046000","2026-05-22T00:24:30.689000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"

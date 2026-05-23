@@ -99,6 +99,7 @@ async function main() {
   } else {
     djAlex = await post('/entities/User', {
       systemId:    ids.talentUserId,
+      full_name:   'DJ Alex',
       role:        'talent',
       displayName: 'DJ Alex',
       email:       process.env.PILOT_TALENT_EMAIL || 'dj.alex.pilot@microrave.ca',
@@ -117,6 +118,7 @@ async function main() {
   } else {
     trefle = await post('/entities/User', {
       systemId:    ids.organizerUserId,
+      full_name:   'Bar Le Trèfle',
       role:        'organisateur',
       displayName: 'Bar Le Trèfle',
       email:       process.env.PILOT_ORGANIZER_EMAIL || 'contact.pilot@letrefle.ca',

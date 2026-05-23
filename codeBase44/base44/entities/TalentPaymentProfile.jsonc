@@ -1,0 +1,66 @@
+{
+  "name": "TalentPaymentProfile",
+  "type": "object",
+  "description": "Profil de paiement d'un talent. Contient les informations Stripe Connect et les pr\u00e9f\u00e9rences de paiement. Source : OS V10 section 5.1.",
+  "properties": {
+    "talent_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers l'utilisateur (User.id). Immuable apr\u00e8s cr\u00e9ation."
+    },
+    "stripe_account_id": {
+      "type": "string",
+      "description": "ID du compte Stripe Connect du talent. Ex: acct_1234567890."
+    },
+    "stripe_account_status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "ACTIVE",
+        "RESTRICTED",
+        "DISABLED"
+      ],
+      "default": "PENDING",
+      "description": "Statut du compte Stripe Connect. ACTIVE = paiements autoris\u00e9s."
+    },
+    "default_currency": {
+      "type": "string",
+      "default": "CAD",
+      "description": "Devise par d\u00e9faut pour les paiements. Ex: CAD."
+    },
+    "kyc_status": {
+      "type": "string",
+      "enum": [
+        "NOT_STARTED",
+        "PENDING",
+        "VERIFIED",
+        "APPROVED",
+        "REJECTED"
+      ],
+      "default": "NOT_STARTED",
+      "description": "Statut de v\u00e9rification d'identit\u00e9 (KYC). Source : OS V10 section 6.2."
+    },
+    "kyc_verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date et heure de validation KYC. Null si non v\u00e9rifi\u00e9."
+    },
+    "payout_schedule": {
+      "type": "string",
+      "enum": [
+        "MANUAL",
+        "WEEKLY",
+        "BIWEEKLY",
+        "MONTHLY"
+      ],
+      "default": "MANUAL",
+      "description": "Fr\u00e9quence de versement automatique."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Donn\u00e9es suppl\u00e9mentaires arbitraires (JSON). Usage interne seulement."
+    }
+  },
+  "required": [
+    "talent_id"
+  ]
+}

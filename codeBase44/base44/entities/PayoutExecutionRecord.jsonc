@@ -1,0 +1,83 @@
+{
+  "name": "PayoutExecutionRecord",
+  "type": "object",
+  "description": "Enregistrement immuable de l'ex\u00e9cution d'un paiement Stripe. Trace d'audit obligatoire. Source : OS V10 section 7.2 + 9.4.",
+  "properties": {
+    "settlement_instruction_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers SettlementInstruction.id."
+    },
+    "engagement_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers Engagement.id (d\u00e9normalis\u00e9 pour audit)."
+    },
+    "talent_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers le talent (User.id, d\u00e9normalis\u00e9 pour audit)."
+    },
+    "stripe_account_id": {
+      "type": "string",
+      "description": "ID du compte Stripe Connect destinataire. Ex: acct_1234."
+    },
+    "stripe_transfer_id": {
+      "type": "string",
+      "description": "ID du transfer Stripe. Ex: tr_1234567890."
+    },
+    "stripe_payout_id": {
+      "type": "string",
+      "description": "ID du payout Stripe vers le compte bancaire (si disponible)."
+    },
+    "amount_cents": {
+      "type": "integer",
+      "description": "Montant transf\u00e9r\u00e9 en cents CAD."
+    },
+    "currency": {
+      "type": "string",
+      "default": "CAD",
+      "description": "Devise du paiement."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "INITIATED",
+        "SUCCEEDED",
+        "FAILED",
+        "REVERSED"
+      ],
+      "default": "INITIATED",
+      "description": "Statut final de l'ex\u00e9cution. SUCCEEDED = argent re\u00e7u."
+    },
+    "initiated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure d'initiation du transfert."
+    },
+    "succeeded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de confirmation Stripe. Null si non confirm\u00e9."
+    },
+    "failed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure d'\u00e9chec. Null si non \u00e9chou\u00e9."
+    },
+    "failure_code": {
+      "type": "string",
+      "description": "Code d'erreur Stripe si status = FAILED."
+    },
+    "failure_message": {
+      "type": "string",
+      "description": "Message d'erreur Stripe si status = FAILED."
+    },
+    "raw_stripe_response": {
+      "type": "object",
+      "description": "R\u00e9ponse brute Stripe (JSON). Conserv\u00e9e pour audit."
+    }
+  },
+  "required": [
+    "settlement_instruction_id",
+    "talent_id",
+    "amount_cents"
+  ]
+}

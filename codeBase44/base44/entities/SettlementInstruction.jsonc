@@ -1,0 +1,87 @@
+{
+  "name": "SettlementInstruction",
+  "type": "object",
+  "description": "Instruction de r\u00e8glement financier pour un engagement compl\u00e9t\u00e9. D\u00e9crit les montants \u00e0 verser et les comptes impliqu\u00e9s. Source : OS V10 section 7.1.",
+  "properties": {
+    "engagement_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers l'engagement (Engagement.id). Immuable apr\u00e8s cr\u00e9ation."
+    },
+    "talent_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers le talent b\u00e9n\u00e9ficiaire (User.id)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "APPROVED",
+        "PROCESSING",
+        "COMPLETED",
+        "FAILED",
+        "CANCELLED"
+      ],
+      "default": "PENDING",
+      "description": "Statut du cycle de vie de l'instruction de r\u00e8glement."
+    },
+    "gross_amount_cents": {
+      "type": "integer",
+      "description": "Montant brut \u00e0 r\u00e9gler en cents CAD."
+    },
+    "platform_fee_cents": {
+      "type": "integer",
+      "description": "Commission plateforme d\u00e9duite en cents CAD."
+    },
+    "tps_cents": {
+      "type": "integer",
+      "description": "TPS per\u00e7ue en cents CAD."
+    },
+    "tvq_cents": {
+      "type": "integer",
+      "description": "TVQ per\u00e7ue en cents CAD."
+    },
+    "net_amount_cents": {
+      "type": "integer",
+      "description": "Montant net \u00e0 verser au talent en cents CAD."
+    },
+    "currency": {
+      "type": "string",
+      "default": "CAD",
+      "description": "Devise du r\u00e8glement."
+    },
+    "stripe_transfer_id": {
+      "type": "string",
+      "description": "ID du transfer Stripe associ\u00e9. Renseign\u00e9 apr\u00e8s ex\u00e9cution."
+    },
+    "payout_execution_record_id": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers PayoutExecutionRecord.id apr\u00e8s ex\u00e9cution."
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Email de l'admin ayant approuv\u00e9. Source : OS V10 section 9.5."
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure d'approbation."
+    },
+    "executed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure d'ex\u00e9cution effective du transfert."
+    },
+    "failure_reason": {
+      "type": "string",
+      "description": "Raison de l'\u00e9chec si status = FAILED."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes internes sur l'instruction."
+    }
+  },
+  "required": [
+    "engagement_id",
+    "talent_id"
+  ]
+}
