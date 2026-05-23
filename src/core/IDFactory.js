@@ -26,6 +26,7 @@ const PREFIXES = {
   Checkpoint:          'CKP',
   EventLocation:       'EVL',
   LedgerEntry:         'LDG',
+  TransactionGroup:    'TXG',  // D-038 — lie les lignes DR+CR d'une même transaction comptable
   PayoutExecution:     'PAY',
   DisputeRecord:       'DSP',
   AdminAction:         'ADM',
