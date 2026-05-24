@@ -1,0 +1,154 @@
+{
+  "name": "SOTSLog",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "description": "Relation vers Session"
+    },
+    "evaluatorUserId": {
+      "type": "string",
+      "description": "Utilisateur qui \u00e9value"
+    },
+    "targetType": {
+      "type": "string",
+      "enum": [
+        "user",
+        "event",
+        "checkpoint",
+        "style",
+        "role"
+      ],
+      "description": "Type de cible \u00e9valu\u00e9e"
+    },
+    "targetId": {
+      "type": "string",
+      "description": "ID stable de la cible (User.id, Event.id, Checkpoint.systemId, Style.systemId, Role.systemId)"
+    },
+    "scoreRaw": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Note brute globale (1-5), moyenne des 5 dimensions"
+    },
+    "funWork": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Dimension 1: Ont-ils eu de plaisir dans leur m\u00e9tier ?"
+    },
+    "toxicityAvoidance": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Dimension 2: Ont-ils \u00e9vit\u00e9 tout comportement toxique ?"
+    },
+    "fairnessResourcefulness": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Dimension 3: Ont-ils fait preuve de d\u00e9brouillardise et d'\u00e9quit\u00e9 ?"
+    },
+    "attitudePositivity": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Dimension 4: Ont-ils fait preuve de ma\u00eetrise de soi et d'une attitude positive ?"
+    },
+    "communication": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Dimension 5: Ont-ils communiqu\u00e9 de mani\u00e8re appropri\u00e9e et respectueuse ?"
+    },
+    "sotsBreakdown": {
+      "type": "object",
+      "description": "DEPRECATED: D\u00e9tail des 5 questions SOTS (r\u00e9trocompatibilit\u00e9): {q1: 1-5, q2: 1-5, q3: 1-5, q4: 1-5, q5: 1-5}",
+      "additionalProperties": true
+    },
+    "comment": {
+      "type": "string",
+      "description": "Commentaire optionnel"
+    },
+    "evaluatorWeightSnapshot": {
+      "type": "number",
+      "description": "Poids de l'\u00e9valuateur au moment du vote: log(xpGlobal + 10)"
+    },
+    "scoreWeighted": {
+      "type": "number",
+      "description": "Score pond\u00e9r\u00e9: scoreRaw * evaluatorWeightSnapshot"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags optionnels (Rage Quit, Perfect Timing, etc.)"
+    },
+    "roleSystemId": {
+      "type": "string",
+      "description": "Snapshot: R\u00f4le du TARGET lors de la session"
+    },
+    "styleSystemIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Snapshot: Styles du TARGET lors de la session"
+    },
+    "evaluatorRoleSystemId": {
+      "type": "string",
+      "description": "Snapshot: R\u00f4le de l'\u00e9valuateur lors de la session"
+    },
+    "evaluatorStyleSystemIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Snapshot: Styles de l'\u00e9valuateur lors de la session"
+    },
+    "sessionType": {
+      "type": "string",
+      "description": "Type de session (quickplay, event_gig, jam, stream)"
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "Snapshot: Checkpoint de la session"
+    },
+    "sessionRoleSystemId": {
+      "type": "string",
+      "description": "LEGACY: R\u00f4le jou\u00e9 par la cible lors de la session"
+    },
+    "sessionStyleSystemIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "LEGACY: Styles jou\u00e9s par la cible lors de la session"
+    },
+    "sessionStyleSystemId": {
+      "type": "string",
+      "description": "LEGACY: Style principal (fallback single)"
+    },
+    "sessionCheckpointSystemId": {
+      "type": "string",
+      "description": "LEGACY: Checkpoint de la session (optionnel)"
+    },
+    "sessionTags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "LEGACY: Union de tous les tags contextuels (role + styles + checkpoint)"
+    }
+  },
+  "required": [
+    "sessionId",
+    "evaluatorUserId",
+    "targetType",
+    "targetId",
+    "scoreRaw",
+    "evaluatorWeightSnapshot",
+    "scoreWeighted"
+  ]
+}

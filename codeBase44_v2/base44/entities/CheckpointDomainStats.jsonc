@@ -1,0 +1,62 @@
+{
+  "name": "CheckpointDomainStats",
+  "type": "object",
+  "properties": {
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers Checkpoint.systemId (index)"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine lieu (7 domainKeys officiels \u2014 planner/sponsor EXCLUS)"
+    },
+    "weight": {
+      "type": "number",
+      "default": 0,
+      "description": "Poids EMA (alpha=0.1) \u2014 entre 0 et 1"
+    },
+    "countSessions": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de sessions compl\u00e9t\u00e9es pour ce domaine"
+    },
+    "sessionsCount": {
+      "type": "number",
+      "default": 0,
+      "description": "LEGACY \u2014 alias de countSessions"
+    },
+    "score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score cumul\u00e9 (qualit\u00e9 * recency)"
+    },
+    "qualityAvg": {
+      "type": "number",
+      "default": 0,
+      "description": "Qualit\u00e9 moyenne (SOTS normalis\u00e9 0-1)"
+    },
+    "lastSessionAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re session"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "checkpointSystemId",
+    "domainKey"
+  ]
+}

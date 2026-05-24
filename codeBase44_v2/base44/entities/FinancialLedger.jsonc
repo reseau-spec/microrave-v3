@@ -1,0 +1,101 @@
+{
+  "name": "FinancialLedger",
+  "type": "object",
+  "description": "Ledger financier append-only (WORM). Chaque mouvement de fonds g\u00e9n\u00e8re deux entr\u00e9es : une au d\u00e9bit, une au cr\u00e9dit (double-entry). Jamais de .update() \u2014 les corrections passent par une entr\u00e9e de type 'reversal'. amount_cents est toujours un entier (centimes), jamais un float.",
+  "properties": {
+    "entryType": {
+      "type": "string",
+      "enum": [
+        "deposit_authorized",
+        "deposit_captured",
+        "balance_received",
+        "escrow_released",
+        "balance_released",
+        "commission_earned",
+        "talent_transfer",
+        "noshow_refund",
+        "cancellation_deposit_split",
+        "reversal"
+      ],
+      "description": "Nature du mouvement. Chaque entryType a une paire d\u00e9bit/cr\u00e9dit d\u00e9finie dans le plan comptable."
+    },
+    "debitCredit": {
+      "type": "string",
+      "enum": [
+        "debit",
+        "credit"
+      ],
+      "description": "Sens de l'\u00e9criture. Toute transaction produit exactement 2 entr\u00e9es : 1 debit + 1 credit."
+    },
+    "accountCode": {
+      "type": "string",
+      "enum": [
+        "stripe_clearing",
+        "escrow_liability",
+        "balance_liability",
+        "stripe_balance",
+        "stripe_connect_transit",
+        "revenue_commission",
+        "revenue_seller",
+        "refund_payable"
+      ],
+      "description": "Compte comptable. Voir plan comptable dans la documentation."
+    },
+    "amount_cents": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Montant en centimes (entier). Exemple: 10050 = 100.50$. JAMAIS de float."
+    },
+    "currency": {
+      "type": "string",
+      "default": "CAD",
+      "description": "Code devise ISO 4217."
+    },
+    "eventId": {
+      "type": "string",
+      "description": "Relation vers Event."
+    },
+    "payoutSplitId": {
+      "type": "string",
+      "description": "Relation vers PayoutSplit (pour les entr\u00e9es talent_transfer)."
+    },
+    "payerUserId": {
+      "type": "string",
+      "description": "Utilisateur qui a effectu\u00e9 le paiement entrant."
+    },
+    "recipientUserId": {
+      "type": "string",
+      "description": "Utilisateur destinataire (talent pour talent_transfer, null pour platform)."
+    },
+    "stripeRef": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence Stripe canonique: PI id (pi_...), Transfer id (tr_...), ou Payout id (po_...)."
+    },
+    "stripeEventId": {
+      "type": "string",
+      "description": "ID de l'\u00e9v\u00e9nement Stripe webhook (evt_...). Cl\u00e9 d'idempotence \u2014 un webhook rejou\u00e9 ne cr\u00e9e pas de doublon si stripeEventId d\u00e9j\u00e0 pr\u00e9sent."
+    },
+    "relatedEntryId": {
+      "type": "string",
+      "description": "ID de l'entr\u00e9e contrepartie (double-entry link). L'entr\u00e9e debit pointe vers l'entr\u00e9e credit et vice versa."
+    },
+    "note": {
+      "type": "string",
+      "description": "Description lisible pour audit. Exemple: 'D\u00e9p\u00f4t 20% re\u00e7u \u2014 event X \u2014 PI pi_...'."
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Horodatage de cr\u00e9ation. IMMUTABLE apr\u00e8s cr\u00e9ation."
+    }
+  },
+  "required": [
+    "entryType",
+    "debitCredit",
+    "accountCode",
+    "amount_cents",
+    "currency",
+    "eventId",
+    "stripeRef"
+  ]
+}

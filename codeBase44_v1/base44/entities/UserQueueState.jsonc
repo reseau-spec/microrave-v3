@@ -1,0 +1,79 @@
+{
+  "name": "UserQueueState",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Unique user ID (index)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queueing",
+        "matched",
+        "cancelled",
+        "expired"
+      ],
+      "default": "queueing",
+      "description": "\u00c9tat du joueur dans la file"
+    },
+    "queuedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Heure d'entr\u00e9e dans la file (source de v\u00e9rit\u00e9 du wait user \u2014 jamais resett\u00e9 si queueing)"
+    },
+    "lastHeartbeatAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernier heartbeat (expiration si trop vieux)"
+    },
+    "roleSystemId": {
+      "type": "string",
+      "description": "R\u00f4le s\u00e9lectionn\u00e9 (ex: RL-001)"
+    },
+    "serviceRoleSystemId": {
+      "type": "string",
+      "description": "Legacy alias de roleSystemId"
+    },
+    "styleSystemIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Styles s\u00e9lectionn\u00e9s (array ST-xxxx)"
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "Checkpoint pr\u00e9f\u00e9r\u00e9 (nullable)"
+    },
+    "geoLat": {
+      "type": "number"
+    },
+    "geoLng": {
+      "type": "number"
+    },
+    "matchedSessionId": {
+      "type": "string",
+      "description": "ID session cr\u00e9\u00e9e apr\u00e8s match (nullable)"
+    },
+    "matchedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp du match"
+    },
+    "cancelledAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp d'annulation (audit)"
+    },
+    "debug": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Donn\u00e9es de debug"
+    }
+  },
+  "required": [
+    "userId"
+  ]
+}

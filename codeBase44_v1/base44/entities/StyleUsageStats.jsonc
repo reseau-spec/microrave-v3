@@ -1,0 +1,70 @@
+{
+  "name": "StyleUsageStats",
+  "type": "object",
+  "properties": {
+    "styleSystemId": {
+      "type": "string",
+      "description": "ID du style (unique logique)"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine du style"
+    },
+    "usageCount": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total d'utilisations du style"
+    },
+    "sessionsCount": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de sessions o\u00f9 ce style appara\u00eet"
+    },
+    "votesCount": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de votes SOTS li\u00e9s \u00e0 ce style"
+    },
+    "lastSeenAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re apparition du style en session"
+    },
+    "rarityIndex": {
+      "type": "number",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Indice de raret\u00e9 (0=commun, 100=ultra rare)"
+    },
+    "rarityTier": {
+      "type": "string",
+      "enum": [
+        "common",
+        "rare",
+        "epic",
+        "legendary"
+      ],
+      "default": "common",
+      "description": "Palier de raret\u00e9"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "styleSystemId",
+    "domainKey"
+  ]
+}

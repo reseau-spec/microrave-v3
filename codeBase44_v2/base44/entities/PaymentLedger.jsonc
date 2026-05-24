@@ -1,0 +1,59 @@
+{
+  "name": "PaymentLedger",
+  "type": "object",
+  "description": "D\u00c9PR\u00c9CI\u00c9 \u2014 LECTURE SEULE. Ne plus \u00e9crire dans cette entit\u00e9. Toutes les nouvelles \u00e9critures financi\u00e8res se font dans FinancialLedger (double-entry, append-only). Cette entit\u00e9 est conserv\u00e9e uniquement pour l'historique des transactions ant\u00e9rieures \u00e0 FinancialLedger v6. L'enum status contient des valeurs r\u00e9ellement \u00e9crites qui d\u00e9passaient l'enum original \u2014 toutes list\u00e9es ci-dessous pour permettre les requ\u00eates sur l'historique.",
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "description": "Relation vers Event"
+    },
+    "payerUserId": {
+      "type": "string",
+      "description": "Utilisateur payeur"
+    },
+    "payeeUserId": {
+      "type": "string",
+      "description": "Utilisateur b\u00e9n\u00e9ficiaire"
+    },
+    "amountTotal": {
+      "type": "number",
+      "description": "Montant total"
+    },
+    "amountEscrow": {
+      "type": "number",
+      "description": "Montant en s\u00e9questre"
+    },
+    "amountReleased": {
+      "type": "number",
+      "default": 0,
+      "description": "Montant lib\u00e9r\u00e9"
+    },
+    "stripeRef": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence Stripe (W3+)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "secured",
+        "balance_secured",
+        "released",
+        "refunded",
+        "disputed",
+        "escrow",
+        "deposit_supplement",
+        "balance_released"
+      ],
+      "default": "none",
+      "description": "Statut du paiement. Valeurs historiques \u00e9largies : 'escrow' (d\u00e9p\u00f4t initial par confirmStripePayment), 'deposit_supplement' (compl\u00e9ment d\u00e9p\u00f4t), 'balance_released' (balance lib\u00e9r\u00e9e par releaseEventEscrow). Ces 3 valeurs \u00e9taient hors enum d'origine \u2014 ajout\u00e9es ici pour permettre les requ\u00eates sur l'historique. D\u00c9PR\u00c9CI\u00c9 : ne plus \u00e9crire de nouvelles entr\u00e9es."
+    }
+  },
+  "required": [
+    "eventId",
+    "payerUserId",
+    "payeeUserId",
+    "amountTotal",
+    "amountEscrow"
+  ]
+}

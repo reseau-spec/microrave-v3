@@ -1,0 +1,35 @@
+{
+  "name": "TalentPricing",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Relation vers User \u2014 index\u00e9"
+    },
+    "roleSystemId": {
+      "type": "string",
+      "description": "Relation vers RoleHierarchy.systemId \u2014 index\u00e9"
+    },
+    "hourlyRate": {
+      "type": "number",
+      "description": "Taux horaire en CAD"
+    },
+    "fixedRate": {
+      "type": "number",
+      "description": "Cachet \u00e9v\u00e9nement en CAD"
+    },
+    "currency": {
+      "type": "string",
+      "default": "CAD",
+      "description": "Devise (d\u00e9faut : CAD)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Conditions et notes optionnelles"
+    }
+  },
+  "required": [
+    "userId",
+    "roleSystemId"
+  ]
+}

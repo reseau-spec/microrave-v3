@@ -1,0 +1,28 @@
+{
+  "name": "RoleStyleMap",
+  "type": "object",
+  "properties": {
+    "roleSystemId": {
+      "type": "string",
+      "description": "ID du r\u00f4le"
+    },
+    "styleSystemId": {
+      "type": "string",
+      "description": "ID du style"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true,
+      "description": "Override actif"
+    },
+    "weight": {
+      "type": "number",
+      "default": 1,
+      "description": "Poids pour tri"
+    }
+  },
+  "required": [
+    "roleSystemId",
+    "styleSystemId"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "UserCheckpointStats",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "ID de l'utilisateur"
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "ID du checkpoint"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine d'usage"
+    },
+    "sessionsCount": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de sessions valid\u00e9es"
+    },
+    "score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score cumul\u00e9 (quality * recency)"
+    },
+    "qualityAvg": {
+      "type": "number",
+      "default": 0,
+      "description": "Qualit\u00e9 moyenne (SOTS normalis\u00e9 0-1)"
+    },
+    "lastPlayedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re session jou\u00e9e"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "userId",
+    "checkpointSystemId",
+    "domainKey"
+  ]
+}

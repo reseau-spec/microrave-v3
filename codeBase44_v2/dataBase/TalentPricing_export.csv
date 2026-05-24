@@ -1,0 +1,9 @@
+packageDescription,roleSystemId,notes,perPersonRate,fixedRate,currency,perItemRate,packageName,hourlyRate,userId,id,created_date,updated_date,created_by_id,created_by,is_sample
+"","RL-000007","","","450","CAD","","","60","69f2706d181676bbd6e82a5e","69fb3ef9a3c7270e2ef07966","2026-05-06T13:15:37.793000","2026-05-06T13:15:37.793000","69f2706d181676bbd6e82a5e","f.gelin1@gmail.com","false"
+"","RL-000001","","","1000","CAD","","","200","69f62dd4479edabdf08b12ee","69fb3e66791c36143dfce902","2026-05-06T13:13:10.006000","2026-05-06T13:13:10.006000","69f62dd4479edabdf08b12ee","reseau@microrave.ca","false"
+"","RL-000003","","","","CAD","","","","69f7701d31890c3d20e8c9d7","69f770417a7b39c4fe4340c0","2026-05-03T15:56:49.559000","2026-05-03T15:56:49.559000","69f7701d31890c3d20e8c9d7","fro.rally.1@gmail.com","false"
+"","RL-000007","","","550","CAD","","","125","69f75ab48443764c81e1d5f8","69f75ae332984bcda73a2bac","2026-05-03T14:25:39.035000","2026-05-03T14:25:39.035000","69f75ab48443764c81e1d5f8","uf.fro1@gmail.com","false"
+"","RL-000001","","","400","CAD","","","115","69f75ab48443764c81e1d5f8","69f75ae2b0485608b6e89d91","2026-05-03T14:25:38.841000","2026-05-03T14:25:38.841000","69f75ab48443764c81e1d5f8","uf.fro1@gmail.com","false"
+"","RL-000001","","","800","CAD","","","175","69f2739b8a9489588db01d2c","69f692bda68c14d46217f7f0","2026-05-03T00:11:41.630000","2026-05-03T00:11:41.630000","69f2739b8a9489588db01d2c","datamicrorave@gmail.com","false"
+"","RL-000001","","","600","CAD","","","150","69f2706d181676bbd6e82a5e","69f603dd40d81e678eca9251","2026-05-02T14:02:05.001000","2026-05-06T13:15:37.663000","69f2706d181676bbd6e82a5e","f.gelin1@gmail.com","false"
+"","RL-000001","","","500","CAD","","","100","69f218c618cc26dee7ae01ce","69f4b3034b37ff178f27e00c","2026-05-01T14:04:51.746000","2026-05-01T14:04:51.746000","69f218c618cc26dee7ae01ce","frederik.gelin@gmail.com","false"

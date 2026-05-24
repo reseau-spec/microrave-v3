@@ -1,0 +1,46 @@
+{
+  "name": "UserPreferenceLedger",
+  "type": "object",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "Identifiant unique (prefix LOG-)"
+    },
+    "userId": {
+      "type": "string",
+      "description": "Relation vers User"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine affect\u00e9"
+    },
+    "signal": {
+      "type": "number",
+      "description": "Signal effectif appliqu\u00e9 (signalRaw * 0.1)"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Raison du signal: feed_impression, feed_click, object_view, follow, join_session, attend_event"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de l'\u00e9v\u00e9nement (insert-only, jamais modifi\u00e9)"
+    }
+  },
+  "required": [
+    "userId",
+    "domainKey",
+    "signal",
+    "reason"
+  ]
+}

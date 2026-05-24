@@ -1,0 +1,102 @@
+{
+  "name": "Mission",
+  "type": "object",
+  "properties": {
+    "missionKey": {
+      "type": "string",
+      "description": "Cl\u00e9 stable unique (ex: mile-end-circuit)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Titre affich\u00e9 (ex: Mile-End Circuit)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description narrative de la mission"
+    },
+    "zoneName": {
+      "type": "string",
+      "description": "Nom de la zone/quartier cibl\u00e9 (ex: Mile-End, Plateau, Centre-Ville)"
+    },
+    "sceneId": {
+      "type": "string",
+      "description": "Ref vers Scene.id \u2014 si la mission est li\u00e9e \u00e0 une sc\u00e8ne g\u00e9ographique (optionnel)"
+    },
+    "checkpointSystemIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Checkpoints \u00e9ligibles pour cette mission (optionnel \u2014 vide = tous les checkpoints)"
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "session",
+              "checkin",
+              "sots_vote",
+              "event_created"
+            ],
+            "description": "Type d'objectif"
+          },
+          "count": {
+            "type": "number",
+            "description": "Nombre requis"
+          },
+          "checkpointSystemIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Restreindre cet objectif \u00e0 ces checkpoints sp\u00e9cifiques (optionnel)"
+          }
+        }
+      },
+      "default": [],
+      "description": "Liste des objectifs: [{type: 'checkin', count: 3}, {type: 'session', count: 1}]"
+    },
+    "rewardBadge": {
+      "type": "string",
+      "description": "Badge cosm\u00e9tique attribu\u00e9 \u00e0 la compl\u00e9tion (ex: mile-end-resident)"
+    },
+    "rewardXp": {
+      "type": "number",
+      "default": 100,
+      "description": "XP bonus attribu\u00e9s \u00e0 la compl\u00e9tion"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine principal de la mission (optionnel)"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Mission disponible"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration (null = permanent)"
+    }
+  },
+  "required": [
+    "missionKey",
+    "title",
+    "objectives"
+  ]
+}

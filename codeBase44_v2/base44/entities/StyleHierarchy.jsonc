@@ -1,0 +1,88 @@
+{
+  "name": "StyleHierarchy",
+  "type": "object",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "Identifiant stable (ex: ST-000001)"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "Nom d'affichage"
+    },
+    "bioFr": {
+      "type": "string",
+      "description": "Description en fran\u00e7ais"
+    },
+    "level": {
+      "type": "number",
+      "description": "Niveau hi\u00e9rarchique (1=parent, 2=genre, 3=sous-genre)"
+    },
+    "parentSystemId": {
+      "type": "string",
+      "description": "systemId du parent (hi\u00e9rarchie)"
+    },
+    "racineSystemId": {
+      "type": "string",
+      "description": "systemId de la racine"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine du style. OBLIGATOIRE si active=true. Doit correspondre au domaine du r\u00f4le pour le filtrage. Valeurs strictes uniquement."
+    },
+    "rarityTier": {
+      "type": "string",
+      "enum": [
+        "common",
+        "rare",
+        "epic",
+        "legendary"
+      ],
+      "default": "common",
+      "description": "Raret\u00e9 du style (progression)"
+    },
+    "unlockLevel": {
+      "type": "number",
+      "default": 1,
+      "description": "Niveau requis pour d\u00e9bloquer (1-25)"
+    },
+    "color": {
+      "type": "string",
+      "description": "Couleur hex pour UI"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Style actif ou archiv\u00e9"
+    },
+    "sotsGlobalScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Score SOTS agr\u00e9g\u00e9 all-time"
+    },
+    "sotsRecent30Score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score SOTS des 30 derniers jours"
+    },
+    "totalVotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total de votes SOTS"
+    }
+  },
+  "required": [
+    "systemId",
+    "displayName",
+    "level"
+  ]
+}

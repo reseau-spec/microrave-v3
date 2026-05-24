@@ -1,0 +1,47 @@
+{
+  "name": "StyleGraphLayout",
+  "type": "object",
+  "properties": {
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine du style"
+    },
+    "styleSystemId": {
+      "type": "string",
+      "description": "ID du style (unique par domainKey)"
+    },
+    "x": {
+      "type": "number",
+      "description": "Position X dans le graph"
+    },
+    "y": {
+      "type": "number",
+      "description": "Position Y dans le graph"
+    },
+    "locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Position verrouill\u00e9e (ajustement manuel)"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "domainKey",
+    "styleSystemId",
+    "x",
+    "y"
+  ]
+}

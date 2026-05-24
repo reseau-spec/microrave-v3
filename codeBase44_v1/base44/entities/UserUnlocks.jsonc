@@ -1,0 +1,37 @@
+{
+  "name": "UserUnlocks",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "ID de l'utilisateur"
+    },
+    "styleSystemId": {
+      "type": "string",
+      "description": "ID du style d\u00e9bloqu\u00e9"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine du style"
+    },
+    "unlockedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de d\u00e9bloquage"
+    }
+  },
+  "required": [
+    "userId",
+    "styleSystemId",
+    "domainKey"
+  ]
+}

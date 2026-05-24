@@ -1,0 +1,54 @@
+{
+  "name": "DomainProgress",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Relation vers User"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine de progression"
+    },
+    "xp": {
+      "type": "number",
+      "default": 0,
+      "description": "Points d'exp\u00e9rience dans ce domaine"
+    },
+    "level": {
+      "type": "number",
+      "default": 1,
+      "description": "Niveau actuel (1-25)"
+    },
+    "lastDropAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dernier drop re\u00e7u"
+    },
+    "totalDrops": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total de drops re\u00e7us"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "userId",
+    "domainKey",
+    "xp",
+    "level"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "CulturalMomentSignal",
+  "type": "object",
+  "properties": {
+    "culturalMomentId": {
+      "type": "string",
+      "description": "Ref vers CulturalMoment.id"
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "Ref vers Checkpoint.systemId"
+    },
+    "signalType": {
+      "type": "string",
+      "enum": [
+        "checkin",
+        "session_opened",
+        "session_confirmed",
+        "event_opened",
+        "talent_nearby",
+        "sots_submitted"
+      ],
+      "description": "Type de signal ayant contribu\u00e9 au moment"
+    },
+    "signalValue": {
+      "type": "number",
+      "default": 1,
+      "description": "Valeur du signal (ex: 1 pour session, nb participants pour attendance)"
+    },
+    "sourceTable": {
+      "type": "string",
+      "description": "Table source (Session, UserQueueState, Event, SOTSLog)"
+    },
+    "sourceId": {
+      "type": "string",
+      "description": "ID de l'entit\u00e9 source pour audit complet"
+    },
+    "recordedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp du signal"
+    }
+  },
+  "required": [
+    "culturalMomentId",
+    "checkpointSystemId",
+    "signalType"
+  ]
+}

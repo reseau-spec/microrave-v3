@@ -1,0 +1,135 @@
+{
+  "name": "CulturalMoment",
+  "type": "object",
+  "properties": {
+    "momentKey": {
+      "type": "string",
+      "description": "Cl\u00e9 unique d\u00e9terministe : {checkpointSystemId}_{domainKey}_{YYYY-MM-DD}"
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "Ref vers Checkpoint.systemId"
+    },
+    "sceneId": {
+      "type": "string",
+      "description": "Ref vers Scene.id \u2014 si le checkpoint appartient \u00e0 une sc\u00e8ne active (optionnel)"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine du moment culturel"
+    },
+    "momentType": {
+      "type": "string",
+      "enum": [
+        "emergence",
+        "convergence",
+        "rarity",
+        "transition",
+        "climax"
+      ],
+      "default": "emergence",
+      "description": "Type de moment d\u00e9tect\u00e9 \u2014 d\u00e9termin\u00e9 par les signaux de liveStats"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "seeded",
+        "rising",
+        "live",
+        "peak",
+        "fading",
+        "closed"
+      ],
+      "default": "seeded",
+      "description": "Machine d'\u00e9tat du moment : seeded \u2192 rising \u2192 live \u2192 peak \u2192 fading \u2192 closed"
+    },
+    "headline": {
+      "type": "string",
+      "description": "Titre g\u00e9n\u00e9r\u00e9 automatiquement pour l'UI Explore"
+    },
+    "subheadline": {
+      "type": "string",
+      "description": "Sous-titre contextuel (nb sessions, talents proches)"
+    },
+    "ctaType": {
+      "type": "string",
+      "enum": [
+        "join_session",
+        "explore_checkpoint",
+        "book_talent",
+        "view_scene"
+      ],
+      "default": "explore_checkpoint",
+      "description": "Type de call-to-action affich\u00e9 dans Explore"
+    },
+    "momentScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Score composite audit (entr\u00e9e dans machine d'\u00e9tat)"
+    },
+    "momentumScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Snapshot du momentumScore CheckpointLiveStats au moment du calcul"
+    },
+    "momentumDelta": {
+      "type": "number",
+      "default": 0,
+      "description": "Snapshot du momentumDelta au moment du calcul"
+    },
+    "styleCoherenceScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Coh\u00e9rence de style (0\u20131) \u2014 bas\u00e9e sur concentration de sessions confirm\u00e9es"
+    },
+    "rarityScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Score de raret\u00e9 du style (r\u00e9serv\u00e9 W2)"
+    },
+    "timeUrgencyScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Urgence temporelle (r\u00e9serv\u00e9 W2)"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Moment de cr\u00e9ation du moment culturel"
+    },
+    "predictedPeakAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Pr\u00e9diction de l'heure de peak (optionnel)"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Expiration automatique (2h apr\u00e8s cr\u00e9ation par d\u00e9faut)"
+    },
+    "closedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp de fermeture"
+    },
+    "isPublishedInExplore": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag d'affichage dans le feed Explore \u2014 jamais expos\u00e9 en score brut"
+    }
+  },
+  "required": [
+    "momentKey",
+    "checkpointSystemId",
+    "domainKey"
+  ]
+}

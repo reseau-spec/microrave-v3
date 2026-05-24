@@ -1,0 +1,23 @@
+{
+  "name": "SceneCheckpoint",
+  "type": "object",
+  "properties": {
+    "sceneId": {
+      "type": "string",
+      "description": "Ref vers Scene.id"
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "Ref vers Checkpoint.systemId"
+    },
+    "contributionScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Contribution au score de sc\u00e8ne = momentumScore du checkpoint au moment du calcul"
+    }
+  },
+  "required": [
+    "sceneId",
+    "checkpointSystemId"
+  ]
+}

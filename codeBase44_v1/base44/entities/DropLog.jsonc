@@ -1,0 +1,52 @@
+{
+  "name": "DropLog",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "ID de l'utilisateur"
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "ID de la session"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine du drop"
+    },
+    "dropType": {
+      "type": "string",
+      "enum": [
+        "style_unlock",
+        "badge",
+        "loot_xp"
+      ],
+      "description": "Type de r\u00e9compense"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Donn\u00e9es du drop",
+      "additionalProperties": true
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de cr\u00e9ation"
+    }
+  },
+  "required": [
+    "userId",
+    "sessionId",
+    "domainKey",
+    "dropType"
+  ]
+}

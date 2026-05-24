@@ -1,0 +1,95 @@
+{
+  "name": "UserMembership",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Relation vers User. Un seul enregistrement status=active par user."
+    },
+    "planSku": {
+      "type": "string",
+      "description": "SKU du MembershipPlan souscrit (ex: MR-PLAN-B-2024-01)"
+    },
+    "tier": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "description": "Palier snapshottt\u00e9 au moment de l'achat. Miroir de MembershipPlan.tier."
+    },
+    "commissionRateSnapshot": {
+      "type": "number",
+      "description": "D\u00c9PR\u00c9CI\u00c9 comme source active \u2014 conservation pour audit historique uniquement. Taux fig\u00e9 au moment de l'achat. N'est PAS lu par generatePayoutSplits v8 : la vraie source de commission fig\u00e9e \u00e0 T1 est LineupPlacement.effectiveCommissionRate (\u00e9crit par respondToPriceProposal v5 \u00e0 l'acceptation). Ne plus exposer ce champ comme source de v\u00e9rit\u00e9 pour les calculs de payout."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expired",
+        "cancelled",
+        "trial"
+      ],
+      "default": "active",
+      "description": "Statut de l'abonnement. Un seul active par user \u00e0 la fois."
+    },
+    "billingCycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "yearly",
+        "lifetime",
+        "promo"
+      ],
+      "default": "monthly",
+      "description": "Cycle de facturation"
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de d\u00e9but de l'abonnement"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date d'expiration. null pour lifetime."
+    },
+    "renewsAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Prochain renouvellement (si auto-renew)"
+    },
+    "cancelledAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date d'annulation (si applicable)"
+    },
+    "stripeSubscriptionId": {
+      "type": "string",
+      "description": "ID abonnement Stripe (si g\u00e9r\u00e9 via Stripe Billing)"
+    },
+    "stripeCustomerId": {
+      "type": "string",
+      "description": "Stripe Customer ID"
+    },
+    "promoNote": {
+      "type": "string",
+      "description": "Note interne sur une promo appliqu\u00e9e (ex: 'Taux garanti \u00e0 vie 4% \u2014 offre fondateur')"
+    },
+    "autoRenew": {
+      "type": "boolean",
+      "default": true,
+      "description": "Renouvellement automatique activ\u00e9"
+    }
+  },
+  "required": [
+    "userId",
+    "planSku",
+    "tier",
+    "commissionRateSnapshot",
+    "status"
+  ]
+}

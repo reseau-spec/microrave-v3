@@ -1,0 +1,118 @@
+{
+  "name": "SessionPresence",
+  "type": "object",
+  "properties": {
+    "sessionId": {
+      "type": "string",
+      "description": "Session active au moment du check-in (cl\u00e9 de jointure principale)"
+    },
+    "eventId": {
+      "type": "string",
+      "description": "Event li\u00e9 \u2014 d\u00e9normalis\u00e9 pour requ\u00eates directes sur l'event"
+    },
+    "userId": {
+      "type": "string",
+      "description": "Utilisateur pr\u00e9sent"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "artist",
+        "organizer",
+        "audience"
+      ],
+      "description": "R\u00f4le au moment de la pr\u00e9sence \u2014 artist/organizer li\u00e9s au payout, audience \u00e0 la densit\u00e9"
+    },
+    "checkInAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp exact de l'entr\u00e9e dans la session (check-in)"
+    },
+    "checkOutAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp exact de la sortie (check-out ou auto-close)"
+    },
+    "durationMin": {
+      "type": "number",
+      "default": 0,
+      "description": "Dur\u00e9e calcul\u00e9e en minutes (checkOutAt - checkInAt). 0 si session encore active."
+    },
+    "geoLatIn": {
+      "type": "number",
+      "description": "Latitude GPS au moment du check-in"
+    },
+    "geoLngIn": {
+      "type": "number",
+      "description": "Longitude GPS au moment du check-in"
+    },
+    "geoLatOut": {
+      "type": "number",
+      "description": "Latitude GPS au moment du check-out (optionnel)"
+    },
+    "geoLngOut": {
+      "type": "number",
+      "description": "Longitude GPS au moment du check-out (optionnel)"
+    },
+    "distanceMIn": {
+      "type": "number",
+      "description": "Distance en m\u00e8tres entre user et checkpoint au check-in (Haversine)"
+    },
+    "isValidEntry": {
+      "type": "boolean",
+      "default": false,
+      "description": "true si GPS + fen\u00eatre temporelle valides au check-in"
+    },
+    "isValidExit": {
+      "type": "boolean",
+      "default": false,
+      "description": "true si check-out dans la fen\u00eatre de session (pas auto-close suspect)"
+    },
+    "validationScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Score 0\u2013100. GPS+30, temps+20, checkin+20, co-pr\u00e9sence+20, dur\u00e9e+10. D\u00e9termine l'\u00e9ligibilit\u00e9 payout."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "invalid",
+        "auto_closed"
+      ],
+      "default": "active",
+      "description": "active=en cours, completed=check-out fait, invalid=fraude d\u00e9tect\u00e9e, auto_closed=session ferm\u00e9e sans check-out"
+    },
+    "payoutEligible": {
+      "type": "boolean",
+      "default": false,
+      "description": "Calcul\u00e9 \u00e0 la fermeture. true si validationScore >= 70 ET durationMin >= 30. Utilis\u00e9 par releaseEventEscrow."
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "Checkpoint du lieu \u2014 d\u00e9normalis\u00e9 pour requ\u00eates de m\u00e9triques par lieu"
+    },
+    "sessionStateAtCheckin": {
+      "type": "string",
+      "description": "\u00c9tat de la session au moment du check-in (lobby | in_progress) \u2014 audit"
+    },
+    "coPresenceCountAtCheckin": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre d'utilisateurs actifs simultan\u00e9ment dans la session au moment du check-in"
+    },
+    "autoClosedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Si status = auto_closed : timestamp de la fermeture automatique"
+    }
+  },
+  "required": [
+    "sessionId",
+    "eventId",
+    "userId",
+    "role",
+    "checkInAt"
+  ]
+}

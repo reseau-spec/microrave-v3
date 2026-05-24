@@ -156,7 +156,13 @@ const TRANSITION_TABLE = {
   'disputed->refunded':                      { guard: 'DisputeResolutionGuard',   worm: null, financialGuard: true  },
 
   // ── No-show ─────────────────────────────────────────────────
-  'no_show->refunded':                       { guard: 'RefundGuard',              worm: null, financialGuard: true  },
+  // [D-019-B · LOI NO-SHOW-01 · CT-014] Implémentation : NoShowGuard.validateRefundTrigger().
+  // CORRECTION 2026-05-24 : La table déclarait 'RefundGuard' (placeholder Phase 0.2)
+  // alors que runSpecificGuard() routait déjà vers NoShowGuard pour cette transition.
+  // La table doit refléter exactement l'implémentation réelle — la doctrine exige
+  // que code et documentation soient cohérents. RefundGuard sera réactivé en Phase 2.3
+  // pour disputed->refunded (son périmètre propre). Source : Phase 0.2 audit 2026-05-21.
+  'no_show->refunded':                       { guard: 'NoShowGuard',              worm: null, financialGuard: true  },
 
   // ── Terminaisons — archivage direct (D-019-A) ───────────────
   // [SC-NO-SHOW-PRE] reversal complet depuis deposit_secured
@@ -508,20 +514,14 @@ async function runSpecificGuard({ guardName, engagementId, currentState, targetS
       return await CancellationGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
 
     case 'RefundGuard':
-      // [Phase 0.2] no_show→refunded : routage vers NoShowGuard.validateRefundTrigger()
-      // La logique de remboursement existe dans NoShowGuard (COVERED_TRANSITIONS L.41).
-      // RefundGuard est le nom de la TRANSITION_TABLE — NoShowGuard est l'implémentation.
-      // Les autres transitions RefundGuard futures (ex: disputed→refunded) auront leur
-      // propre guard dès Phase 2.3. Source : NoShowGuard.js L.41 · LOI NO-SHOW-01 · CT-014.
-      if (`${currentState}->${targetState}` === 'no_show->refunded') {
-        return await NoShowGuard.validate({ engagementId, currentState, targetState, actor, context, repositories });
-      }
-      // Autres origines (ex: no_show→refunded via DisputeResolutionGuard — futur) :
-      // placeholder fail-closed jusqu'à implémentation Phase 2.3.
+      // [Phase 2.3] Réservé pour disputed->refunded et autres remboursements hors no-show.
+      // CORRECTION 2026-05-24 : no_show->refunded est maintenant correctement
+      // attribué à NoShowGuard dans la TRANSITION_TABLE. Ce case ne devrait
+      // plus être atteint pour no_show->refunded.
       throw new Error(
         `GUARD_NOT_IMPLEMENTED: RefundGuard pour "${currentState}->${targetState}" ` +
-        `n'est pas encore implémenté. Phase 2.3. ` +
-        `Seul no_show->refunded est couvert. Source : Plan d'implantation Phase 2.3.`
+        `non implémenté. Phase 2.3. Si vous voyez cette erreur pour no_show->refunded, ` +
+        `la TRANSITION_TABLE n'a pas été correctement mise à jour. Source : 2026-05-24.`
       );
 
     case 'DisputeGuard':

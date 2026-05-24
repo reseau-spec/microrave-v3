@@ -1,0 +1,38 @@
+{
+  "name": "UserPreferences",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Relation vers User (unique)"
+    },
+    "rolePrefs": {
+      "type": "object",
+      "description": "Pr\u00e9f\u00e9rences par r\u00f4le { RL-001: { active: true }, ... }",
+      "additionalProperties": true
+    },
+    "stylePrefs": {
+      "type": "object",
+      "description": "Pr\u00e9f\u00e9rences par style { ST-001: { active: true, weight: 60 }, ... }",
+      "additionalProperties": true
+    },
+    "checkpointPrefs": {
+      "type": "object",
+      "description": "Pr\u00e9f\u00e9rences par checkpoint { CP-...: { active: true }, ... }",
+      "additionalProperties": true
+    },
+    "domainAffinity": {
+      "type": "object",
+      "description": "Affinit\u00e9s pond\u00e9r\u00e9es par domaine (0-1). Format: {\"music\":0.5,\"humour\":0.5,\"photo\":0.5,\"video\":0.5,\"food\":0.5,\"art\":0.5,\"responsable\":0.5}. Mise \u00e0 jour via recordPreferenceSignal.",
+      "additionalProperties": true
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "userId"
+  ]
+}

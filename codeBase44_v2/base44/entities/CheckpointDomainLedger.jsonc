@@ -1,0 +1,61 @@
+{
+  "name": "CheckpointDomainLedger",
+  "type": "object",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "Identifiant unique (prefix LOG-)"
+    },
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers Checkpoint.systemId (index)"
+    },
+    "sessionId": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence vers Session.id"
+    },
+    "domainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine lieu (7 domainKeys officiels uniquement)"
+    },
+    "weight": {
+      "type": "number",
+      "default": 1,
+      "description": "Poids r\u00e9el de ce domaine pour cette session (ex: 0.75 si 3 DJ sur 4 participants)"
+    },
+    "delta": {
+      "type": "number",
+      "default": 1,
+      "description": "Legacy \u2014 toujours 1 en V1, remplac\u00e9 par weight en V2"
+    },
+    "participantCount": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de participants compt\u00e9s dans la session"
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date de la session (pour window EMA future)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date d'insertion (insert-only)"
+    }
+  },
+  "required": [
+    "checkpointSystemId",
+    "sessionId",
+    "domainKey"
+  ]
+}

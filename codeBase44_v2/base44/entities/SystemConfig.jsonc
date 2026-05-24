@@ -1,0 +1,22 @@
+{
+  "name": "SystemConfig",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Cl\u00e9 unique de configuration (ex: matchmaker_lastTickAt)"
+    },
+    "value": {
+      "type": "string",
+      "description": "Valeur (string, peut \u00eatre un timestamp ou JSON)"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re mise \u00e0 jour"
+    }
+  },
+  "required": [
+    "key"
+  ]
+}

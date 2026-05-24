@@ -1,0 +1,71 @@
+{
+  "name": "CheckpointLiveStats",
+  "type": "object",
+  "properties": {
+    "checkpointSystemId": {
+      "type": "string",
+      "description": "Ref vers Checkpoint.systemId (unique, index)"
+    },
+    "currentDomainKey": {
+      "type": "string",
+      "enum": [
+        "music",
+        "humour",
+        "photo",
+        "video",
+        "food",
+        "art",
+        "responsable"
+      ],
+      "description": "Domaine dominant actuel (d\u00e9duit des CheckpointDomainStats \u2014 poids EMA max)"
+    },
+    "momentumScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Score de momentum calcul\u00e9 (somme pond\u00e9r\u00e9e des signaux r\u00e9cents de la derni\u00e8re heure)"
+    },
+    "momentumDelta": {
+      "type": "number",
+      "default": 0,
+      "description": "Delta vs computation pr\u00e9c\u00e9dente (positif = en hausse, n\u00e9gatif = retombe)"
+    },
+    "recentCheckins": {
+      "type": "number",
+      "default": 0,
+      "description": "Checkins proxy dans la derni\u00e8re heure (users en queue sur ce CP + sessions ouvertes)"
+    },
+    "recentSessionsOpened": {
+      "type": "number",
+      "default": 0,
+      "description": "Sessions ouvertes (lobby/in_progress) dans la derni\u00e8re heure sur ce checkpoint"
+    },
+    "recentSessionsConfirmed": {
+      "type": "number",
+      "default": 0,
+      "description": "Sessions confirm\u00e9es (completed) dans la derni\u00e8re heure sur ce checkpoint"
+    },
+    "nearbyEligibleTalents": {
+      "type": "number",
+      "default": 0,
+      "description": "Talents actuellement en queue avec checkpointSystemId = ce checkpoint"
+    },
+    "attendanceSignal": {
+      "type": "number",
+      "default": 0,
+      "description": "Somme des participants dans les sessions r\u00e9centes (indicateur de densit\u00e9)"
+    },
+    "lastActivityAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Derni\u00e8re activit\u00e9 d\u00e9tect\u00e9e (updated_date de la session la plus r\u00e9cente)"
+    },
+    "lastComputedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp du dernier calcul CRON"
+    }
+  },
+  "required": [
+    "checkpointSystemId"
+  ]
+}

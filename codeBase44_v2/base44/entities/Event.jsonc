@@ -1,0 +1,244 @@
+{
+  "name": "Event",
+  "type": "object",
+  "properties": {
+    "organizerUserId": {
+      "type": "string",
+      "description": "Relation vers User (organisateur)"
+    },
+    "organizerId": {
+      "type": "string",
+      "description": "userId of the person who created the event (alias de organizerUserId)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Titre de l'\u00e9v\u00e9nement"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description d\u00e9taill\u00e9e"
+    },
+    "checkpointId": {
+      "type": "string",
+      "description": "Relation vers Checkpoint (lieu)"
+    },
+    "addressData": {
+      "type": "object",
+      "description": "Donn\u00e9es d'adresse compl\u00e8tes",
+      "additionalProperties": true
+    },
+    "startAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de d\u00e9but"
+    },
+    "endAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de fin"
+    },
+    "dateStart": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de d\u00e9but (alias de startAt)"
+    },
+    "dateEnd": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date/heure de fin (alias de endAt)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "cancelled",
+        "completed",
+        "aborted",
+        "disputed"
+      ],
+      "default": "draft",
+      "description": "Statut de l'\u00e9v\u00e9nement"
+    },
+    "escrowStatus": {
+      "type": "string",
+      "enum": [
+        "none",
+        "securing",
+        "secured",
+        "released",
+        "disputed"
+      ],
+      "default": "none",
+      "description": "Statut du s\u00e9questre Stripe pour le d\u00e9p\u00f4t 20%"
+    },
+    "escrowAmount": {
+      "type": "number",
+      "default": 0,
+      "description": "Montant du d\u00e9p\u00f4t effectivement s\u00e9curis\u00e9 en s\u00e9questre Stripe (CAD). \u00c9crit par confirmStripePayment. Source de v\u00e9rit\u00e9 : toujours 20% du budget au moment du paiement."
+    },
+    "stripePaymentIntentId": {
+      "type": "string",
+      "description": "Stripe PaymentIntent ID du d\u00e9p\u00f4t 20% \u2014 capture manuelle (requires_capture)"
+    },
+    "balancePaid": {
+      "type": "number",
+      "default": 0,
+      "description": "Montant de la balance (80%) effectivement pay\u00e9 en CAD. \u00c9crit par confirmStripePayment quand requestType=balance. 0 tant que la balance n'est pas r\u00e9gl\u00e9e."
+    },
+    "balancePaidAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp du paiement de la balance. Null si balance non encore pay\u00e9e."
+    },
+    "stripeBalancePaymentIntentId": {
+      "type": "string",
+      "description": "Stripe PaymentIntent ID de la balance 80% \u2014 distinct du d\u00e9p\u00f4t. Permet la capture s\u00e9par\u00e9e et le remboursement diff\u00e9renci\u00e9."
+    },
+    "balanceRequestSentAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp de l'envoi de la demande de balance (\u00e9crit par requestBalancePayment). Null si non encore envoy\u00e9e."
+    },
+    "balanceDueDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date limite de paiement de la balance. Apr\u00e8s cette date \u2192 cancelUnpaidBalances annule l'event et rembourse le d\u00e9p\u00f4t."
+    },
+    "balancePaymentRequestId": {
+      "type": "string",
+      "description": "Relation vers EventPaymentRequest.id de type balance \u2014 pour navigation directe depuis l'UI."
+    },
+    "pendingProposalCount": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre de PriceProposal avec status=pending_talent ou pending_organizer. D\u00e9normalis\u00e9 pour badge UI sans requ\u00eate suppl\u00e9mentaire."
+    },
+    "payerUserId": {
+      "type": "string",
+      "description": "userId du payeur externe (nullable \u2014 diff\u00e9rent de organizerId si paiement d\u00e9l\u00e9gu\u00e9)"
+    },
+    "payerEmail": {
+      "type": "string",
+      "description": "Email du payeur externe (nullable \u2014 utilis\u00e9 si payerUserId absent)"
+    },
+    "budget": {
+      "type": "number",
+      "default": 0,
+      "description": "Budget total r\u00e9el de l'event en CAD, calcul\u00e9 par assignLineupSlot comme sum(assignedPrice) des placements actifs. Source de v\u00e9rit\u00e9 pour escrowAmount attendu (budget \u00d7 0.20) et pour la balance (budget - escrowAmount)."
+    },
+    "totalBudget": {
+      "type": "number",
+      "default": 0,
+      "description": "D\u00c9PR\u00c9CI\u00c9 \u2014 lecture seule pour donn\u00e9es historiques uniquement. Ne plus \u00e9crire. Utiliser Event.budget \u00e0 la place. Doublon confus avec le champ budget r\u00e9el."
+    },
+    "commissionRateApplied": {
+      "type": "string",
+      "description": "D\u00c9PR\u00c9CI\u00c9 \u2014 ne plus utiliser. \u00c9crit comme string 'pending_payout' par confirmStripePayment v5, jamais r\u00e9\u00e9crit avec le vrai taux. La commission effective est sur PayoutSplit.effectiveCommissionRate et LineupPlacement.effectiveCommissionRate. Conserv\u00e9 en lecture seule pour r\u00e9trocompatibilit\u00e9 historique."
+    },
+    "rolesNeeded": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Array of roleSystemId strings \u2014 roles the event is looking for"
+    },
+    "styles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Array of styleSystemId strings"
+    },
+    "scenes": {
+      "type": "array",
+      "default": [],
+      "description": "Sc\u00e8nes configur\u00e9es pour le plateau LineupBoard. Array of {sceneId, label, icon}. Written by CreateEvent at creation and update. Read by openEventLobby to write lineupScenes into the session snapshot.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sceneId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "schedule": {
+      "type": "array",
+      "default": [],
+      "description": "Plages horaires pour le plateau LineupBoard. Array of {plageId, label, timeStart, timeEnd}. Written by CreateEvent at creation and update. Read by openEventLobby to write lineupSchedule into the session snapshot.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "plageId": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "timeStart": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeEnd": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "sotsGlobalScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Score SOTS agr\u00e9g\u00e9 all-time"
+    },
+    "sotsRecent30Score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score SOTS des 30 derniers jours"
+    },
+    "totalVotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total de votes SOTS"
+    },
+    "cancelledAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp de l'annulation."
+    },
+    "cancelledBy": {
+      "type": "string",
+      "description": "userId de la personne qui a annul\u00e9. Null si annulation syst\u00e8me."
+    },
+    "cancelledBySystem": {
+      "type": "boolean",
+      "default": false,
+      "description": "true si annulation automatique par le syst\u00e8me (ex: balance_unpaid_auto). false si annulation volontaire par l'organisateur."
+    },
+    "cancellationReason": {
+      "type": "string",
+      "enum": [
+        "balance_unpaid_auto",
+        "cancelled_by_organizer",
+        "admin_override"
+      ],
+      "description": "Raison canonique de l'annulation. balance_unpaid_auto = syst\u00e8me J-6. cancelled_by_organizer = volontaire."
+    },
+    "cancellationNote": {
+      "type": "string",
+      "description": "Note libre facultative sur la raison d'annulation. Visible dans le rapport admin et l'historique."
+    }
+  },
+  "required": [
+    "title"
+  ]
+}
