@@ -102,6 +102,7 @@ const VALID_6690_INTERVENTION_TYPES = new Set([
   'PRINCIPAL_TAX_REGULARIZATION_ERROR',
   'PRINCIPAL_TAX_REGULARIZATION_AUDIT',
 ]);
+const { StripeReferenceGuard, Account6690DualApprovalGuard } = require('../core/guards/StripeReferenceGuard');
 
 /**
  * Guard Account6690 — D-060-B.

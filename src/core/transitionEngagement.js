@@ -64,14 +64,15 @@ const LedgerInvariantGuard    = require('./guards/LedgerInvariantGuard');
 const NoShowGuard             = require('./guards/NoShowGuard');
 const CancellationGuard       = require('./guards/CancellationGuard');
 const DisputeGuard            = require('./guards/DisputeGuard');
-const DisputeResolutionGuard   = require('./guards/DisputeResolutionGuard');
-const TransferGuard            = require('./guards/TransferGuard');
-const WithdrawalGuard          = require('./guards/WithdrawalGuard');
+const DisputeResolutionGuard  = require('./guards/DisputeResolutionGuard');
+const TransferGuard           = require('./guards/TransferGuard');
+const WithdrawalGuard         = require('./guards/WithdrawalGuard');
 const ArchiveWORMGuard        = require('./guards/ArchiveWORMGuard');
 const PayoutExecutor          = require('../services/PayoutExecutor');
 const PresenceWindowGuard     = require('./guards/PresenceWindowGuard');
 const EventCompletionGuard    = require('./guards/EventCompletionGuard');
 const SOTSWindowGuard         = require('./guards/SOTSWindowGuard');
+const StripeReferenceGuard    = require('./guards/StripeReferenceGuard');
 
 // ── Table souveraine — Source : D-019-A + OS V13 section 2.7.1 ──
 const TRANSITION_TABLE = {
