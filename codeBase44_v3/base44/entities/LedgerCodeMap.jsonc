@@ -1,0 +1,66 @@
+{
+  "name": "LedgerCodeMap",
+  "type": "object",
+  "description": "Plan comptable Micro Rave V4 \u2014 Market Pivot conforme. Chaque entr\u00e9e est un code du plan comptable (compte, SKU, passif fiscal, type d'intervention). Aucun code comptable ne vit dans le code source \u2014 tout est ici. Source : D-060, D-060-A, D-060-B, D-060-C, LedgerCodeMap V4.",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Code unique. Compte : '4310', '7110', etc. SKU : 'SKU-COURTAGE'. Passif fiscal : '4410'. Type intervention : 'PRINCIPAL_TAX_REGULARIZATION_PILOT'. Cl\u00e9 fonctionnelle \u2014 immuable apr\u00e8s cr\u00e9ation."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "ACCOUNT",
+        "SKU",
+        "FISCAL_LIABILITY",
+        "INTERVENTION_TYPE"
+      ],
+      "description": "Type d'entr\u00e9e. ACCOUNT = compte du plan comptable. SKU = moteur \u00e9conomique. FISCAL_LIABILITY = passif fiscal autoris\u00e9 comme contrepartie de 6690 (D-060-B). INTERVENTION_TYPE = valeur autoris\u00e9e pour metadata.interventionType sur 6690."
+    },
+    "description": {
+      "type": "string",
+      "description": "Libell\u00e9 humainement lisible. Ex : 'Cachets talents nets \u00e0 verser'. Affich\u00e9 dans les rapports et audits."
+    },
+    "category": {
+      "type": "string",
+      "description": "Cat\u00e9gorie comptable. Ex : ACTIF_COURANT, PASSIF_COURANT, REVENU_COURTAGE, CHARGE_VENTE, CHARGE_EXPLOITATION, MOTEUR_ECONOMIQUE, FISCAL_QC, FISCAL_ON, FISCAL_ABSORPTION."
+    },
+    "jurisdiction": {
+      "type": "string",
+      "description": "Juridiction fiscale. '*' = toutes. 'QC-CA' = Qu\u00e9bec seulement. 'ON-CA' = Ontario. Permet l'expansion g\u00e9ographique sans modifier le code."
+    },
+    "presentationOrder": {
+      "type": "number",
+      "description": "Ordre d'affichage dans le plan comptable et les \u00e9tats financiers. Plus petit = affich\u00e9 en premier."
+    },
+    "active": {
+      "type": "boolean",
+      "description": "Soft-delete conforme LOI GREFFIER-01. false = compte d\u00e9sactiv\u00e9, ignor\u00e9 par les guards. Ne jamais supprimer \u2014 toujours d\u00e9sactiver avec deactivationReason."
+    },
+    "source": {
+      "type": "string",
+      "description": "R\u00e9f\u00e9rence d\u00e9cision doctrine. Ex : 'D-060', 'D-060-B', 'D-060-A'. Tra\u00e7abilit\u00e9 du plan comptable vers la doctrine."
+    },
+    "deactivatedAt": {
+      "type": "string",
+      "description": "Timestamp ISO d\u00e9sactivation. Null si actif."
+    },
+    "deactivationReason": {
+      "type": "string",
+      "description": "Raison de d\u00e9sactivation \u2014 obligatoire si active=false. Ex : 'Compte fusionn\u00e9 avec 4330 \u2014 d\u00e9cision CF-2026-12'."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO cr\u00e9ation. Immuable."
+    },
+    "updatedAt": {
+      "type": "string",
+      "description": "Timestamp ISO derni\u00e8re mise \u00e0 jour (d\u00e9sactivation ou correction de libell\u00e9 uniquement)."
+    }
+  },
+  "required": [
+    "code",
+    "type",
+    "description"
+  ]
+}

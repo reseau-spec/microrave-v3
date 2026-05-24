@@ -47,9 +47,13 @@
       "type": "integer",
       "description": "Solde restant en cents."
     },
+    "commissionMrCents": {
+      "type": "integer",
+      "description": "Commission Micro Rave en cents. = floor(cachetSigneCents x tauxPpm / 1000000). Gravee a la creation. Source : D-038."
+    },
     "talentNetCents": {
       "type": "integer",
-      "description": "Net talent apr\u00e8s commission en cents."
+      "description": "Net talent apres commission en cents. = cachetSigneCents moins commissionMrCents."
     },
     "tpsCents": {
       "type": "integer",
