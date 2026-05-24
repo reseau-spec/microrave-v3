@@ -182,6 +182,129 @@ function resolveReconciliationKey(reconciliationKey, stripeTransferId, transacti
 }
 
 /**
+ * Détermine si un groupe est un reversal et retourne les ledgerRecordIds
+ * à marquer REVERSED dans LedgerRecordStatusHistory. — D-060-E
+ *
+ * Cherche dans cet ordre :
+ *   1. metadata.reversedLedgerRecordIds (liste explicite — prioritaire)
+ *   2. metadata.reversalOf + lookup du groupe original via repository
+ *   3. transactionType startsWith 'reversal_' sans cible → warn, no-op
+ */
+async function detectReversal({ transactionType, metadata, repositories }) {
+  const isReversal = (
+    (transactionType && transactionType.startsWith('reversal_')) ||
+    !!metadata?.reversedLedgerRecordIds ||
+    !!metadata?.reversalOf
+  );
+
+  if (!isReversal) {
+    return { isReversal: false, reversedIds: [], reversedGroupId: null };
+  }
+
+  // Cas 1 : liste explicite fournie
+  if (Array.isArray(metadata?.reversedLedgerRecordIds) && metadata.reversedLedgerRecordIds.length > 0) {
+    return {
+      isReversal:       true,
+      reversedIds:      metadata.reversedLedgerRecordIds,
+      reversedGroupId:  metadata.reversalOf || null,
+    };
+  }
+
+  // Cas 2 : groupe entier à reverser — lookup via repository
+  if (metadata?.reversalOf && repositories?.ledgerRecords?.findByTransactionGroupId) {
+    const originalLines = await repositories.ledgerRecords.findByTransactionGroupId(
+      metadata.reversalOf
+    );
+    return {
+      isReversal:       true,
+      reversedIds:      originalLines.map(l => l.systemId),
+      reversedGroupId:  metadata.reversalOf,
+    };
+  }
+
+  // Cas 3 : reversal détecté par convention mais sans cible explicite
+  console.warn(JSON.stringify({
+    level:  'WARN',
+    event:  'reversal_without_target',
+    transactionType,
+    action: 'Fournir metadata.reversedLedgerRecordIds ou metadata.reversalOf explicitement.',
+    source: 'D-060-E',
+  }));
+
+  return { isReversal: true, reversedIds: [], reversedGroupId: null };
+}
+
+/**
+ * Écrit synchroniquement dans LedgerRecordStatusHistory après persistance
+ * d'un groupe de reversal. Appelé en fin de recordTransaction(). — D-060-E
+ *
+ * Atomicité : si l'écriture échoue, throw → le caller doit rejouer.
+ * Rétrocompatibilité : si repositories.ledgerRecordStatusHistory absent,
+ * warn et continue (déploiements non migrés).
+ */
+async function writeStatusHistoryForReversal({
+  transactionType, metadata, transactionGroupId,
+  persistedRecords, decidedBy, decisionRecordId, repositories,
+}) {
+  if (!repositories?.ledgerRecordStatusHistory?.append) {
+    console.warn(JSON.stringify({
+      level:  'WARN',
+      event:  'ledgerRecordStatusHistory_repository_absent',
+      action: 'D-060-E non actif. Calcul de bilan ne peut pas filtrer les reversals automatiquement.',
+      source: 'D-060-E',
+    }));
+    return { historyWritten: false, transitions: [] };
+  }
+
+  const { isReversal, reversedIds, reversedGroupId } = await detectReversal({
+    transactionType, metadata, repositories,
+  });
+
+  if (!isReversal) return { historyWritten: false, transitions: [] };
+
+  const transitions = [];
+
+  try {
+    // Marquer les lignes originales comme REVERSED
+    for (const reversedId of reversedIds) {
+      transitions.push(await repositories.ledgerRecordStatusHistory.append({
+        ledgerRecordId:    reversedId,
+        status:            'REVERSED',
+        reason:            metadata?.reversalReason ||
+                           `Reversé par ${transactionGroupId} (${transactionType})`,
+        reversedByGroupId: transactionGroupId,
+        decidedBy,
+        decisionRecordId,
+      }));
+    }
+
+    // Marquer les nouvelles lignes du groupe comme REVERSAL_OF
+    for (const newRecord of persistedRecords) {
+      transitions.push(await repositories.ledgerRecordStatusHistory.append({
+        ledgerRecordId:    newRecord.systemId,
+        status:            'REVERSAL_OF',
+        reason:            reversedGroupId
+                             ? `Reversal du groupe ${reversedGroupId}`
+                             : `Reversal (cibles: ${reversedIds.join(', ')})`,
+        reversedByGroupId: transactionGroupId,
+        decidedBy,
+        decisionRecordId,
+      }));
+    }
+
+    return { historyWritten: true, transitions };
+
+  } catch (err) {
+    throw new Error(
+      `LEDGER_STATUS_HISTORY_WRITE_FAILED: LedgerRecordStatusHistory non écrite ` +
+      `après persistance du groupe ${transactionGroupId}. ` +
+      `Reversal INCOMPLET — lignes originales non marquées REVERSED. ` +
+      `Cause : ${err.message}. Action : rejouer manuellement. Source : D-060-E.`
+    );
+  }
+}
+
+/**
  * Valide une ligne individuelle avant persistance.
  * Lève une erreur descriptive si un champ est invalide.
  */
@@ -272,6 +395,8 @@ async function recordTransaction({
   metadata            = {},
   stripeTransferId    = null,   // [D-038-B] clé de réconciliation Stripe — champ natif LedgerRecord
   reconciliationKey   = null,   // [D-060-C] clé de réconciliation universelle — auto-générée si Stripe présent
+  decidedBy           = null,   // [D-060-E] userId du décideur — requis pour reversals institutionnels
+  decisionRecordId    = null,   // [D-060-E] FK vers DecisionRecord — requis pour reversals institutionnels
   entries             = [],
   repositories,
 }) {
@@ -375,6 +500,19 @@ async function recordTransaction({
     persistedRecords.push(record);
   }
 
+  // ── [D-060-E] Écriture synchrone LedgerRecordStatusHistory ──────
+  // Si ce groupe est un reversal, marquer les lignes originales REVERSED
+  // et les nouvelles lignes REVERSAL_OF — atomicité best-effort.
+  const statusHistoryResult = await writeStatusHistoryForReversal({
+    transactionType,
+    metadata,
+    transactionGroupId,
+    persistedRecords,
+    decidedBy:       decidedBy || metadata?.decidedBy || 'system',
+    decisionRecordId,
+    repositories,
+  });
+
   return {
     transactionGroupId,
     transactionType,
@@ -386,6 +524,8 @@ async function recordTransaction({
     createdAt:            now,
     ...(stripeTransferId        ? { stripeTransferId }      : {}),
     reconciliationKey:    resolvedReconciliationKey,
+    statusHistoryWritten: statusHistoryResult.historyWritten,
+    statusTransitions:    statusHistoryResult.transitions,
   };
 }
 
@@ -583,4 +723,6 @@ module.exports = {
   VALID_6690_INTERVENTION_TYPES,
   validateAccount6690,          // exposé pour les tests unitaires
   resolveReconciliationKey,     // exposé pour les tests unitaires
+  detectReversal,               // exposé pour les tests unitaires — D-060-E
+  writeStatusHistoryForReversal, // exposé pour les tests unitaires — D-060-E
 };

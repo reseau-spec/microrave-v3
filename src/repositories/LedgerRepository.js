@@ -90,6 +90,10 @@ async function append(entry) {
     );
   }
 
+  // Sérialisation de metadata — Base44 attend une string, pas un objet.
+  // Sans cette conversion, Base44 retourne ValidationError 422.
+  // Appliqué ici (couche transport) plutôt que dans FinancialLedgerService
+  // (couche métier) pour respecter la séparation des responsabilités.
   const serializedMetadata = entry.metadata != null
     ? (typeof entry.metadata === 'string' ? entry.metadata : JSON.stringify(entry.metadata))
     : undefined;
@@ -97,13 +101,11 @@ async function append(entry) {
   return base44Post('/entities/LedgerRecord', {
     ...entry,
     systemId,
-    metadata:  serializedMetadata,   // ← string, pas objet
+    metadata:  serializedMetadata,
     createdAt: entry.createdAt || new Date().toISOString(),
     // APPEND-ONLY : pas de champ updatedAt — immuable dès création
   });
 }
-
-
 
 /**
  * Retourne tous les LedgerRecord d'un Engagement, triés par createdAt ASC.
@@ -127,6 +129,18 @@ async function findByEventId(eventId) {
 }
 
 /**
+ * Retourne tous les LedgerRecord d'un transactionGroupId.
+ * Requis par D-060-E (detectReversal cas 2) pour identifier les lignes
+ * d'un groupe à marquer REVERSED dans LedgerRecordStatusHistory.
+ * @param {string} transactionGroupId — TXG-*
+ */
+async function findByTransactionGroupId(transactionGroupId) {
+  const q = encodeURIComponent(JSON.stringify({ transactionGroupId }));
+  const records = await base44Get(`/entities/LedgerRecord?q=${q}`);
+  return records.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+}
+
+/**
  * Ajoute un RoundingReconciliationRecord (append-only).
  * Utilisé par D-068 (méthode des plus grands restes, lineup multi-talent).
  * Non-bloquant pour SC-01 mono-talent.
@@ -135,22 +149,16 @@ async function appendRoundingRecord(entry) {
   if (!entry.systemId) {
     throw new Error('LEDGER_ERROR: RoundingReconciliationRecord.systemId manquant.');
   }
-
-  const serializedMetadata = entry.metadata != null
-    ? (typeof entry.metadata === 'string' ? entry.metadata : JSON.stringify(entry.metadata))
-    : undefined;
-
   return base44Post('/entities/RoundingReconciliationRecord', {
     ...entry,
-    metadata:  serializedMetadata,
     createdAt: entry.createdAt || new Date().toISOString(),
   });
 }
-
 
 module.exports = {
   append,
   findByEngagementId,
   findByEventId,
+  findByTransactionGroupId,
   appendRoundingRecord,
 };

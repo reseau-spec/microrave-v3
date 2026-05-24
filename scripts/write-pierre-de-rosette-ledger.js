@@ -177,13 +177,14 @@ async function writePhase1_Encaissement() {
   }
 
   const result = await FinancialLedgerService.recordTransaction({
-    transactionType: 'retroactive_pierre_de_rosette',
-    engagementId:    PILOT.engagementId,
-    eventId:         PILOT.eventId,
-    skuCode:         'SKU-COURTAGE',
-    subSkuCode:      'SUB-COURT-DJ',
-    currency:        PILOT.currency,
-    note:            'Phase 1 D-038 rétroactive — encaissement pilote Pierre de Rosette',
+    transactionType:   'retroactive_pierre_de_rosette',
+    engagementId:      PILOT.engagementId,
+    eventId:           PILOT.eventId,
+    skuCode:           'SKU-COURTAGE',
+    subSkuCode:        'SUB-COURT-DJ',
+    currency:          PILOT.currency,
+    note:              'Phase 1 D-038 rétroactive — encaissement pilote Pierre de Rosette',
+    reconciliationKey: 'journal:PIERRE-DE-ROSETTE-PHASE1-ENCAISSEMENT',  // D-060-C
     metadata: {
       pilote:             true,
       interventionType:   'RETROACTIVE_REGULARIZATION',
@@ -266,13 +267,15 @@ async function writePhase2_PayoutEtReconnaissance() {
   }
 
   const result = await FinancialLedgerService.recordTransaction({
-    transactionType: 'retroactive_pierre_de_rosette',
-    engagementId:    PILOT.engagementId,
-    eventId:         PILOT.eventId,
-    skuCode:         'SKU-COURTAGE',
-    subSkuCode:      'SUB-COURT-DJ',
-    currency:        PILOT.currency,
-    note:            'Phase 2 D-038 rétroactive — payout + reconnaissance revenu Pierre de Rosette',
+    transactionType:   'retroactive_pierre_de_rosette',
+    engagementId:      PILOT.engagementId,
+    eventId:           PILOT.eventId,
+    skuCode:           'SKU-COURTAGE',
+    subSkuCode:        'SUB-COURT-DJ',
+    currency:          PILOT.currency,
+    note:              'Phase 2 D-038 rétroactive — payout + reconnaissance revenu Pierre de Rosette',
+    reconciliationKey: `stripe:${PILOT.stripeTransferId}`,               // D-060-C
+    stripeTransferId:  PILOT.stripeTransferId,                            // D-038-B
     metadata: {
       pilote:           true,
       stripeTransferId: PILOT.stripeTransferId,
