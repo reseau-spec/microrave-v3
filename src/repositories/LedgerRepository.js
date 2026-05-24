@@ -89,13 +89,21 @@ async function append(entry) {
       `Reçu : ${entry.amountCents}. Source : D-064.`
     );
   }
+
+  const serializedMetadata = entry.metadata != null
+    ? (typeof entry.metadata === 'string' ? entry.metadata : JSON.stringify(entry.metadata))
+    : undefined;
+
   return base44Post('/entities/LedgerRecord', {
     ...entry,
-    systemId,   // utilise le systemId généré ou fourni
+    systemId,
+    metadata:  serializedMetadata,   // ← string, pas objet
     createdAt: entry.createdAt || new Date().toISOString(),
     // APPEND-ONLY : pas de champ updatedAt — immuable dès création
   });
 }
+
+
 
 /**
  * Retourne tous les LedgerRecord d'un Engagement, triés par createdAt ASC.
@@ -127,11 +135,18 @@ async function appendRoundingRecord(entry) {
   if (!entry.systemId) {
     throw new Error('LEDGER_ERROR: RoundingReconciliationRecord.systemId manquant.');
   }
+
+  const serializedMetadata = entry.metadata != null
+    ? (typeof entry.metadata === 'string' ? entry.metadata : JSON.stringify(entry.metadata))
+    : undefined;
+
   return base44Post('/entities/RoundingReconciliationRecord', {
     ...entry,
+    metadata:  serializedMetadata,
     createdAt: entry.createdAt || new Date().toISOString(),
   });
 }
+
 
 module.exports = {
   append,

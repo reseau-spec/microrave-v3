@@ -7,7 +7,7 @@
  * dont la somme des DEBIT = la somme des CREDIT.
  * Aucun groupe n'est persisté si l'invariant est violé.
  *
- * Source : D-038 · D-060 · D-064 · LOI LEDGER-01 · LOI LEDGER-02
+ * Source : D-038 · D-038-B · D-060 · D-060-B · D-060-C · D-060-E · D-064 · LOI LEDGER-01 · LOI LEDGER-02
  *
  * LOI LEDGER-01 : Aucun revenu n'est reconnu tant que l'Engagement
  *   n'est pas archivé. La commission MR vit en 4530 (passif — revenu
@@ -31,7 +31,7 @@
 const IDFactory = require('../core/IDFactory');
 
 /**
- * Comptes autorisés — LedgerCodeMap V3 (D-060, D-060-A).
+ * Comptes autorisés — LedgerCodeMap V4 (D-060, D-060-A, D-060-B).
  * Cet ensemble sert de garde-fou : toute écriture vers un compte
  * non listé ici est rejetée. Source de vérité : D-060.
  */
@@ -61,7 +61,8 @@ const VALID_ACCOUNTS = new Set([
   // Personnel
   '6310', '6320', '6330',
   // Autres charges
-  '6370', '6410', '6510', '6590', '6591', '6610', '6690',
+  '6370', '6410', '6510', '6590', '6591', '6610',
+  '6690', // Charges fiscales absorbées — voir D-060-B · usage restreint doctrine Principal
   // Revenus courtage
   '7110', '7120', '7130', '7190',
   // Revenus SaaS
@@ -84,6 +85,101 @@ const VALID_SKU_CODES = new Set([
   'SKU-COMMANDITES',
   'SKU-INTERNE',       // écritures non liées à un moteur économique (capital, etc.)
 ]);
+
+/**
+ * Comptes passifs fiscaux autorisés comme contrepartie de 6690.
+ * Toute écriture en 6690 doit avoir au moins un CREDIT dans cet ensemble.
+ * Source : D-060-B · extensible aux juridictions HST futures.
+ */
+const FISCAL_LIABILITY_ACCOUNTS = new Set(['4410', '4420', '4430', '4440']);
+
+/**
+ * interventionType autorisés pour les écritures sur le compte 6690.
+ * Source : D-060-B.
+ */
+const VALID_6690_INTERVENTION_TYPES = new Set([
+  'PRINCIPAL_TAX_REGULARIZATION_PILOT',
+  'PRINCIPAL_TAX_REGULARIZATION_ERROR',
+  'PRINCIPAL_TAX_REGULARIZATION_AUDIT',
+]);
+
+/**
+ * Guard Account6690 — D-060-B.
+ * Valide que tout groupe contenant une écriture sur 6690 :
+ *   1. Porte metadata.interventionType dans la liste autorisée
+ *   2. A au moins une contrepartie CREDIT dans les passifs fiscaux (4410/4420/...)
+ * Lève une erreur bloquante si l'une ou l'autre condition est absente.
+ */
+function validateAccount6690(entries, metadata) {
+  const lines6690 = entries.filter(e => e.account === '6690');
+  if (lines6690.length === 0) return; // pas de 6690 dans ce groupe, rien à valider
+
+  // 1. interventionType obligatoire
+  const interventionType = metadata?.interventionType;
+  if (!interventionType || !VALID_6690_INTERVENTION_TYPES.has(interventionType)) {
+    throw new Error(
+      `ACCOUNT_6690_GUARD: écriture sur 6690 sans interventionType valide. ` +
+      `Reçu : "${interventionType}". ` +
+      `Valeurs autorisées : ${[...VALID_6690_INTERVENTION_TYPES].join(', ')}. ` +
+      `Source : D-060-B.`
+    );
+  }
+
+  // 2. Contrepartie fiscale obligatoire — au moins un CREDIT dans 4410/4420/4430/4440
+  const hasFiscalLiabilityCredit = entries.some(
+    e => e.direction === 'CREDIT' && FISCAL_LIABILITY_ACCOUNTS.has(e.account)
+  );
+  if (!hasFiscalLiabilityCredit) {
+    throw new Error(
+      `ACCOUNT_6690_GUARD: écriture sur 6690 sans contrepartie CREDIT dans les passifs fiscaux. ` +
+      `Comptes acceptés : ${[...FISCAL_LIABILITY_ACCOUNTS].join(', ')}. ` +
+      `Une charge fiscale absorbée DOIT créer une dette envers l'État. ` +
+      `Source : D-060-B.`
+    );
+  }
+}
+
+/**
+ * Résout la reconciliationKey du groupe.
+ * Source : D-060-C.
+ *
+ * Règles :
+ *   1. Si fournie explicitement → utilisée telle quelle.
+ *   2. Si absente mais stripeTransferId présent → génération automatique 'stripe:xxx'
+ *      + log structuré (traçabilité de la génération implicite).
+ *   3. Si absente et pas de stripeTransferId → erreur bloquante (ReconciliationKeyGuard).
+ *
+ * @param {string|null} reconciliationKey  — fournie par le caller
+ * @param {string|null} stripeTransferId   — fourni par le caller
+ * @param {string}      transactionGroupId — pour le log
+ * @param {string}      transactionType    — pour le log
+ * @returns {string} reconciliationKey résolue
+ */
+function resolveReconciliationKey(reconciliationKey, stripeTransferId, transactionGroupId, transactionType) {
+  if (reconciliationKey) return reconciliationKey;
+
+  if (stripeTransferId) {
+    const generated = `stripe:${stripeTransferId}`;
+    // Log structuré obligatoire — D-060-C : traçabilité de la génération implicite
+    console.warn(JSON.stringify({
+      level:              'WARN',
+      event:              'reconciliationKey_auto_generated',
+      generatedKey:       generated,
+      transactionGroupId,
+      transactionType,
+      source:             'D-060-C — génération automatique depuis stripeTransferId',
+      action:             'Privilégier la fourniture explicite de reconciliationKey dans le caller.',
+    }));
+    return generated;
+  }
+
+  throw new Error(
+    `RECONCILIATION_KEY_GUARD: reconciliationKey obligatoire pour les groupes non-Stripe. ` +
+    `Fournir une valeur préfixée : journal:xxx, bank:xxx, decision:xxx, reversal:xxx, etc. ` +
+    `transactionType="${transactionType}". ` +
+    `Source : D-060-C.`
+  );
+}
 
 /**
  * Valide une ligne individuelle avant persistance.
@@ -152,7 +248,11 @@ function validateEntry(entry, index) {
  * @param {string}   [params.subSkuCode]      — sous-code (SUB-COURT-DJ, etc.)
  * @param {string}   [params.currency]        — 'cad' par défaut
  * @param {string}   [params.note]            — note libre
- * @param {object}   [params.metadata]        — données contextuelles (stripeRef, etc.)
+ * @param {string}   [params.stripeTransferId] — [D-038-B] ID Stripe natif (tr_xxx, ch_xxx, po_xxx, re_xxx).
+ *                                              Porté en champ de premier niveau sur chaque ligne du groupe.
+ *                                              Clé de réconciliation Stripe ↔ LedgerRecord sans parser metadata.
+ *                                              Obligatoire pour tout groupe touchant 5100/5200 via un flux Stripe.
+ * @param {object}   [params.metadata]        — données contextuelles additionnelles (waterfall, etc.)
  * @param {Array}    params.entries           — lignes de la transaction
  * @param {string}   params.entries[].account     — code compte (ex: '5200')
  * @param {string}   params.entries[].direction   — 'DEBIT' ou 'CREDIT'
@@ -163,14 +263,16 @@ function validateEntry(entry, index) {
  */
 async function recordTransaction({
   transactionType,
-  engagementId  = null,
-  eventId       = null,
-  skuCode       = 'SKU-COURTAGE',
-  subSkuCode    = null,
-  currency      = 'cad',
-  note          = '',
-  metadata      = {},
-  entries       = [],
+  engagementId        = null,
+  eventId             = null,
+  skuCode             = 'SKU-COURTAGE',
+  subSkuCode          = null,
+  currency            = 'cad',
+  note                = '',
+  metadata            = {},
+  stripeTransferId    = null,   // [D-038-B] clé de réconciliation Stripe — champ natif LedgerRecord
+  reconciliationKey   = null,   // [D-060-C] clé de réconciliation universelle — auto-générée si Stripe présent
+  entries             = [],
   repositories,
 }) {
   // ── Validation structurelle ─────────────────────────────────
@@ -200,6 +302,17 @@ async function recordTransaction({
   // ── Validation de chaque ligne ──────────────────────────────
 
   entries.forEach((entry, i) => validateEntry(entry, i));
+
+  // ── Guard Account6690 — D-060-B ─────────────────────────────
+  // Valide interventionType et contrepartie fiscale si 6690 présent.
+  validateAccount6690(entries, metadata);
+
+  // ── Résolution reconciliationKey — D-060-C ───────────────────
+  // Génère automatiquement depuis stripeTransferId si non fournie,
+  // ou lève une erreur bloquante pour les groupes non-Stripe sans clé.
+  const resolvedReconciliationKey = resolveReconciliationKey(
+    reconciliationKey, stripeTransferId, '(en cours)', transactionType
+  );
 
   // ── Invariant DR = CR ───────────────────────────────────────
 
@@ -237,22 +350,26 @@ async function recordTransaction({
       systemId,
       transactionGroupId,
       transactionType,
-      lineIndex:      i,
+      lineIndex:              i,
       engagementId,
       eventId,
       skuCode,
       subSkuCode,
-      account:        entry.account,
-      direction:      entry.direction,
-      amountCents:    entry.amountCents,
+      account:                entry.account,
+      direction:              entry.direction,
+      amountCents:            entry.amountCents,
       currency,
-      note:           entry.note || note,
-      metadata:       {
+      note:                   entry.note || note,
+      // [D-038-B] stripeTransferId propagé sur toutes les lignes du groupe
+      ...(stripeTransferId ? { stripeTransferId } : {}),
+      // [D-060-C] reconciliationKey propagée sur toutes les lignes du groupe
+      reconciliationKey:      resolvedReconciliationKey,
+      metadata:               {
         ...metadata,
         transactionGroupId,
         lineCount: entries.length,
       },
-      createdAt:      now,
+      createdAt:              now,
     });
 
     persistedRecords.push(record);
@@ -263,10 +380,12 @@ async function recordTransaction({
     transactionType,
     totalDebit,
     totalCredit,
-    balanced:  true,
-    lineCount: entries.length,
-    entries:   persistedRecords,
-    createdAt: now,
+    balanced:             true,
+    lineCount:            entries.length,
+    entries:              persistedRecords,
+    createdAt:            now,
+    ...(stripeTransferId        ? { stripeTransferId }      : {}),
+    reconciliationKey:    resolvedReconciliationKey,
   };
 }
 
@@ -460,4 +579,8 @@ module.exports = {
   generateBalanceSnapshot,
   VALID_ACCOUNTS,
   VALID_SKU_CODES,
+  FISCAL_LIABILITY_ACCOUNTS,
+  VALID_6690_INTERVENTION_TYPES,
+  validateAccount6690,          // exposé pour les tests unitaires
+  resolveReconciliationKey,     // exposé pour les tests unitaires
 };

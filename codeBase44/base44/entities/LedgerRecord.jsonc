@@ -1,35 +1,63 @@
 {
   "name": "LedgerRecord",
   "type": "object",
-  "description": "\u00c9criture comptable append-only. LOI LEDGER-02. D-038.",
+  "description": "\u00c9criture comptable append-only en double-entr\u00e9e. LOI LEDGER-01/02. D-038/D-060. Chaque record est UNE LIGNE d'une transaction \u2014 les lignes sont li\u00e9es par transactionGroupId.",
   "properties": {
     "systemId": {
       "type": "string",
       "description": "IDFactory LDG-*."
     },
+    "transactionGroupId": {
+      "type": "string",
+      "description": "IDFactory TXG-*. Lie toutes les lignes DR+CR d'une m\u00eame transaction. INVARIANT : sum(DEBIT) = sum(CREDIT) pour chaque TXG-*."
+    },
+    "transactionType": {
+      "type": "string",
+      "description": "Type m\u00e9tier : encaissement_depot, encaissement_solde, payout_executed, reconnaissance_revenu, remise_tps, remise_tvq, refund, reversal, encaissement_saas, encaissement_billet, encaissement_commandite, ajustement_arrondi, ecart_processeur, amendment_delta, chargeback, retroactive_pierre_de_rosette."
+    },
+    "lineIndex": {
+      "type": "integer",
+      "description": "Index de la ligne dans le groupe (0, 1, 2...). Pour ordonner les lignes d'un m\u00eame TXG-*."
+    },
     "engagementId": {
       "type": "string",
-      "description": "ENG-*."
+      "description": "ENG-*. Null si non li\u00e9 \u00e0 un Engagement (ex: encaissement SaaS)."
     },
-    "type": {
+    "eventId": {
       "type": "string",
-      "description": "Type d'\u00e9criture : deposit_secured, payout_executed, etc."
+      "description": "EVT-*. Null si non li\u00e9 \u00e0 un Event."
     },
-    "talentUserId": {
+    "skuCode": {
       "type": "string",
-      "description": "USR-* du talent."
+      "description": "Moteur \u00e9conomique : SKU-COURTAGE, SKU-SAAS, SKU-BILLETTERIE, SKU-COMMANDITES, SKU-INTERNE."
     },
-    "amountCents": {
-      "type": "integer",
-      "description": "Montant en cents."
+    "subSkuCode": {
+      "type": "string",
+      "description": "Sous-code optionnel : SUB-COURT-DJ, SUB-SAAS-BASE-MENSUEL, etc."
     },
     "account": {
       "type": "string",
-      "description": "Code comptable LedgerCodeMap V3."
+      "description": "Code comptable LedgerCodeMap V3 (D-060). Ex: 4310, 5200, 7110."
     },
     "direction": {
       "type": "string",
       "description": "DEBIT ou CREDIT."
+    },
+    "amountCents": {
+      "type": "integer",
+      "description": "Montant en cents entiers (D-064). Jamais float. Toujours >= 0."
+    },
+    "currency": {
+      "type": "string",
+      "description": "Code devise ISO. 'cad' par d\u00e9faut."
+    },
+    "type": {
+      "type": "string",
+      "description": "[LEGACY \u2014 remplac\u00e9 par transactionType] Type d'\u00e9criture. Conserv\u00e9 pour r\u00e9trocompatibilit\u00e9 avec PayoutExecutor existant."
+    },
+    "talentUserId": {
+      "type": "string",
+      "description": "USR-* du talent si applicable."
     },
     "stripeTransferId": {
       "type": "string",
@@ -37,21 +65,24 @@
     },
     "executedAt": {
       "type": "string",
-      "description": "Timestamp ex\u00e9cution."
+      "description": "Timestamp ex\u00e9cution si applicable."
     },
     "note": {
       "type": "string",
-      "description": "Note libre."
+      "description": "Note libre humainement lisible."
+    },
+    "metadata": {
+      "type": "string",
+      "description": "JSON s\u00e9rialis\u00e9 \u2014 donn\u00e9es contextuelles additionnelles."
     },
     "createdAt": {
       "type": "string",
-      "description": "Timestamp ISO 8601."
+      "description": "Timestamp ISO 8601. IMMUABLE apr\u00e8s cr\u00e9ation."
     }
   },
   "required": [
-    "engagementId",
-    "type",
     "amountCents",
-    "direction"
+    "direction",
+    "account"
   ]
 }
