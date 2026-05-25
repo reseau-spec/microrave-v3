@@ -1,4 +1,4 @@
-à faire
+à faire : implanter "planAffairesContinueDebat.md"
 
 Ce qui se fait en une session de trois heures
 Heure 1 — Créer le fichier NUCLEUS dans GitHub. Coller le glossaire souverain (déjà rédigé). Valider les 15 définitions.

@@ -43,3 +43,39 @@ async function main() {
 }
 
 main().catch(e => { console.error('❌', e.message); process.exit(1); });
+
+// ── Ajouter les clés additionnelles pour payout et revenue ───
+async function seedAdditional(headers) {
+  const additional = [
+    {
+      key:         'ledger_account_stripe_available',
+      value:       '5100',
+      category:    'OPERATIONNEL',
+      description: 'Compte Stripe disponible — utilisé lors des payouts talent (DEC-PAYOUT). Source : D-060.',
+    },
+    {
+      key:         'ledger_account_revenue_courtage',
+      value:       '7110',
+      category:    'OPERATIONNEL',
+      description: 'Compte revenu de courtage reconnu — reconnu à l\'archivage de l\'engagement (4530→7110). Source : D-038, D-060.',
+    },
+  ];
+
+  for (const entry of additional) {
+    const check = await fetch(
+      `${BASE44_BASE_URL}/entities/PolicyConfig?q=${encodeURIComponent(JSON.stringify({ key: entry.key }))}`,
+      { headers }
+    ).then(r => r.json());
+
+    if (Array.isArray(check) && check.length > 0) {
+      console.log(`✓ Déjà présent : ${entry.key} = ${check[0].value}`);
+      continue;
+    }
+
+    const res = await fetch(`${BASE44_BASE_URL}/entities/PolicyConfig`, {
+      method: 'POST', headers, body: JSON.stringify(entry),
+    });
+    if (!res.ok) throw new Error(`POST PolicyConfig ${entry.key} → ${res.status}`);
+    console.log(`✓ ${entry.key} = ${entry.value} ajouté`);
+  }
+}
