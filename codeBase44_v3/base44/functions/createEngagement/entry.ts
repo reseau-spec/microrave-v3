@@ -1,31 +1,36 @@
 /**
- * createEngagement — Base44 Function v5
+ * createEngagement — Base44 Function v6
  * ============================================================
  * Crée un Event + un Engagement en état initial `placed`.
  *
- * ARCHITECTURE — Deux blocs indépendants et séquentiels :
+ * ── CHANGEMENTS v5 → v6 ─────────────────────────────────────
+ *
+ * Le waterfall placement utilise désormais 4110 (Créances clients
+ * nettes) au DEBIT au lieu de 4335 (Fonds Stripe Connect non
+ * ventilés). 4335 n'apparaît pas dans D-038 et était utilisé à
+ * tort comme « clearing waterfall ».
+ *
+ * Nouvelle waterfall placement (cf. D-038 étendu) :
+ *
+ *   4110 DR cachetSigneCents     BILAN  null   placement_engagement
+ *        (créance envers organisateur)
+ *   4310 CR talentNetCents       BILAN  null   placement_engagement
+ *        (dette envers talent)
+ *   4530 CR commissionMrCents    BILAN  null   placement_engagement
+ *        (revenu différé)
+ *
+ * À l'encaissement (par stripeWebhookHandler v4) :
+ *   5200 DR depositCents         FLUX   ENC-DEPOT  encaissement_depot
+ *   4110 CR depositCents         FLUX   ENC-DEPOT  encaissement_depot
+ *        (extinction partielle de la créance)
+ *
+ * Clé PolicyConfig requise : ledger_account_organizer_receivable
+ * (seedée par scripts/seed-policy-organizer-receivable.js)
+ *
+ * ── ARCHITECTURE (inchangée depuis v5) ──────────────────────
  *
  *   BLOC 1 — Comptabilité (obligatoire, fail-hard)
- *     a. Résoudre les comptes depuis PolicyConfig
- *     b. Créer Event + Engagement en base
- *     c. Écrire les 3 LedgerRecords (LOI LEDGER-01/02)
- *     → Si une étape échoue : retourner 500, rien n'est créé.
- *     → Les LedgerRecords ne dépendent PAS de Stripe.
- *
  *   BLOC 2 — Paiement Stripe (best-effort, fail-soft)
- *     a. Créer la Checkout Session Stripe
- *     b. Créer l'EventPaymentRequest
- *     c. Passer l'engagement en deposit_pending
- *     → Si Stripe échoue : l'engagement reste en placed,
- *       les LedgerRecords sont déjà écrits, la réponse
- *       retourne ok=true avec stripeError documenté.
- *     → L'organisateur peut réessayer le paiement plus tard.
- *
- * POURQUOI cette séparation :
- *   Une erreur Stripe (clé manquante, timeout, rate limit)
- *   ne doit jamais masquer un problème comptable.
- *   Inversement, un engagement sans paiement immédiat
- *   doit quand même exister dans le ledger.
  *
  * Source : D-016, D-019-A, D-027, D-038, D-060, Market Pivot V3
  * ============================================================
@@ -51,7 +56,7 @@ function floorPpm(amountCents, ratePpm) {
 // Fail-hard si une clé manque — ne jamais fallback vers un hardcode.
 async function loadLedgerAccounts(base44) {
   const keys = [
-    'ledger_account_clearing',
+    'ledger_account_organizer_receivable',
     'ledger_account_talent_payable',
     'ledger_account_commission_escrow',
   ];
@@ -73,21 +78,20 @@ async function loadLedgerAccounts(base44) {
   if (missing.length > 0) {
     throw new Error(
       `LEDGER_ACCOUNTS_MISSING: Clés PolicyConfig absentes : ${missing.join(', ')}. ` +
-      `Ajouter ces clés dans PolicyConfig avant de créer des engagements. Source : D-060, Market Pivot V3.`
+      `Ajouter ces clés dans PolicyConfig avant de créer des engagements. ` +
+      `Pour ledger_account_organizer_receivable : node scripts/seed-policy-organizer-receivable.js. ` +
+      `Source : D-038, D-060, Market Pivot V3.`
     );
   }
 
   return {
-    clearing:         accounts['ledger_account_clearing'],
-    talentPayable:    accounts['ledger_account_talent_payable'],
-    commissionEscrow: accounts['ledger_account_commission_escrow'],
+    organizerReceivable: accounts['ledger_account_organizer_receivable'],
+    talentPayable:       accounts['ledger_account_talent_payable'],
+    commissionEscrow:    accounts['ledger_account_commission_escrow'],
   };
 }
 
 // ── BLOC 1 : Comptabilité ─────────────────────────────────────
-// Crée Event, Engagement, et LedgerRecords.
-// Retourne { event, engagement, txgId } ou lève une exception.
-// Aucun appel Stripe ici.
 async function createEngagementWithLedger({
   base44, organizerUserId, talentUserId,
   eventName, eventDate, venueAddress,
@@ -140,9 +144,9 @@ async function createEngagementWithLedger({
   // ── 1d. Écrire les LedgerRecords (D-038 · LOI LEDGER-01/02) ──
   // Waterfall gravé dès le placement — indépendant du paiement Stripe.
   // Comptes depuis PolicyConfig (Market Pivot V3) :
-  //   clearing        DR  cachetSigneCents  — fonds à ventiler
-  //   talentPayable   CR  talentNetCents    — dette envers le talent
-  //   commissionEscrow CR commissionMrCents — revenu MR différé
+  //   organizerReceivable DR cachetSigneCents  — créance envers organisateur
+  //   talentPayable       CR talentNetCents    — dette envers le talent
+  //   commissionEscrow    CR commissionMrCents — revenu MR différé
 
   const txgId = `TXG-${engagementSystemId.slice(4)}`;
 
@@ -156,7 +160,7 @@ async function createEngagementWithLedger({
       eventId:            eventSystemId,
       skuCode:            'SKU-COURTAGE',
       subSkuCode:         `SUB-COURT-${(roleMetier || 'DJ').toUpperCase().slice(0, 10)}`,
-      account:            accounts.clearing,
+      account:            accounts.organizerReceivable,
       direction:          'DEBIT',
       amountCents:        cachetSigneCents,
       currency:           'cad',
@@ -164,7 +168,7 @@ async function createEngagementWithLedger({
       flowCode:           null,
       economicEvent:      'placement_engagement',
       reconciliationKey:  `journal:placement-${engagementSystemId}`,
-      note:               `Placement ${engagementSystemId} — clearing waterfall ${(cachetSigneCents/100).toFixed(2)}$`,
+      note:               `Placement ${engagementSystemId} — créance organisateur ${(cachetSigneCents/100).toFixed(2)}$`,
       metadata:           JSON.stringify({
         transactionGroupId: txgId,
         lineCount:          3,
@@ -245,8 +249,6 @@ async function createEngagementWithLedger({
 }
 
 // ── BLOC 2 : Paiement Stripe (best-effort) ────────────────────
-// Crée la Checkout Session et l'EPR.
-// Ne lève jamais d'exception — retourne { ok, checkoutUrl, error }.
 async function initiateStripeCheckout({
   base44, engagementSystemId, eventSystemId,
   organizerUserId, talentUserId,
@@ -387,8 +389,6 @@ Deno.serve(async (req) => {
 
     // ════════════════════════════════════════════════════════
     // BLOC 1 — Comptabilité (fail-hard)
-    // Si ce bloc échoue, on retourne une erreur explicite.
-    // Aucune ligne partielle n'est laissée en base.
     // ════════════════════════════════════════════════════════
     let ledgerResult;
     try {
@@ -413,10 +413,6 @@ Deno.serve(async (req) => {
 
     // ════════════════════════════════════════════════════════
     // BLOC 2 — Paiement Stripe (fail-soft)
-    // Si ce bloc échoue, l'engagement et le ledger existent déjà.
-    // La réponse indique ok=true mais documente l'erreur Stripe.
-    // L'organisateur peut déclencher le paiement plus tard via
-    // initiateDepositPayment.
     // ════════════════════════════════════════════════════════
     const stripeResult = await initiateStripeCheckout({
       base44, engagementSystemId, eventSystemId,

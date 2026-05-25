@@ -335,7 +335,7 @@ Le CFO de Micro Rave surveille trois indicateurs de santé industrielle :
 ---
 
 **Déclaration du Fondateur :**
-Cette Bible Fondatrice transforme l'économie créative en une suite ordonnée de processus mesurables. Nous ne vendons pas du divertissement, nous vendons la **précision industrielle** appliquée à la culture. Chaque ligne de code et chaque transaction dans le CONDUCTEUR est une incarnation de cette doctrine.
+Cette Bible Fondatrice transforme l'économie créative en une suite ordonnée de processus mesurables. Nous ne vendons pas du divertissement, nous vendons la **précision industrielle** appliquée à l'engagement'. Chaque ligne de code et chaque transaction dans le CONDUCTEUR est une incarnation de cette doctrine.
 
 *Fait à Ville-Marie, Montréal, QC, Canada.*
 *Approuvé par le comité de direction opérationnelle, Micro Rave V15.*

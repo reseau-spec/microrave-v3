@@ -1,19 +1,28 @@
 /**
- * stripeWebhookHandler — Base44 Function
+ * stripeWebhookHandler — Base44 Function v4
  * ============================================================
  * Valide la signature Stripe, persiste le log d'idempotence,
  * dispatche les événements, et GRAVE les LedgerRecords.
  *
- * ÉVÉNEMENTS GÉRÉS :
+ * ── CHANGEMENTS v3 → v4 ────────────────────────────────────
+ *
+ * À l'encaissement, on crédite désormais 4110 (Créances clients
+ * nettes) au lieu de 4335. C'est l'extinction de la créance
+ * gravée au placement par createEngagement v6.
+ *
+ * Nouvelle waterfall encaissement (D-038) :
+ *   5200 DR depositCents    FLUX  ENC-DEPOT  encaissement_depot
+ *   4110 CR depositCents    FLUX  ENC-DEPOT  encaissement_depot
+ *        (extinction partielle créance organisateur)
+ *
+ * Clé PolicyConfig requise : ledger_account_organizer_receivable
+ * (seedée par scripts/seed-policy-organizer-receivable.js)
+ *
+ * ── ÉVÉNEMENTS GÉRÉS (inchangés) ───────────────────────────
  *   checkout.session.completed  → deposit_pending → deposit_secured
- *                                 + LedgerRecords encaissement dépôt
  *   payment_intent.succeeded    → idem (fallback si pas de session)
  *
- * ÉCRITURES LEDGER sur encaissement dépôt (D-038) :
- *   5200  DR  depositCents    BILAN  FLUX  ENC-DEPOT  encaissement_depot
- *   4335  CR  depositCents    BILAN  FLUX  ENC-DEPOT  encaissement_depot
- *
- * Source : D-097, D-038, LOI LEDGER-01/02, OS V15
+ * Source : D-038, D-097, LOI LEDGER-01/02, OS V15
  * ============================================================
  */
 
@@ -45,34 +54,46 @@ async function validateStripeSignature(rawBody, signature, secret) {
 }
 
 // ── Charger les comptes depuis PolicyConfig ───────────────────
+// Market Pivot V3 : aucun code comptable en dur. Fail-hard si manquant.
 async function loadLedgerAccounts(base44) {
   const keys = [
-    'ledger_account_clearing',
+    'ledger_account_organizer_receivable',
     'ledger_account_talent_payable',
     'ledger_account_commission_escrow',
+    'ledger_account_encaissement',
   ];
+
   const accounts = {};
+  const missing  = [];
+
   for (const key of keys) {
     const records = await base44.entities.PolicyConfig
       .filter({ key }, '-created_date', 1).catch(() => []);
-    if (records?.length) accounts[key] = records[0].value;
+    if (records?.length && records[0].value) {
+      accounts[key] = records[0].value;
+    } else {
+      missing.push(key);
+    }
   }
 
-  // Compte encaissement (5200 — Stripe en attente)
-  const enc5200 = await base44.entities.PolicyConfig
-    .filter({ key: 'ledger_account_encaissement' }, '-created_date', 1).catch(() => []);
+  if (missing.length > 0) {
+    throw new Error(
+      `LEDGER_ACCOUNTS_MISSING: Clés PolicyConfig absentes : ${missing.join(', ')}. ` +
+      `Source : D-038, D-060, Market Pivot V3.`
+    );
+  }
 
   return {
-    clearing:         accounts['ledger_account_clearing']         || '4335',
-    talentPayable:    accounts['ledger_account_talent_payable']    || '4310',
-    commissionEscrow: accounts['ledger_account_commission_escrow'] || '4530',
-    encaissement:     enc5200?.[0]?.value                         || '5200',
+    organizerReceivable: accounts['ledger_account_organizer_receivable'],
+    talentPayable:       accounts['ledger_account_talent_payable'],
+    commissionEscrow:    accounts['ledger_account_commission_escrow'],
+    encaissement:        accounts['ledger_account_encaissement'],
   };
 }
 
 // ── Écriture ledger encaissement dépôt ───────────────────────
 // 5200 DR (argent reçu dans Stripe)
-// 4335 CR (clearing — on sait maintenant quel engagement est financé)
+// 4110 CR (extinction partielle créance organisateur)
 async function writeLedgerEncaissement({ base44, eng, depositCents, stripeEventId, accounts, now }) {
   const txgId = `TXG-ENC-${eng.systemId.slice(4)}-${stripeEventId.slice(-6)}`;
   const dr = depositCents;
@@ -113,12 +134,12 @@ async function writeLedgerEncaissement({ base44, eng, depositCents, stripeEventI
       eventId:            eng.eventId || '',
       skuCode:            'SKU-COURTAGE',
       subSkuCode:         'SUB-COURT-DEPOT',
-      account:            accounts.clearing,
+      account:            accounts.organizerReceivable,
       direction:          'CREDIT',
       amountCents:        depositCents,
       currency:           'cad',
       reconciliationKey:  `stripe:${stripeEventId}`,
-      note:               `Clearing encaissement dépôt — affectation engagement ${eng.systemId}`,
+      note:               `Extinction partielle créance organisateur — engagement ${eng.systemId}`,
       metadata:           JSON.stringify({ stripeEventId, txgId, lineCount: 2 }),
       createdAt:          now,
     },
@@ -174,14 +195,14 @@ async function handlePaymentIntentSucceeded(paymentIntent, base44) {
 
     // Transition deposit_pending → deposit_secured
     await base44.entities.Engagement.update(eng.id, {
-      status:               'deposit_secured',
-      depositSecuredAt:     now,
+      status:                'deposit_secured',
+      depositSecuredAt:      now,
       stripeDepositIntentId: String(paymentIntent.id),
-      updatedAt:            now,
+      updatedAt:             now,
     });
 
     return {
-      action:      'DEPOSIT_SECURED',
+      action:        'DEPOSIT_SECURED',
       engagementId,
       txgId,
       depositCents,
