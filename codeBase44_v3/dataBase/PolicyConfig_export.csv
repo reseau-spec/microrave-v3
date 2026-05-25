@@ -1,4 +1,5 @@
 description,value_type,category,value,key,id,created_date,updated_date,created_by_id,created_by,is_sample
+"","ENUM","OPERATIONNEL","5200","ledger_account_encaissement","6a139f68e948e65ad292ce01","2026-05-25T01:01:28.474000","2026-05-25T01:01:28.474000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"
 "","ENUM","OPERATIONNEL","4530","ledger_account_commission_escrow","6a1352e3f5dff3416ef3aca6","2026-05-24T19:34:59.214000","2026-05-24T19:34:59.214000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"
 "","ENUM","OPERATIONNEL","4310","ledger_account_talent_payable","6a1352c995a27769e167e21c","2026-05-24T19:34:33.436000","2026-05-24T19:34:33.436000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"
 "","ENUM","OPERATIONNEL","4335","ledger_account_clearing","6a1352b313dadbe1af820361","2026-05-24T19:34:11.432000","2026-05-24T19:34:40.841000","6a09b5c6ace6051fecd365af","frederik.gelin@gmail.com","false"

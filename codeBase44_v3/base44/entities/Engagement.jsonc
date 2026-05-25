@@ -82,6 +82,10 @@
     "createdAt": {
       "type": "string",
       "description": "Timestamp ISO 8601."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description de l'engagement \u2014 contexte, attentes, notes pour le talent. Optionnel."
     }
   },
   "required": [

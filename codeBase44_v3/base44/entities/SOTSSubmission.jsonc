@@ -38,6 +38,10 @@
     "createdAt": {
       "type": "string",
       "description": "Timestamp ISO 8601."
+    },
+    "note": {
+      "type": "string",
+      "description": "Note libre de l'\u00e9valuateur. Optionnelle. Contexte qualitatif accompagnant le score."
     }
   },
   "required": [

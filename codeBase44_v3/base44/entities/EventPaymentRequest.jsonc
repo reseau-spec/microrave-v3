@@ -30,6 +30,30 @@
     "createdAt": {
       "type": "string",
       "description": "Timestamp ISO 8601."
+    },
+    "organizerUserId": {
+      "type": "string",
+      "description": "USR-* de l'organisateur payeur."
+    },
+    "currency": {
+      "type": "string",
+      "description": "Code devise ISO. 'cad' par d\u00e9faut."
+    },
+    "stripeCheckoutSessionId": {
+      "type": "string",
+      "description": "ID Stripe Checkout Session (cs_*). Null si PaymentIntent direct."
+    },
+    "stripeCheckoutUrl": {
+      "type": "string",
+      "description": "URL de la Checkout Session h\u00e9berg\u00e9e par Stripe. Valide 24h."
+    },
+    "stripeClientSecret": {
+      "type": "string",
+      "description": "Client secret PaymentIntent pour montage Stripe.js c\u00f4t\u00e9 client. Null si Checkout Session."
+    },
+    "stripePublishableKey": {
+      "type": "string",
+      "description": "Cl\u00e9 publique Stripe pour Stripe.js. Null si Checkout Session."
     }
   },
   "required": [

@@ -1,7 +1,7 @@
 {
   "name": "LedgerRecord",
   "type": "object",
-  "description": "\u00c9criture comptable append-only en double-entr\u00e9e. LOI LEDGER-01/02. D-038/D-060. Chaque record est UNE LIGNE d'une transaction \u2014 les lignes sont li\u00e9es par transactionGroupId.",
+  "description": "\u00c9criture comptable append-only en double-entr\u00e9e. LOI LEDGER-01/02. D-038/D-060. Chaque record est UNE LIGNE d'une transaction \u2014 les lignes sont li\u00e9es par transactionGroupId. NOTE : le champ type a \u00e9t\u00e9 supprim\u00e9 (doublon de financialStatement). Utiliser financialStatement pour classifier BILAN/RESULTAT/FLUX/MEMO.",
   "properties": {
     "systemId": {
       "type": "string",
@@ -51,10 +51,6 @@
       "type": "string",
       "description": "Code devise ISO. 'cad' par d\u00e9faut."
     },
-    "type": {
-      "type": "string",
-      "description": "[LEGACY \u2014 remplac\u00e9 par transactionType] Type d'\u00e9criture. Conserv\u00e9 pour r\u00e9trocompatibilit\u00e9 avec PayoutExecutor existant."
-    },
     "talentUserId": {
       "type": "string",
       "description": "USR-* du talent si applicable."
@@ -78,6 +74,40 @@
     "createdAt": {
       "type": "string",
       "description": "Timestamp ISO 8601. IMMUABLE apr\u00e8s cr\u00e9ation."
+    },
+    "reconciliationKey": {
+      "type": "string",
+      "description": "Cl\u00e9 de r\u00e9conciliation universelle (D-060-C). Format pr\u00e9fix\u00e9 : stripe:tr_xxx, journal:JNL-xxx, bank:xxx, reversal:TXG-xxx, legacy:xxx. Obligatoire sur toute \u00e9criture \u2014 permet l'audit sans parser metadata."
+    },
+    "financialStatement": {
+      "type": "string",
+      "enum": [
+        "BILAN",
+        "RESULTAT",
+        "FLUX",
+        "MEMO"
+      ],
+      "description": "\u00c9tat financier cible. BILAN = bilan (actif/passif). RESULTAT = compte de r\u00e9sultat (P&L). FLUX = \u00e9tat des flux de tr\u00e9sorerie. MEMO = \u00e9criture m\u00e9mo/statistique hors \u00e9tats. Obligatoire sur toute nouvelle \u00e9criture."
+    },
+    "flowCode": {
+      "type": "string",
+      "description": "Code flux de tr\u00e9sorerie (LedgerCodeMap type=FLUX). Ex: ENC-DEPOT, DEC-PAYOUT, INT-CAPTURE. Null si financialStatement != FLUX. R\u00e9f\u00e9rence le plan des flux du LedgerCodeMap V4."
+    },
+    "economicEvent": {
+      "type": "string",
+      "enum": [
+        "placement_engagement",
+        "encaissement_depot",
+        "encaissement_balance",
+        "reconnaissance_revenu",
+        "payout_talent",
+        "remboursement",
+        "absorption_fiscale",
+        "capture_interne",
+        "regularisation",
+        "backfill"
+      ],
+      "description": "\u00c9v\u00e9nement \u00e9conomique d\u00e9clencheur. Permet de reconstruire le journal par \u00e9v\u00e9nement ind\u00e9pendamment du compte."
     }
   },
   "required": [

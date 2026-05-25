@@ -5,7 +5,7 @@
   "properties": {
     "systemId": {
       "type": "string",
-      "description": "IDFactory SCH-*."
+      "description": "IDFactory SCH-*. Identifiant syst\u00e8me unique de la t\u00e2che planifi\u00e9e."
     },
     "engagementId": {
       "type": "string",

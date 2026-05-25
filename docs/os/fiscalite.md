@@ -407,10 +407,3 @@ Vous avez fait **un choix doctrinal très clair** : modèle A. Mais ce choix a d
 | **Décision irréversible ?** | Quasi. Changer de modèle après plusieurs années d'opération = redressement fiscal probable. |
 | **Quoi faire ?** | Consulter un fiscaliste CPA marketplaces + un avocat commercial AVANT le lancement réel. Votre propre carte 07 le dit en rouge. |
 
----
-
-Voulez-vous que je vous aide à :
-- (a) Rédiger la question fiscale précise à poser au fiscaliste,
-- (b) Modéliser concrètement le « mode hybride » (option 3) dans votre architecture V15,
-- (c) Faire un comparatif chiffré sur un scénario à 1 000 transactions/an pour voir l'écart matériel entre les trois options,
-- (d) Préparer un canevas de convention de mandat type (modèle A) ou de contrat de sous-traitance type (modèle B) ?
