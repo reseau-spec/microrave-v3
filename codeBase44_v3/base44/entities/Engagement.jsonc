@@ -83,33 +83,25 @@
       "type": "string",
       "description": "Timestamp ISO 8601."
     },
-    "updatedAt": {
-      "type": "string",
-      "description": "Timestamp ISO 8601 de la derni\u00e8re mutation. Mis \u00e0 jour par toutes les fonctions qui modifient l'engagement (createEngagement, initiateDepositPayment, stripeWebhookHandler, transitionEngagement)."
-    },
-    "depositSecuredAt": {
-      "type": "string",
-      "description": "Timestamp de la transition deposit_pending \u2192 deposit_secured. \u00c9crit par stripeWebhookHandler et transitionEngagement quand le webhook checkout.session.completed ou payment_intent.succeeded confirme l'encaissement du d\u00e9p\u00f4t."
-    },
-    "settledAt": {
-      "type": "string",
-      "description": "Timestamp de la transition payable \u2192 settled. \u00c9crit par stripeWebhookHandler quand le webhook confirme l'encaissement du solde (phase=balance)."
-    },
-    "archivedAt": {
-      "type": "string",
-      "description": "Timestamp de la transition settled \u2192 archived. \u00c9crit par transitionEngagement. L'engagement entre en \u00e9tat WORM apr\u00e8s archivage."
-    },
-    "refundedAt": {
-      "type": "string",
-      "description": "Timestamp de la transition no_show \u2192 refunded. \u00c9crit par transitionEngagement quand le remboursement est ex\u00e9cut\u00e9."
-    },
-    "stripeDepositIntentId": {
-      "type": "string",
-      "description": "pi_* Stripe \u2014 PaymentIntent du d\u00e9p\u00f4t encaiss\u00e9. \u00c9crit par stripeWebhookHandler lors de la transition deposit_pending \u2192 deposit_secured. Permet de relier l'engagement \u00e0 la transaction Stripe sans passer par EventPaymentRequest. Source : D-097, OS V15."
-    },
     "description": {
       "type": "string",
       "description": "Description de l'engagement \u2014 contexte, attentes, notes pour le talent. Optionnel."
+    },
+    "sealedAt": {
+      "type": "string",
+      "description": "Timestamp ISO scellement de l'\u00e9v\u00e9nement (\u00e9tat event_sealed). Immuable apr\u00e8s \u00e9criture."
+    },
+    "settledAt": {
+      "type": "string",
+      "description": "Timestamp ISO r\u00e8glement final (\u00e9tat settled). \u00c9crit par executePayoutTransfer."
+    },
+    "depositSecuredAt": {
+      "type": "string",
+      "description": "Timestamp ISO confirmation d\u00e9p\u00f4t Stripe (\u00e9tat deposit_secured). \u00c9crit par webhook."
+    },
+    "archivedAt": {
+      "type": "string",
+      "description": "Timestamp ISO archivage engagement (\u00e9tat archived). \u00c9crit par recognizeRevenue."
     }
   },
   "required": [

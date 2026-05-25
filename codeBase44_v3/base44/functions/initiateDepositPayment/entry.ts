@@ -59,10 +59,11 @@ Deno.serve(async (req) => {
     }
 
     // ── Vérifier l'état ───────────────────────────────────────
-    if (!['placed', 'accepted'].includes(eng.status)) {
+    // deposit_pending = autoriser le relancement si session Checkout expirée
+    if (!['placed', 'accepted', 'deposit_pending'].includes(eng.status)) {
       return Response.json({
         ok: false,
-        error: `INVALID_STATE: Paiement impossible en état "${eng.status}". États valides : placed, accepted.`,
+        error: `INVALID_STATE: Paiement impossible en état "${eng.status}". États valides : placed, accepted, deposit_pending.`,
       }, { status: 422 });
     }
 
@@ -76,14 +77,21 @@ Deno.serve(async (req) => {
       .filter({ engagementId: eng.systemId, phase: 'deposit', status: 'pending' }, '-created_date', 1)
       .catch(() => []);
 
+    // Idempotence : retourner la session existante sauf si elle a plus de 23h
+    // (Stripe expire les sessions après 24h)
     if (existingEPRs?.length && existingEPRs[0].stripeCheckoutUrl) {
-      return Response.json({
-        ok:          true,
-        checkoutUrl: existingEPRs[0].stripeCheckoutUrl,
-        amountCents: depositCents,
-        eprId:       existingEPRs[0].systemId,
-        idempotent:  true,
-      });
+      const eprAge = Date.now() - new Date(existingEPRs[0].createdAt || 0).getTime();
+      const sessionExpired = eprAge > 23 * 3600 * 1000; // 23h
+      if (!sessionExpired) {
+        return Response.json({
+          ok:          true,
+          checkoutUrl: existingEPRs[0].stripeCheckoutUrl,
+          amountCents: depositCents,
+          eprId:       existingEPRs[0].systemId,
+          idempotent:  true,
+        });
+      }
+      // Session expirée — laisser créer une nouvelle session ci-dessous
     }
 
     // ── Clé Stripe depuis env ─────────────────────────────────

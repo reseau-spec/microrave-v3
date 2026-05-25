@@ -194,7 +194,9 @@ export default function EngagementView() {
   const Icon = stateConf.icon;
   const currentStep = stateConf.step;
 
-  const canPay = engagement.status === 'placed' || engagement.status === 'accepted';
+  // canPay : placed, accepted = première fois
+  // deposit_pending = permettre de relancer si session Checkout expirée ou échouée
+  const canPay = ['placed', 'accepted', 'deposit_pending'].includes(engagement.status);
   const isOrganizer = user?.id === engagement.organizerUserId;
 
   const depositCents = engagement.depositCents || 0;
@@ -302,7 +304,7 @@ export default function EngagementView() {
                 {paying ? (
                   <><Loader2 size={14} className="animate-spin" /> Redirection...</>
                 ) : (
-                  <><CreditCard size={14} /> Payer le dépôt {depositCents > 0 ? `(${(depositCents/100).toFixed(0)} $)` : ''}</>
+                  <><CreditCard size={14} /> {engagement.status === 'deposit_pending' ? 'Relancer le paiement' : 'Payer le dépôt'} {depositCents > 0 ? `(${(depositCents/100).toFixed(0)} $)` : ''}</>
                 )}
               </button>
             )}
