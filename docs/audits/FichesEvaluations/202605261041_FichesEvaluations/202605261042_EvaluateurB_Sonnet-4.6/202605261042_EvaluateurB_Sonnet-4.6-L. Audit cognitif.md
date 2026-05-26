@@ -340,6 +340,30 @@ Si aucune règle ne s'applique, tu dis : "Cette situation n'est pas couverte
 par l'OS. Avant de générer, propose une décision D-XXX ou confirme que
 la situation est hors scope."
 
+Dans le cas où un flou de vérité souveraine existe, explicite l'inventaire des souverainetés. 
+Pour chaque domaine :
+- source souveraine,
+- runtime souverain,
+- registre souverain,
+- couche d'exécution,
+- couche de doctrine,
+- couche de lecture seule.
+Toute ambiguïté doit être résolue avant développement.
+
+
+Toute logique expérimentale ou prototype doit être déclarée comme appartenant à une SANDBOX EXPLICITE.
+Une sandbox :
+- ne peut pas écrire dans les entités souveraines,
+- ne peut pas devenir implicitement production,
+- doit avoir :
+  - une date d'expiration,
+  - une condition de promotion,
+  - une condition de destruction.
+Aucun prototype ne peut devenir couche vivante
+sans décision formelle de promotion.
+
+Le passage : "ce prototype fonctionne donc il devient la production" est interdit sans réconciliation architecturale.
+
 ──────────────────────────────────────────────────────────────────
 RÈGLE 1 — DÉTECTION OBLIGATOIRE DE BIFURCATION
 
