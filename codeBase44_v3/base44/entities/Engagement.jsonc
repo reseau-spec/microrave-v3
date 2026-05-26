@@ -102,6 +102,18 @@
     "archivedAt": {
       "type": "string",
       "description": "Timestamp ISO archivage engagement (\u00e9tat archived). \u00c9crit par recognizeRevenue."
+    },
+    "stripeDepositIntentId": {
+      "type": "string",
+      "description": "pi_* Stripe du PaymentIntent de d\u00e9p\u00f4t encaiss\u00e9. \u00c9crit par stripeWebhookHandler v4 lors de la transition deposit_pending \u2192 deposit_secured. Permet de retracer le paiement Stripe associ\u00e9 \u00e0 l'engagement."
+    },
+    "stripeBalanceIntentId": {
+      "type": "string",
+      "description": "pi_* Stripe du PaymentIntent de balance encaiss\u00e9. \u00c9crit par stripeWebhookHandler v4 lors de l'encaissement de la balance. Pendant de stripeDepositIntentId pour la phase balance."
+    },
+    "updatedAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 de la derni\u00e8re mutation m\u00e9tier sur l'engagement (transition d'\u00e9tat, encaissement, scellement, etc.). Distinct du champ Base44 updated_date (technique). \u00c9crit par toute fonction qui mute l'engagement."
     }
   },
   "required": [

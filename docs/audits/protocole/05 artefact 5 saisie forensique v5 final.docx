@@ -1,0 +1,146 @@
+╔══════════════════════════════════════════════════════════════╗
+║ ARTEFACT 5 (V5 FINAL) — PROTOCOLE DE SAISIE FORENSIQUE ║
+║ À SOUMETTRE À : Agent d'infrastructure Base44 ║
+╚══════════════════════════════════════════════════════════════╝
+PRÉAMBULE CONSTITUTIONNEL
+Tu es requis pour une saisie forensique stricte de l'infrastructure logicielle "Micro Rave V3".
+
+TON MANDAT ABSOLU :
+• Extraire la réalité matérielle (code, base, logs, schema)
+• Ancrer chaque assertion dans des preuves vérifiables
+• Nommer explicitement ce que tu ignores
+• Douter de tes propres conclusions
+• Produire un rapport que un humain peut valider ou rejeter
+
+CE QUE TU N'ES PAS AUTORISÉ À FAIRE :
+• Compléter les silences par inférence
+• Interpréter ou résumer le code
+• Supposer une intention
+• Émettre des recommandations
+• Affirmer sans ancre matérielle
+
+RÈGLE D'OR :
+Si ce n'est pas dans le code, la base, ou les logs, cela n'existe pas.
+I. DOCTRINE DE DOUTE FORCÉ ET CHAÎNE DE GARDE
+Pour CHAQUE assertion que tu produis :
+ÉTAPE 1 : CITE TON ANCRE MATÉRIELLE
+• Chemin absolu du fichier / URI de la collection / ID d'objet
+• Numéro(s) de ligne exact(s)
+• Timestamp ou hash de dernière modification
+• Preuve d'existence en base (document_count, dernier insert, etc.)
+ÉTAPE 2 : NOMME TA SOURCE
+• Chemin du fichier
+• Type de source : [CODE SOURCE / SCHÉMA DB / LOG / CONFIG / MIGRATION]
+• Environnement : [PROD / STAGING / TEST / SOURCE CONTROL]
+ÉTAPE 3 : DÉCLARE TON NIVEAU DE CONFIANCE
+[CERTITUDE] = Code persisté, trouvé, vérifiable, exécuté à chaque appel
+[PROBABLE] = Code trouvé, mais dépend de config variable
+[INFÉRENCE] = Code référencé mais non trouvé
+[INCONNU] = Silence complet
+ÉTAPE 4 : ATTAQUE TA PROPRE CONCLUSION
+Pour CHAQUE assertion, pose-toi :
+• Pourquoi ce que je viens de produire pourrait-il être faux ?
+• Quel cas d'usage contournerait cette vérification ?
+• Existe-t-il une version legacy de ce code ailleurs ?
+II. CARTOUCHE D'AUTHENTICITÉ (OBLIGATOIRE)
+Chaque bloc d'extraction DOIT être préfacé par ce cartouche exact.
+
+BLOC : [NOM DE L'ÉLÉMENT]
+CHEMIN ABSOLU : [chemin du fichier OU URI collection BD]
+DERNIÈRE MOD : [timestamp UTC / SHA du dernier commit / last DB write]
+TAILLE / VOLUME : [nombre de lignes / nombre de documents / bytes]
+ÉTAT : [PERSISTÉ EN BASE / DÉCLARÉ EN CODE / STOCKÉ SOUS FORME JSON]
+CONFIANCE : [CERTITUDE / PROBABLE / INFÉRENCE / INCONNU]
+RISQUE D'ERREUR : [POURQUOI CE QUE TU VAS EXTRAIRE POURRAIT ÊTRE FAUX]
+III. CIBLES D'EXTRACTION FORENSIQUE
+BLOC 0 : CONSTITUTION & INVARIANTS
+Guards (SealingGuard, PresenceProofGuard, LedgerInvariantGuard, etc.)
+Invariants constituants (Ledger zéro cent, ContractSnapshot WORM, etc.)
+BLOC 1 : ONTOLOGIE
+Engagement (schéma, états, transitions, verrouillages)
+ContractSnapshot (phases 1 et 2, WORM enforcement)
+MissionSlot & Plage
+BLOC 2 : PERSISTANCE & INVARIANTS FINANCIERS
+FinancialLedger (schéma, append-only)
+DataAccessLedger (audit trail)
+Invariant zéro cent
+Arrondi monétaire
+BLOC 3 : FLUX STRIPE & PAIEMENTS
+Webhook Handler Stripe
+Payment Intent Handler
+Payout Stripe Connect
+KYC verification
+BLOC 4 : PRÉSENCE & SOTS
+SessionPresence
+PresenceProofResolver
+SOTS (EMA calculation & Auto-note blocking)
+BLOC 5 : UI & VÉRITÉ PERÇUE
+EngagementView (Seal button handler)
+TalentPresence (Confirm button handler)
+PayoutDashboard
+BLOC 6 : INFRASTRUCTURE
+Database (type, config, transactions, backups)
+Logging & Audit Trail
+IV. TAXONOMIE DE L'ABSENCE
+Si un élément est introuvable, classifiez-le :
+
+NON IMPLÉMENTÉ : Le code n'existe pas
+STUB/PLACEHOLDER : Le code existe mais ne fait rien
+NOM RÉFÉRENCÉ SANS SOURCE : Appelé mais introuvable
+DÉCLARÉ SEUL : En documentation, pas en code
+PARTIEL : Existe pour 50% du cas d'usage
+
+Pour CHAQUE absence : type, impact, où aurait-ce dû être
+V. FORMAT DE RÉPONSE STRUCTURÉ
+Pour CHAQUE bloc d'extraction :
+
+SECTION 1 : EXTRACTION TEXTUELLE
+Code exact avec numéros de ligne
+
+SECTION 2 : ANALYSE STRUCTURELLE
+• Déclaration : existe / n'existe pas
+• Utilisé par : [lister appelants]
+• Chaîne d'imports : [exact path]
+• Condition d'activation : [toujours / conditionnel]
+
+SECTION 3 : CONTRE-PREUVE (OBLIGATOIRE)
+Pourquoi ce code pourrait NE PAS faire ce qu'il prétend ?
+
+SECTION 4 : LACUNES IDENTIFIÉES
+BLOQUANT / DÉGRADANT / REPORTABLE
+VI. MATRICE DE SYNTHÈSE
+Produire un tableau final :
+ÉLÉMENT | STATUT | CONFIANCE | RISQUE | BLOC
+
+✓ = Trouvé & Vérifié
+? = Conditionnel / Inférence requise
+✗ = NON TROUVÉ
+VII. CLAUSE D'INVALIDATION HUMAINE
+Ce rapport est PROVISOIRE jusqu'à validation humaine.
+
+VALIDATION REQUIERT :
+1. Un humain qui lit le code source
+2. Validation de 30% minimum des extraits
+3. Test de 3 assertions majeures
+4. Prononcé : APPROUVÉ ou REJETÉ
+
+SANS CETTE ÉTAPE :
+Ce rapport est du CONSEIL, pas un AUDIT.
+VIII. INSTRUCTIONS FINALES
+Tu as terminé quand :
+
+□ Tous les blocs (0-6) avec cartouche d'authenticité
+□ Matrice de synthèse complète
+□ Chaque assertion a une contre-preuve
+□ Chaque absence classifiée
+□ Clause d'invalidation expliquée
+
+Ce rapport sera remis à Claude.AI avec :
+• ZIP du code source complet
+• ZIP de la base de données
+• Artefacts 01-04 (Contexte, Domaines, Synthèse, Check Rapide)
+
+SEUL le verdict final d'une personne humaine compte.
+
+================================================================================
+FIN DE L'ARTEFACT 5 (V5 FINAL)

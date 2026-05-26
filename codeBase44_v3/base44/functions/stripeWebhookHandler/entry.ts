@@ -1,23 +1,66 @@
 /**
- * stripeWebhookHandler — Base44 Function
+ * stripeWebhookHandler — Base44 Function v4
  * ============================================================
  * Valide la signature Stripe, persiste le log d'idempotence,
  * dispatche les événements, et GRAVE les LedgerRecords.
  *
- * ÉVÉNEMENTS GÉRÉS :
- *   checkout.session.completed  → deposit_pending → deposit_secured
- *                                 + LedgerRecords encaissement dépôt
- *   payment_intent.succeeded    → idem (fallback si pas de session)
+ * ── CHANGEMENTS v3 → v4 ─────────────────────────────────────
  *
- * ÉCRITURES LEDGER sur encaissement dépôt (D-038) :
- *   5200  DR  depositCents    BILAN  FLUX  ENC-DEPOT  encaissement_depot
- *   4335  CR  depositCents    BILAN  FLUX  ENC-DEPOT  encaissement_depot
+ * 1. WATERFALL CORRIGÉE (D-038)
+ *    Ancien (v3) : 5200 DR / 4335 CR  ← clearing, sans contrepartie DR
+ *    Nouveau (v4) : 5200 DR / 4110 CR ← extinction directe de la créance
+ *                                       organisateur gravée au placement
  *
- * Source : D-097, D-038, LOI LEDGER-01/02, OS V15
+ *    Le compte 4110 (ledger_account_organizer_receivable) est désormais
+ *    lu depuis PolicyConfig, alignant le webhook sur createEngagement v6.
+ *    4335 n'est plus chargé par le code applicatif (reste en base pour
+ *    audit historique uniquement, à neutraliser via le script de
+ *    correction des 2 TXG-ENC déjà gravés).
+ *
+ * 2. IDEMPOTENCE LEDGER (D-097, LOI GREFFIER-01)
+ *    Avant toute écriture LedgerRecord, on vérifie qu'il n'existe pas
+ *    déjà une ligne avec le même reconciliationKey ET le même
+ *    economicEvent. Si oui : skip écriture, retourne LEDGER_ALREADY_WRITTEN.
+ *
+ *    Cela protège contre :
+ *      - Inversion d'ordre Stripe (PI succeeded avant CS completed)
+ *      - Re-livraison d'un même event par Stripe
+ *      - Race condition multi-instance
+ *
+ *    Sans cette garde, v3 risquait une double écriture si Stripe
+ *    inversait l'ordre des deux events (comportement rare mais observé).
+ *
+ * 3. BRANCHE BALANCE COMPLÈTE
+ *    v3 passait flowCode/transactionType/note à writeLedgerEncaissement
+ *    mais la fonction ne les destructurait pas → balance était gravée
+ *    avec ENC-DEPOT (bug latent, jamais déclenché car aucun balance payé).
+ *    v4 : signature explicite avec defaults, dispatchent corrects.
+ *
+ * 4. EPR.status = 'succeeded' au passage du dépôt
+ *    v3 ne mettait à jour que EPR balance. v4 met aussi à jour EPR
+ *    deposit en succeeded (les 2 EPR de test étaient restés en pending).
+ *
+ * ── ÉCRITURES LEDGER (D-038) ────────────────────────────────
+ *
+ *   Encaissement dépôt :
+ *     5200  DR  depositCents    FLUX  ENC-DEPOT     encaissement_depot
+ *     4110  CR  depositCents    FLUX  ENC-DEPOT     encaissement_depot
+ *
+ *   Encaissement balance :
+ *     5200  DR  balanceCents    FLUX  ENC-BALANCE   encaissement_balance
+ *     4110  CR  balanceCents    FLUX  ENC-BALANCE   encaissement_balance
+ *
+ *   Dans les deux cas : extinction de la créance 4110 gravée au
+ *   placement. Lorsque dépôt + balance sont encaissés, 4110 par
+ *   engagement revient à zéro.
+ *
+ * Source : D-097, D-038, LOI LEDGER-01/02, LOI GREFFIER-01, OS V15
  * ============================================================
  */
 
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
+// ── Helpers ──────────────────────────────────────────────────
 
 function generateId(prefix) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -29,108 +72,171 @@ function generateId(prefix) {
 // ── Validation signature Stripe HMAC-SHA256 ───────────────────
 async function validateStripeSignature(rawBody, signature, secret) {
   try {
-    const parts  = signature.split(',');
-    const tPart  = parts.find(p => p.startsWith('t='));
+    const parts   = signature.split(',');
+    const tPart   = parts.find(p => p.startsWith('t='));
     const v1Parts = parts.filter(p => p.startsWith('v1='));
     if (!tPart || !v1Parts.length) return false;
     const payload = `${tPart.slice(2)}.${rawBody}`;
-    const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey(
+    const enc     = new TextEncoder();
+    const key     = await crypto.subtle.importKey(
       'raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
     );
     const mac    = await crypto.subtle.sign('HMAC', key, enc.encode(payload));
-    const hexMac = Array.from(new Uint8Array(mac)).map(b => b.toString(16).padStart(2,'0')).join('');
+    const hexMac = Array.from(new Uint8Array(mac)).map(b => b.toString(16).padStart(2, '0')).join('');
     return v1Parts.some(p => p.slice(3) === hexMac);
   } catch { return false; }
 }
 
-// ── Charger les comptes depuis PolicyConfig ───────────────────
+// ── Charger les comptes depuis PolicyConfig (Market Pivot) ────
+// Fail-hard si une clé essentielle manque. Aucun fallback hardcodé.
 async function loadLedgerAccounts(base44) {
   const keys = [
-    'ledger_account_clearing',
-    'ledger_account_talent_payable',
-    'ledger_account_commission_escrow',
+    'ledger_account_organizer_receivable',  // 4110 — créance organisateur
+    'ledger_account_encaissement',          // 5200 — encaissement Stripe
   ];
+
   const accounts = {};
+  const missing  = [];
+
   for (const key of keys) {
     const records = await base44.entities.PolicyConfig
-      .filter({ key }, '-created_date', 1).catch(() => []);
-    if (records?.length) accounts[key] = records[0].value;
+      .filter({ key }, '-created_date', 1)
+      .catch(() => []);
+    if (records?.length && records[0].value) {
+      accounts[key] = records[0].value;
+    } else {
+      missing.push(key);
+    }
   }
 
-  // Compte encaissement (5200 — Stripe en attente)
-  const enc5200 = await base44.entities.PolicyConfig
-    .filter({ key: 'ledger_account_encaissement' }, '-created_date', 1).catch(() => []);
+  if (missing.length > 0) {
+    throw new Error(
+      `LEDGER_ACCOUNTS_MISSING: Clés PolicyConfig absentes : ${missing.join(', ')}. ` +
+      `Pour ledger_account_organizer_receivable : node scripts/seed-policy-organizer-receivable.js. ` +
+      `Pour ledger_account_encaissement : node scripts/seed-policy-encaissement.js. ` +
+      `Source : D-038, Market Pivot V3.`
+    );
+  }
 
   return {
-    clearing:         accounts['ledger_account_clearing']         || '4335',
-    talentPayable:    accounts['ledger_account_talent_payable']    || '4310',
-    commissionEscrow: accounts['ledger_account_commission_escrow'] || '4530',
-    encaissement:     enc5200?.[0]?.value                         || '5200',
+    organizerReceivable: accounts['ledger_account_organizer_receivable'],
+    encaissement:        accounts['ledger_account_encaissement'],
   };
 }
 
-// ── Écriture ledger encaissement dépôt ───────────────────────
-// 5200 DR (argent reçu dans Stripe)
-// 4335 CR (clearing — on sait maintenant quel engagement est financé)
-async function writeLedgerEncaissement({ base44, eng, depositCents, stripeEventId, accounts, now }) {
+// ── Garde d'idempotence ledger (LOI GREFFIER-01) ─────────────
+// Vérifie qu'aucune ligne LedgerRecord n'existe déjà avec ce
+// reconciliationKey + ce economicEvent + cette direction DEBIT.
+// Une ligne DR par TXG d'encaissement → un seul match possible.
+async function ledgerAlreadyWritten({ base44, reconciliationKey, economicEvent }) {
+  const existing = await base44.entities.LedgerRecord.filter(
+    {
+      reconciliationKey,
+      economicEvent,
+      direction: 'DEBIT',
+    },
+    '-created_date',
+    1
+  ).catch(() => []);
+  return existing?.length > 0;
+}
+
+// ── Écriture ledger encaissement (dépôt OU balance) ──────────
+async function writeLedgerEncaissement({
+  base44, eng, amountCents, stripeEventId, accounts, now,
+  flowCode        = 'ENC-DEPOT',
+  transactionType = 'encaissement_depot',
+  economicEvent   = 'encaissement_depot',
+  subSkuCode      = 'SUB-COURT-DEPOT',
+  noteLabel       = 'dépôt',
+}) {
+  // Garde d'idempotence ledger
+  const reconciliationKey = `stripe:${stripeEventId}`;
+  if (await ledgerAlreadyWritten({ base44, reconciliationKey, economicEvent })) {
+    return { skipped: true, reason: 'LEDGER_ALREADY_WRITTEN', reconciliationKey };
+  }
+
   const txgId = `TXG-ENC-${eng.systemId.slice(4)}-${stripeEventId.slice(-6)}`;
-  const dr = depositCents;
-  const cr = depositCents;
-  if (dr !== cr) throw new Error(`LOI_LEDGER_02: DR=${dr} CR=${cr}`);
+  const dr    = amountCents;
+  const cr    = amountCents;
+
+  // LOI LEDGER-02 — fail-hard si DR ≠ CR
+  if (dr !== cr) {
+    throw new Error(
+      `LOI_LEDGER_02_VIOLATED: DR=${dr} CR=${cr} pour TXG=${txgId}. ` +
+      `Écart=${dr-cr}¢. Aucune ligne LedgerRecord persistée. Source : D-069.`
+    );
+  }
 
   const entries = [
     {
       systemId:           generateId('LDG'),
       transactionGroupId: txgId,
-      transactionType:    'encaissement_depot',
-      economicEvent:      'encaissement_depot',
+      transactionType,
+      economicEvent,
       financialStatement: 'FLUX',
-      flowCode:           'ENC-DEPOT',
+      flowCode,
       lineIndex:          0,
       engagementId:       eng.systemId,
       eventId:            eng.eventId || '',
       skuCode:            'SKU-COURTAGE',
-      subSkuCode:         'SUB-COURT-DEPOT',
-      account:            accounts.encaissement,
+      subSkuCode,
+      account:            accounts.encaissement,            // 5200 DR
       direction:          'DEBIT',
-      amountCents:        depositCents,
+      amountCents,
       currency:           'cad',
-      reconciliationKey:  `stripe:${stripeEventId}`,
-      note:               `Encaissement dépôt Stripe — ${(depositCents/100).toFixed(2)}$`,
+      reconciliationKey,
+      note:               `Encaissement ${noteLabel} Stripe — ${(amountCents/100).toFixed(2)}$`,
       metadata:           JSON.stringify({ stripeEventId, txgId, lineCount: 2 }),
       createdAt:          now,
     },
     {
       systemId:           generateId('LDG'),
       transactionGroupId: txgId,
-      transactionType:    'encaissement_depot',
-      economicEvent:      'encaissement_depot',
+      transactionType,
+      economicEvent,
       financialStatement: 'FLUX',
-      flowCode:           'ENC-DEPOT',
+      flowCode,
       lineIndex:          1,
       engagementId:       eng.systemId,
       eventId:            eng.eventId || '',
       skuCode:            'SKU-COURTAGE',
-      subSkuCode:         'SUB-COURT-DEPOT',
-      account:            accounts.clearing,
+      subSkuCode,
+      account:            accounts.organizerReceivable,     // 4110 CR
       direction:          'CREDIT',
-      amountCents:        depositCents,
+      amountCents,
       currency:           'cad',
-      reconciliationKey:  `stripe:${stripeEventId}`,
-      note:               `Clearing encaissement dépôt — affectation engagement ${eng.systemId}`,
+      reconciliationKey,
+      note:               `Extinction créance organisateur ${eng.systemId} — ${noteLabel}`,
       metadata:           JSON.stringify({ stripeEventId, txgId, lineCount: 2 }),
       createdAt:          now,
     },
   ];
 
+  // Persister les 2 lignes (append-only)
   for (const entry of entries) {
     await base44.entities.LedgerRecord.create(entry);
   }
-  return txgId;
+
+  return { skipped: false, txgId, reconciliationKey };
 }
 
-// ── Dispatch payment_intent.succeeded ────────────────────────
+// ── Mise à jour EPR (idempotente) ────────────────────────────
+async function markEprSucceeded({ base44, engagementId, phase, now }) {
+  const eprs = await base44.entities.EventPaymentRequest
+    .filter({ engagementId, phase, status: 'pending' }, '-created_date', 1)
+    .catch(() => []);
+  if (eprs?.length) {
+    await base44.entities.EventPaymentRequest.update(eprs[0].id, {
+      status:    'succeeded',
+      updatedAt: now,
+    }).catch(() => {});
+    return eprs[0].systemId || eprs[0].id;
+  }
+  return null;
+}
+
+// ── Dispatch payment_intent.succeeded (et synthetic CS) ──────
 async function handlePaymentIntentSucceeded(paymentIntent, base44) {
   const metadata     = paymentIntent.metadata || {};
   const engagementId = metadata.engagementId;
@@ -147,7 +253,7 @@ async function handlePaymentIntentSucceeded(paymentIntent, base44) {
   const eng = engagements[0];
   const now = new Date().toISOString();
 
-  // Créer StripePaymentSignal (audit)
+  // Créer StripePaymentSignal (audit, best-effort)
   await base44.entities.StripePaymentSignal.create({
     engagementId,
     stripePaymentIntentId: String(paymentIntent.id),
@@ -160,73 +266,93 @@ async function handlePaymentIntentSucceeded(paymentIntent, base44) {
     createdAt:             now,
   }).catch(() => {});
 
-  if (phase === 'deposit' && eng.status === 'deposit_pending') {
-    // Charger les comptes
-    const accounts = await loadLedgerAccounts(base44);
+  // ── Phase : dépôt ─────────────────────────────────────────
+  if (phase === 'deposit') {
+    // On accepte deposit_pending (cas normal) ET deposit_secured (cas où
+    // CS completed est arrivée avant et a déjà transitionné l'Engagement).
+    // L'idempotence ledger empêche la double écriture.
+    if (eng.status !== 'deposit_pending' && eng.status !== 'deposit_secured') {
+      return {
+        action: 'PAYMENT_RECEIVED_WRONG_STATE',
+        engagementId, status: eng.status, phase,
+      };
+    }
 
-    // ÉCRITURE LEDGER — encaissement dépôt
+    const accounts     = await loadLedgerAccounts(base44);
     const depositCents = eng.depositCents ? Number(eng.depositCents) : amountCents;
-    const txgId = await writeLedgerEncaissement({
-      base44, eng, depositCents,
+
+    const ledgerResult = await writeLedgerEncaissement({
+      base44, eng,
+      amountCents:   depositCents,
       stripeEventId: String(paymentIntent.id),
       accounts, now,
+      flowCode:        'ENC-DEPOT',
+      transactionType: 'encaissement_depot',
+      economicEvent:   'encaissement_depot',
+      subSkuCode:      'SUB-COURT-DEPOT',
+      noteLabel:       'dépôt',
     });
 
-    // Transition deposit_pending → deposit_secured
-    await base44.entities.Engagement.update(eng.id, {
-      status:               'deposit_secured',
-      depositSecuredAt:     now,
-      stripeDepositIntentId: String(paymentIntent.id),
-      updatedAt:            now,
-    });
+    // Transition vers deposit_secured si pas déjà fait
+    if (eng.status === 'deposit_pending') {
+      await base44.entities.Engagement.update(eng.id, {
+        status:                'deposit_secured',
+        depositSecuredAt:      now,
+        stripeDepositIntentId: String(paymentIntent.id),
+        updatedAt:             now,
+      });
+    }
+
+    // EPR deposit → succeeded
+    const eprId = await markEprSucceeded({ base44, engagementId, phase: 'deposit', now });
 
     return {
-      action:      'DEPOSIT_SECURED',
+      action:        ledgerResult.skipped ? 'DEPOSIT_ALREADY_LEDGERED' : 'DEPOSIT_SECURED',
       engagementId,
-      txgId,
+      txgId:         ledgerResult.txgId || null,
       depositCents,
-      previousState: 'deposit_pending',
+      eprId,
+      previousState: eng.status,
       newState:      'deposit_secured',
     };
   }
 
-  if (phase === 'balance' && eng.status === 'deposit_secured') {
-    // Balance payée — créer LedgerRecord ENC-BALANCE + mettre à jour EPR
-    const accounts = await loadLedgerAccounts(base44);
-    const txgId = await writeLedgerEncaissement({
-      base44, eng,
-      depositCents:    amountCents,
-      stripeEventId:   String(paymentIntent.id),
-      accounts,        now,
-      flowCode:        'ENC-BALANCE',
-      transactionType: 'encaissement_balance',
-      note:            `Encaissement balance Stripe — ${(amountCents/100).toFixed(2)}$`,
-    });
-
-    // Mettre à jour EPR balance → completed
-    const eprs = await base44.entities.EventPaymentRequest
-      .filter({ engagementId, phase: 'balance', status: 'pending' }, '-created_date', 1)
-      .catch(() => []);
-    if (eprs?.length) {
-      await base44.entities.EventPaymentRequest.update(eprs[0].id, {
-        status:    'completed',
-        updatedAt: now,
-      });
+  // ── Phase : balance ───────────────────────────────────────
+  if (phase === 'balance') {
+    if (eng.status !== 'deposit_secured' && eng.status !== 'payable') {
+      return {
+        action: 'PAYMENT_RECEIVED_WRONG_STATE',
+        engagementId, status: eng.status, phase,
+      };
     }
 
-    return {
-      action:      'BALANCE_PAYMENT_SECURED',
-      engagementId,
-      txgId,
-      amountCents,
-      // Note : la transition vers event_sealed reste manuelle (organisateur)
-      // Le guard BalancePaymentGuard dans transitionEngagement vérifiera cet EPR.
-    };
-  }
+    const accounts = await loadLedgerAccounts(base44);
+    const balCents = eng.balanceCents ? Number(eng.balanceCents) : amountCents;
 
-  if (phase === 'balance' && eng.status === 'payable') {
-    // Cas legacy — balance payée directement depuis payable (MVP simplifié)
-    return { action: 'BALANCE_RECEIVED_AT_PAYABLE', engagementId, amountCents };
+    const ledgerResult = await writeLedgerEncaissement({
+      base44, eng,
+      amountCents:   balCents,
+      stripeEventId: String(paymentIntent.id),
+      accounts, now,
+      flowCode:        'ENC-BALANCE',
+      transactionType: 'encaissement_solde',
+      economicEvent:   'encaissement_balance',
+      subSkuCode:      'SUB-COURT-BALANCE',
+      noteLabel:       'balance',
+    });
+
+    // EPR balance → succeeded
+    const eprId = await markEprSucceeded({ base44, engagementId, phase: 'balance', now });
+
+    return {
+      action:       ledgerResult.skipped ? 'BALANCE_ALREADY_LEDGERED' : 'BALANCE_PAYMENT_SECURED',
+      engagementId,
+      txgId:        ledgerResult.txgId || null,
+      balanceCents: balCents,
+      eprId,
+      // Note : la transition vers event_sealed reste manuelle (organisateur).
+      // Le guard BalancePaymentGuard dans transitionEngagement vérifie l'EPR.
+    };
   }
 
   return { action: 'PAYMENT_RECEIVED_NO_TRANSITION', engagementId, status: eng.status, phase };
@@ -237,9 +363,9 @@ Deno.serve(async (req) => {
   const rawBody = await req.text();
 
   try {
-    const base44           = createClientFromRequest(req);
-    const stripeSignature  = req.headers.get('stripe-signature') || '';
-    const webhookSecret    = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
+    const base44          = createClientFromRequest(req);
+    const stripeSignature = req.headers.get('stripe-signature') || '';
+    const webhookSecret   = Deno.env.get('STRIPE_WEBHOOK_SECRET') || '';
 
     if (!webhookSecret) {
       console.error('[stripeWebhookHandler] STRIPE_WEBHOOK_SECRET absent');
@@ -258,13 +384,13 @@ Deno.serve(async (req) => {
     const stripeEventId = String(event.id || '');
     const eventType     = String(event.type || '');
 
-    // Idempotence
+    // Idempotence webhook (au niveau evt_*)
     const existing = await base44.entities.WebhookProcessedLog.filter(
       { stripeEventId }, '-created_date', 1
     ).catch(() => []);
 
     if (existing?.length && existing[0].processingStatus === 'COMPLETED') {
-      return Response.json({ received: true, idempotent: true });
+      return Response.json({ received: true, idempotent: true, eventId: stripeEventId });
     }
 
     const now = new Date().toISOString();
@@ -273,14 +399,18 @@ Deno.serve(async (req) => {
     }).catch(() => {});
 
     // Dispatch
-    let dispatchResult = { action: 'UNHANDLED_EVENT_TYPE', details: undefined };
+    let dispatchResult = { action: 'UNHANDLED_EVENT_TYPE' };
     const obj = event.data?.object || {};
 
     if (eventType === 'payment_intent.succeeded') {
       dispatchResult = await handlePaymentIntentSucceeded(obj, base44);
     } else if (eventType === 'checkout.session.completed') {
+      // Construire un PaymentIntent synthétique depuis la session.
+      // L'id du PI est celui de la session (transmis comme stripeEventId)
+      // — garantit le même reconciliationKey que le PI succeeded qui suit
+      // → idempotence ledger automatique.
       const syntheticIntent = {
-        id:              obj.payment_intent,
+        id:              obj.payment_intent || obj.id,
         amount_received: obj.amount_total || 0,
         currency:        obj.currency || 'cad',
         metadata:        obj.metadata || {},

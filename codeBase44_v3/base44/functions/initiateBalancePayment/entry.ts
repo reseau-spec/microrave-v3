@@ -1,27 +1,38 @@
 /**
- * initiateBalancePayment — Base44 Function
+ * initiateBalancePayment — Base44 Function v2
  * ============================================================
  * Initie le paiement de la balance (solde restant après dépôt)
  * via Stripe Checkout Session.
  *
+ * ── CHANGEMENTS v1 → v2 (26 mai 2026 — hotfix) ──────────────
+ *
+ * Ajout d'un GARDE EPR_BALANCE_ALREADY_PAID en tête de fonction.
+ *
+ * Bug observé sur ENG-H5V66Q-WBJ7N2 :
+ *   v1 ne cherchait que les EPR status=pending pour l'idempotence.
+ *   Si la balance était déjà payée (EPR succeeded), un re-clic
+ *   créait un nouveau EPR pending fantôme qui bloquait ensuite
+ *   le BalancePaymentGuard au scellement.
+ *
+ * v2 vérifie d'abord si un EPR balance succeeded existe DÉJÀ pour
+ * cet engagement. Si oui → retourne BALANCE_ALREADY_PAID sans
+ * créer de nouveau EPR ni appeler Stripe. Le frontend doit alors
+ * cacher le bouton (ActionsSidebar v2 fait ce check côté UI aussi).
+ *
  * PRÉREQUIS : engagement en état deposit_secured.
- * RÉSULTAT  : engagement passe en balance_pending.
- *             webhook payment_intent.succeeded → balance_secured
- *             → débloque la transition deposit_secured → event_sealed.
+ * RÉSULTAT  : URL Stripe Checkout (succès) ou
+ *             { ok: true, alreadyPaid: true } si déjà payé.
  *
  * MONTANT : balanceCents = cachetSigneCents − depositCents
  *           Calculé à la création de l'engagement, gravé dans
  *           l'entité Engagement. Jamais recalculé ici.
  *
- * IDEMPOTENCE : si un EPR balance pending existe déjà,
- *               retourne la Checkout URL existante.
+ * IDEMPOTENCE multi-niveau :
+ *   1. Si EPR balance succeeded existe → BALANCE_ALREADY_PAID
+ *   2. Si EPR balance pending avec checkoutUrl → réutiliser
+ *   3. Sinon → créer nouveau EPR + Stripe Checkout Session
  *
- * GUARD deposit_secured → event_sealed :
- *   La transition event_sealed vérifie dans transitionEngagement
- *   qu'un PayoutExecutionRecord balance existe. Sans ce paiement,
- *   l'organisateur ne peut pas sceller l'événement.
- *
- * Source : D-038 Phase 1, SC-01, OS V15
+ * Source : D-038 Phase 1, SC-01, OS V15, hotfix EPR 26-05-2026
  * ============================================================
  */
 
@@ -78,7 +89,29 @@ Deno.serve(async (req) => {
 
     const cachetCents = Number(eng.cachetSigneCents) || 0;
 
-    // ── Idempotence — EPR balance pending existant ? ──────────
+    // ── HOTFIX v2 — Garde BALANCE_ALREADY_PAID ────────────────
+    // Si un EPR balance succeeded (ou completed legacy) existe déjà
+    // pour cet engagement, ne PAS créer un nouveau EPR pending.
+    // Sinon : pollution avec EPR fantômes qui bloqueront le scellement.
+    const succeededEPRs = await base44.entities.EventPaymentRequest
+      .filter({ engagementId: eng.systemId, phase: 'balance' }, '-created_date', 20)
+      .catch(() => []);
+
+    const paidEpr = (succeededEPRs || []).find(e =>
+      e.status === 'succeeded' || e.status === 'completed'
+    );
+
+    if (paidEpr) {
+      return Response.json({
+        ok:          true,
+        alreadyPaid: true,
+        eprId:       paidEpr.systemId,
+        amountCents: Number(paidEpr.amountCents) || balanceCents,
+        message:     `Balance déjà encaissée (EPR ${paidEpr.systemId}, status=${paidEpr.status}). Aucun nouveau paiement nécessaire. L'organisateur peut sceller l'événement.`,
+      });
+    }
+
+    // ── Idempotence v1 — EPR balance pending existant ? ──────
     const existingEPRs = await base44.entities.EventPaymentRequest
       .filter({ engagementId: eng.systemId, phase: 'balance', status: 'pending' }, '-created_date', 1)
       .catch(() => []);

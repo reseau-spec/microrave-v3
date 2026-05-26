@@ -25,7 +25,7 @@
     },
     "status": {
       "type": "string",
-      "description": "pending, succeeded, failed."
+      "description": "\u00c9tat de la demande de paiement. pending = Checkout Session cr\u00e9\u00e9e en attente de paiement. succeeded = paiement encaiss\u00e9 (\u00e9crit par stripeWebhookHandler v4). failed = paiement \u00e9chou\u00e9 ou expir\u00e9. completed = legacy v3 (\u00e9quivaut \u00e0 succeeded)."
     },
     "createdAt": {
       "type": "string",
@@ -54,6 +54,10 @@
     "stripePublishableKey": {
       "type": "string",
       "description": "Cl\u00e9 publique Stripe pour Stripe.js. Null si Checkout Session."
+    },
+    "updatedAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 de la derni\u00e8re mutation m\u00e9tier sur l'EPR (transition de statut typiquement). Distinct du champ Base44 updated_date (technique). \u00c9crit par stripeWebhookHandler v4 lors du passage en succeeded."
     }
   },
   "required": [

@@ -2,13 +2,20 @@
  * MICRO RAVE V3 — pages/TalentPresence.jsx
  * ============================================================
  * Surface d'activation #3 : Check-in talent (GPS + timestamp).
- * Crée le SessionPresence qui débloque PresenceWindowGuard.
  *
- * Transitions impliquées :
- *   → createSessionPresence (Base44 function)
- *   → event_sealed → performed (via PresenceWindowGuard)
+ * ── CHANGEMENTS v3 (26 mai 2026) ────────────────────────────
  *
- * Source : OS V15 · D-093 (SessionPresence) · PresenceWindowGuard
+ * Le talent peut maintenant déclencher event_sealed → performed
+ * directement depuis cette page, après son check-in GPS. Avant :
+ * le check-in créait juste le SessionPresence mais ne faisait pas
+ * la transition d'état (cycle bloqué en event_sealed).
+ *
+ * Flux complet en 3 étapes (depuis la page) :
+ *   1. idle      → Activer la localisation (GPS)
+ *   2. confirming→ Confirmer le check-in (créer SessionPresence)
+ *   3. done      → Confirmer prestation effectuée (transition performed)
+ *
+ * Source : OS V15 · D-093 (SessionPresence) · doctrine WORM 26-05
  * ============================================================
  */
 
@@ -17,7 +24,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useToast } from '@/components/ui/use-toast';
-import { MapPin, Loader2, CheckCircle2, AlertCircle, Navigation, Clock } from 'lucide-react';
+import {
+  MapPin, Loader2, CheckCircle2, AlertCircle,
+  Navigation, Clock, ArrowRight,
+} from 'lucide-react';
 
 const T = {
   bg:      '#06060d',
@@ -38,7 +48,9 @@ export default function TalentPresence() {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const [step, setStep] = useState('idle'); // idle | locating | confirming | submitting | done | error
+  // États étendus : ajout de 'performing' (transition en cours)
+  // et 'performed' (transition réussie)
+  const [step, setStep] = useState('idle'); // idle | locating | confirming | submitting | done | performing | performed | error
   const [coords, setCoords] = useState(null);
   const [accuracy, setAccuracy] = useState(null);
   const [engagement, setEngagement] = useState(null);
@@ -56,7 +68,19 @@ export default function TalentPresence() {
   async function loadEngagement() {
     try {
       const res = await base44.functions.invoke('getEngagement', { engagementId });
-      if (res?.data?.ok) setEngagement(res.data.engagement);
+      if (res?.data?.ok) {
+        setEngagement(res.data.engagement);
+        // Si l'engagement est déjà performed (ou après), afficher le panneau de fin
+        if (res.data.engagement?.status === 'performed' ||
+            res.data.engagement?.status === 'event_completed' ||
+            res.data.engagement?.status === 'sots_window_closed' ||
+            res.data.engagement?.status === 'contestation_window' ||
+            res.data.engagement?.status === 'payable' ||
+            res.data.engagement?.status === 'settled' ||
+            res.data.engagement?.status === 'archived') {
+          setStep('performed');
+        }
+      }
     } catch {}
   }
 
@@ -79,7 +103,7 @@ export default function TalentPresence() {
           navigator.geolocation.clearWatch(watchRef.current);
         }
       },
-      (err) => {
+      (_err) => {
         setError('Accès à la localisation refusé. Vérifiez les permissions de votre appareil.');
         setStep('error');
       },
@@ -112,6 +136,33 @@ export default function TalentPresence() {
     }
   }
 
+  // ── NOUVEAU v3 : déclencher event_sealed → performed ──────
+  async function handleConfirmPerformed() {
+    setStep('performing');
+    try {
+      const res = await base44.functions.invoke('transitionEngagement', {
+        engagementId,
+        targetState: 'performed',
+        context: { confirmedByTalent: true, checkinPresent: true },
+      });
+
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.error || 'Transition refusée');
+      }
+
+      setStep('performed');
+      toast({
+        title:       '✓ Prestation confirmée',
+        description: "L'organisateur peut maintenant valider la complétion.",
+      });
+      // Recharger l'engagement pour refléter le nouvel état
+      loadEngagement();
+    } catch (err) {
+      setError(err.message);
+      setStep('error');
+    }
+  }
+
   const containerStyle = {
     minHeight: '100vh',
     background: T.bg,
@@ -136,8 +187,12 @@ export default function TalentPresence() {
 
   const pulseStyle = {
     width: '80px', height: '80px', borderRadius: '50%',
-    background: step === 'done' ? `${T.accent}22` : (step === 'error' ? '#ef444422' : `${T.pulse}22`),
-    border: `2px solid ${step === 'done' ? T.neon : (step === 'error' ? T.error : T.pulse)}`,
+    background: (step === 'done' || step === 'performed') ? `${T.accent}22`
+              : step === 'error' ? '#ef444422'
+              : `${T.pulse}22`,
+    border: `2px solid ${(step === 'done' || step === 'performed') ? T.neon
+                       : step === 'error' ? T.error
+                       : T.pulse}`,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     margin: '0 auto 24px',
     animation: step === 'locating' ? 'pulse 1.5s ease-in-out infinite' : 'none',
@@ -159,31 +214,35 @@ export default function TalentPresence() {
       <div style={cardStyle}>
         {/* Icône animée */}
         <div style={pulseStyle}>
-          {step === 'done'      && <CheckCircle2 size={32} color={T.neon} />}
-          {step === 'error'     && <AlertCircle  size={32} color={T.error} />}
-          {step === 'locating'  && <Navigation   size={32} color={T.pulse} />}
-          {step === 'submitting'&& <Loader2       size={32} color={T.pulse} className="animate-spin" />}
+          {(step === 'done' || step === 'performed') && <CheckCircle2 size={32} color={T.neon} />}
+          {step === 'error'      && <AlertCircle  size={32} color={T.error} />}
+          {step === 'locating'   && <Navigation   size={32} color={T.pulse} />}
+          {(step === 'submitting' || step === 'performing') && <Loader2 size={32} color={T.pulse} className="animate-spin" />}
           {(step === 'idle' || step === 'confirming') && <MapPin size={32} color={step === 'confirming' ? T.neon : T.muted} />}
         </div>
 
         {/* Titre état */}
         <h2 style={{ fontSize: '20px', fontWeight: 700, fontFamily: "'DM Serif Display', Georgia, serif", color: T.text, marginBottom: '8px', letterSpacing: '-0.01em' }}>
-          {step === 'idle'       && 'Check-in sur place'}
-          {step === 'locating'   && 'Localisation...'}
-          {step === 'confirming' && 'Position confirmée'}
-          {step === 'submitting' && 'Enregistrement...'}
-          {step === 'done'       && 'Check-in enregistré !'}
-          {step === 'error'      && 'Erreur'}
+          {step === 'idle'        && 'Check-in sur place'}
+          {step === 'locating'    && 'Localisation...'}
+          {step === 'confirming'  && 'Position confirmée'}
+          {step === 'submitting'  && 'Enregistrement...'}
+          {step === 'done'        && 'Check-in enregistré !'}
+          {step === 'performing'  && 'Confirmation prestation...'}
+          {step === 'performed'   && 'Prestation confirmée !'}
+          {step === 'error'       && 'Erreur'}
         </h2>
 
         {/* Description */}
         <p style={{ fontSize: '13px', color: T.muted, marginBottom: '24px', lineHeight: 1.6 }}>
-          {step === 'idle'       && 'Appuyez pour confirmer votre présence au lieu de l\'événement.'}
-          {step === 'locating'   && `Acquisition du signal GPS... ${accuracy ? `Précision : ${accuracy}m` : ''}`}
-          {step === 'confirming' && `Position acquise — précision ${accuracy}m. Prêt à enregistrer.`}
-          {step === 'submitting' && 'Enregistrement de votre présence...'}
-          {step === 'done'       && checkinResult?.distanceMeters != null && `Distance au lieu : ${Math.round(checkinResult.distanceMeters)}m.`}
-          {step === 'error'      && error}
+          {step === 'idle'        && "Appuyez pour confirmer votre présence au lieu de l'événement."}
+          {step === 'locating'    && `Acquisition du signal GPS... ${accuracy ? `Précision : ${accuracy}m` : ''}`}
+          {step === 'confirming'  && `Position acquise — précision ${accuracy}m. Prêt à enregistrer.`}
+          {step === 'submitting'  && 'Enregistrement de votre présence...'}
+          {step === 'done'        && checkinResult?.distanceMeters != null && `Distance au lieu : ${Math.round(checkinResult.distanceMeters)}m. Confirmez maintenant la prestation pour faire avancer le contrat.`}
+          {step === 'performing'  && "Mise à jour du contrat — passage à l'état performed..."}
+          {step === 'performed'   && "L'organisateur peut maintenant valider la complétion de l'événement et soumettre votre note SOTS."}
+          {step === 'error'       && error}
         </p>
 
         {/* Infos engagement */}
@@ -211,13 +270,13 @@ export default function TalentPresence() {
         )}
 
         {/* Coordonnées GPS */}
-        {coords && (step === 'confirming' || step === 'done') && (
+        {coords && (step === 'confirming' || step === 'done' || step === 'performed') && (
           <div style={{ fontSize: '11px', color: T.muted, marginBottom: '16px', fontFamily: 'monospace' }}>
             {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)} · ±{accuracy}m
           </div>
         )}
 
-        {/* Bouton principal */}
+        {/* Bouton principal selon l'état */}
         {step === 'idle' && (
           <button onClick={startLocating} style={{
             width: '100%', padding: '14px', borderRadius: '8px', border: 'none',
@@ -251,10 +310,24 @@ export default function TalentPresence() {
           </button>
         )}
 
+        {/* ── NOUVEAU v3 : bouton "Confirmer prestation effectuée" ── */}
         {step === 'done' && (
+          <button onClick={handleConfirmPerformed} style={{
+            width: '100%', padding: '14px', borderRadius: '8px', border: 'none',
+            background: T.accent, color: 'white',
+            fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase',
+            fontWeight: 700, cursor: 'pointer', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', gap: '8px',
+            fontFamily: "'DM Mono', monospace",
+          }}>
+            <ArrowRight size={14} /> Confirmer prestation effectuée
+          </button>
+        )}
+
+        {step === 'performed' && (
           <div>
             <div style={{ fontSize: '12px', color: T.neon, marginBottom: '16px' }}>
-              Votre présence est enregistrée dans le registre institutionnel Micro Rave.
+              Votre prestation est enregistrée dans le registre institutionnel Micro Rave.
             </div>
             <button onClick={() => navigate(`/engagement/${engagementId}`)} style={{
               width: '100%', padding: '12px', borderRadius: '6px', border: `1px solid ${T.border}`,

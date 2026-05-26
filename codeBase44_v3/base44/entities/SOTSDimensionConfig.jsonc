@@ -1,0 +1,49 @@
+{
+  "name": "SOTSDimensionConfig",
+  "type": "object",
+  "description": "Configuration des dimensions SOTS. D-079 \u2014 aucune dimension hardcod\u00e9e dans le code. Chaque dimension = une entr\u00e9e. Poids en PPM (1 000 000 = 100%). Calcul : sots_score_units = sum(score_i \u00d7 weight_ppm_i) / sum(weight_ppm_i).",
+  "properties": {
+    "dimensionKey": {
+      "type": "string",
+      "description": "Cl\u00e9 technique unique. Ex : performance_artistique. Canonique D-079."
+    },
+    "label": {
+      "type": "string",
+      "description": "Libell\u00e9 affich\u00e9 \u00e0 l'\u00e9valuateur. Ex : Performance artistique."
+    },
+    "weight_ppm": {
+      "type": "integer",
+      "description": "Poids de la dimension dans le calcul du score agr\u00e9g\u00e9, en PPM. Somme des poids actifs = 1 000 000 PPM. Ex : 7 dimensions \u00e0 poids \u00e9gal = 142 857 PPM chacune."
+    },
+    "isActive": {
+      "type": "boolean",
+      "description": "Si false, la dimension est ignor\u00e9e par submitSOTSRating et le calcul EMA."
+    },
+    "visibleToUser": {
+      "type": "boolean",
+      "description": "Si true, l'\u00e9valuateur voit cette dimension dans le formulaire SOTS."
+    },
+    "affectsCommission": {
+      "type": "boolean",
+      "description": "Si true, cette dimension est incluse dans le calcul du multiplicateur de commission (D-080)."
+    },
+    "effectiveFrom": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 d'activation. Null = actif depuis toujours."
+    },
+    "effectiveTo": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 d'expiration. Null = actif ind\u00e9finiment."
+    },
+    "createdAt": {
+      "type": "string",
+      "description": "Timestamp ISO 8601 de cr\u00e9ation."
+    }
+  },
+  "required": [
+    "dimensionKey",
+    "label",
+    "weight_ppm",
+    "isActive"
+  ]
+}

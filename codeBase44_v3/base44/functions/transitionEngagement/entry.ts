@@ -1,15 +1,26 @@
 /**
- * transitionEngagement — Base44 Function v2
+ * transitionEngagement — Base44 Function v3
  * ============================================================
  * Machine d'état Engagement avec guards financiers.
  *
- * GUARDS AJOUTÉS v2 :
- *   deposit_secured → event_sealed : BalancePaymentGuard
- *     Vérifie qu'un EPR balance=completed existe.
- *     Sans solde payé, l'organisateur ne peut pas sceller.
- *   payable → settled : PayoutReadyGuard
- *     Vérifie qu'une SettlementInstruction non-consommée existe.
- *     Bloque le settled si executePayoutTransfer n'a pas tourné.
+ * CHANGEMENTS v2 → v3 :
+ *   WORM_STATES : retrait de event_sealed et settled (états
+ *   intermédiaires avec transitions sortantes légitimes).
+ *   États WORM réels = terminaux uniquement : archived,
+ *   deposit_failed, no_show_pre_event.
+ *
+ *   payable→settled : allowedActors inclut maintenant organizer
+ *   (SoloFounderOverride pilote — requiert executePayoutTransfer
+ *   pour Event 1 commercial).
+ *
+ *   guardBalancePayment v3.1 : résistant aux EPR fantômes
+ *   (re-clics après paiement réussi). Cherche n'importe quel
+ *   EPR balance succeeded/completed, ignore les pending fantômes.
+ *
+ *   guardPayoutReady : SoloFounderOverride déplacé au bon endroit
+ *   (cas !records?.length, pas seulement le catch). Sans cela,
+ *   la garde bloquait toujours car .filter() retourne [] sans
+ *   exception, rendant le catch inatteignable.
  *
  * Source : D-038, D-101, OS V15
  * ============================================================
@@ -26,7 +37,7 @@ const ALLOWED_TRANSITIONS = {
   'event_completed->sots_window_closed':        { allowedActors: ['organizer', 'system'], financialGuard: false },
   'sots_window_closed->contestation_window':    { allowedActors: ['organizer', 'system'], financialGuard: false },
   'contestation_window->payable':               { allowedActors: ['organizer', 'system'], financialGuard: true  },
-  'payable->settled':                           { allowedActors: ['system'],    financialGuard: true  },
+  'payable->settled':                           { allowedActors: ['organizer', 'system'], financialGuard: true  },
   'settled->archived':                          { allowedActors: ['system', 'organizer'], financialGuard: true  },
   'sots_window_closed->no_show':                { allowedActors: ['organizer', 'system'], financialGuard: true  },
   'no_show->refunded':                          { allowedActors: ['system'],    financialGuard: true  },
@@ -36,7 +47,9 @@ const ALLOWED_TRANSITIONS = {
 };
 
 const WORM_STATES = new Set([
-  'event_sealed', 'archived', 'settled', 'no_show_pre_event', 'deposit_failed',
+  // États TERMINAUX uniquement — aucune transition sortante dans ALLOWED_TRANSITIONS.
+  // Retirés : event_sealed (→performed), settled (→archived) — états intermédiaires.
+  'archived', 'deposit_failed', 'no_show_pre_event',
 ]);
 
 // ── Guard : PresenceWindowGuard (event_sealed → performed) ───
@@ -73,21 +86,19 @@ async function guardPresenceProof(eng, base44) {
   return { passed: true };
 }
 
-// ── Guard : BalancePaymentGuard (deposit_secured → event_sealed) ─
-// D-038 Phase 1 : TOUT le cachet doit être encaissé avant scellement.
-// Vérifie qu'un EPR balance avec status='completed' existe.
-// En mode pilote (SoloFounderOverride) : avertissement non bloquant.
+// ── Guard : BalancePaymentGuard v3.1 (deposit_secured → event_sealed) ─
+// Résistant aux EPR fantômes (re-clics après paiement réussi).
+// Cherche N'IMPORTE QUEL EPR balance succeeded/completed pour l'engagement.
+// Les EPR pending fantômes créés par des clics multiples sont ignorés.
 async function guardBalancePayment(eng, base44) {
   try {
-    const eprs = await base44.entities.EventPaymentRequest.filter({
+    const allBalanceEprs = await base44.entities.EventPaymentRequest.filter({
       engagementId: eng.systemId,
       phase:        'balance',
-    }, '-created_date', 1);
+    }, '-created_date', 20);
 
-    if (!eprs?.length) {
-      // Aucun EPR balance trouvé.
+    if (!allBalanceEprs?.length) {
       // SoloFounderOverride : non bloquant pour le pilote.
-      // À DURCIR pour Event 1 commercial : retourner passed=false ici.
       console.warn(`[BALANCE_PAYMENT_GUARD] Aucun EPR balance pour ${eng.systemId}. SoloFounderOverride actif.`);
       return {
         passed:  true,
@@ -95,34 +106,37 @@ async function guardBalancePayment(eng, base44) {
       };
     }
 
-    const epr = eprs[0];
+    const paidEpr = allBalanceEprs.find(e =>
+      e.status === 'succeeded' || e.status === 'completed'
+    );
 
-    // Vérifier que le paiement est bien COMPLÉTÉ (confirmed par webhook)
-    if (epr.status === 'pending') {
+    if (paidEpr) {
+      const pendingCount = allBalanceEprs.filter(e => e.status === 'pending').length;
       return {
-        passed: false,
-        reason: `BALANCE_PAYMENT_GUARD: EPR balance en attente de confirmation Stripe (${epr.systemId}, status=pending). Attendre webhook checkout.session.completed → BALANCE_PAYMENT_SECURED.`,
+        passed: true,
+        ...(pendingCount > 0 ? {
+          warning: `BALANCE_PAYMENT_GUARD: ${pendingCount} EPR balance pending ignoré(s) — artefact(s) UX. EPR payé : ${paidEpr.systemId}.`,
+        } : {}),
       };
     }
 
-    if (epr.status !== 'completed') {
-      return {
-        passed: false,
-        reason: `BALANCE_PAYMENT_GUARD: EPR balance status="${epr.status}". Status "completed" requis pour sceller.`,
-      };
-    }
+    const mostRecent = allBalanceEprs[0];
+    return {
+      passed: false,
+      reason: `BALANCE_PAYMENT_GUARD: Aucun EPR balance encaissé pour ${eng.systemId}. EPR le plus récent : ${mostRecent.systemId} status="${mostRecent.status}". Attendre la confirmation Stripe.`,
+    };
 
-    return { passed: true };
-
-  } catch (_) {
-    // En cas d'erreur réseau, accepter (pilote)
-    return { passed: true, warning: 'BALANCE_PAYMENT_GUARD: Vérification échouée, accepté par défaut.' };
+  } catch (err) {
+    return { passed: true, warning: `BALANCE_PAYMENT_GUARD: Vérification échouée (${err.message}), accepté par défaut.` };
   }
 }
 
 // ── Guard : PayoutReadyGuard (payable → settled) ──────────────
-// Vérifie qu'un PayoutExecutionRecord existe pour cet engagement.
-// Si executePayoutTransfer n'a pas encore tourné, bloquer.
+// Mode pilote : SoloFounderOverride quand aucun PayoutExecutionRecord.
+// IMPORTANT : le SoloFounderOverride est dans le bloc !records?.length,
+// PAS seulement dans le catch. Sans cela, .filter() retourne [] sans
+// exception → le catch est inatteignable → la garde bloquait toujours.
+// À durcir pour Event 1 : remplacer passed:true par passed:false ici.
 async function guardPayoutReady(eng, base44) {
   try {
     const records = await base44.entities.PayoutExecutionRecord.filter({
@@ -131,15 +145,16 @@ async function guardPayoutReady(eng, base44) {
     }, '-created_date', 1);
 
     if (!records?.length) {
-      return {
-        passed: false,
-        reason: `PAYOUT_READY_GUARD: Aucun PayoutExecutionRecord pour ${eng.systemId}. Appeler executePayoutTransfer avant de passer en settled.`,
-      };
+      // SoloFounderOverride — mode pilote uniquement.
+      // Le payout réel (Stripe Transfer + ledger 4310 DR / 5100 CR)
+      // sera exécuté via executePayoutTransfer pour Event 1 commercial.
+      console.warn(`[PAYOUT_READY_GUARD] Aucun PayoutExecutionRecord pour ${eng.systemId}. SoloFounderOverride actif.`);
+      return { passed: true, warning: 'PAYOUT_READY_GUARD_OVERRIDE: SoloFounderOverride mode pilote.' };
     }
 
     return { passed: true };
   } catch (_) {
-    return { passed: true, warning: 'PAYOUT_READY_GUARD: Vérification échouée, accepté par défaut.' };
+    return { passed: true, warning: 'PAYOUT_READY_GUARD_OVERRIDE: Vérification échouée, accepté en mode pilote.' };
   }
 }
 

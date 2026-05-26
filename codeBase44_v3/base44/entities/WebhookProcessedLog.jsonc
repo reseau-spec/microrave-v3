@@ -17,7 +17,7 @@
     },
     "processingStatus": {
       "type": "string",
-      "description": "IN_PROGRESS, COMPLETED."
+      "description": "\u00c9tat du traitement webhook. IN_PROGRESS = re\u00e7u et en cours de dispatch. COMPLETED = dispatch termin\u00e9 (succ\u00e8s ou skip)."
     },
     "completedAt": {
       "type": "string",
@@ -25,7 +25,7 @@
     },
     "action": {
       "type": "string",
-      "description": "Action prise par le dispatcher."
+      "description": "Action prise par le dispatcher. Valeurs \u00e9mises par stripeWebhookHandler v4 : DEPOSIT_SECURED (d\u00e9p\u00f4t encaiss\u00e9, ledger grav\u00e9, engagement transition\u00e9), DEPOSIT_ALREADY_LEDGERED (id\u00e9potence ledger d\u00e9clench\u00e9e, transition\u00e9 quand m\u00eame), BALANCE_PAYMENT_SECURED (balance encaiss\u00e9e, ledger grav\u00e9), BALANCE_ALREADY_LEDGERED (id\u00e9potence ledger), PAYMENT_RECEIVED_WRONG_STATE (engagement dans un \u00e9tat inattendu), PAYMENT_RECEIVED_NO_TRANSITION (event accept\u00e9 sans transition associ\u00e9e), SKIPPED_NO_ENGAGEMENT_ID (metadata.engagementId absent), SKIPPED_ENGAGEMENT_NOT_FOUND (engagementId pr\u00e9sent mais introuvable), UNHANDLED_EVENT_TYPE (type d'event Stripe non g\u00e9r\u00e9)."
     },
     "createdAt": {
       "type": "string",
