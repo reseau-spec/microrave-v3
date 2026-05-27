@@ -462,6 +462,87 @@ async function transitionEngagement({
     };
   }
 
+  // ── [1B-2] ContractSnapshot CS1 — deposit_pending → deposit_secured ──────
+  // CS1 = phase 1 WORM. Snapshot financier complet au moment où le dépôt est confirmé.
+  // Non-bloquant si repositories.contractSnapshots absent (SoloFounderOverride pilote).
+  // Source : D-014 · 1B-2 PHASE 2
+  if (transitionKey === 'deposit_pending->deposit_secured' &&
+      repositories.contractSnapshots &&
+      typeof repositories.contractSnapshots.create === 'function') {
+    try {
+      const eng = context.engagement || {};
+      const cs1 = await repositories.contractSnapshots.create({
+        systemId:             IDFactory.generate('ContractSnapshotV1'),
+        engagementId,
+        phase:                1,
+        transitionKey,
+        transitionedAt:       auditEntry.timestamp,
+        transitionedByUserId: actor,
+        talentUserId:         eng.talentUserId        || context.talentUserId        || null,
+        organizerUserId:      eng.organizerUserId     || context.organizerUserId     || null,
+        eventId:              eng.eventId             || context.eventId             || null,
+        cachetSigneCents:     eng.cachetSigneCents     ?? context.cachetSigneCents     ?? 0,
+        tauxPpm:              eng.tauxPpm              ?? context.tauxPpm              ?? 0,
+        commissionMrCents:    eng.commissionMrCents    ?? context.commissionMrCents    ?? 0,
+        talentNetCents:       eng.talentNetCents       ?? context.talentNetCents       ?? 0,
+        depositCents:         eng.depositCents         ?? context.depositCents         ?? 0,
+        balanceCents:         eng.balanceCents         ?? context.balanceCents         ?? 0,
+        prixVenduClientCents: eng.prixVenduClientCents ?? context.prixVenduClientCents ?? 0,
+        tpsCents:             eng.tpsCents             ?? context.tpsCents             ?? 0,
+        tvqCents:             eng.tvqCents             ?? context.tvqCents             ?? 0,
+        currency:             eng.currency             || context.currency             || 'cad',
+        immutableAt:          auditEntry.timestamp,
+        createdAt:            auditEntry.timestamp,
+      });
+      result.contractSnapshotPhase1 = cs1;
+    } catch (csErr) {
+      console.error(
+        `[transitionEngagement] CS1_CREATE_FAILED: ContractSnapshot phase 1 non persisté. ` +
+        `EngagementId: ${engagementId}. Erreur: ${csErr.message}`
+      );
+    }
+  }
+
+  // ── [1B-3] ContractSnapshot CS2 — deposit_secured → event_sealed ─────────
+  // CS2 = phase 2 WORM (W2). Snapshot au scellement de l'événement.
+  // Source : D-014 · 1B-3 PHASE 2
+  if (transitionKey === 'deposit_secured->event_sealed' &&
+      repositories.contractSnapshots &&
+      typeof repositories.contractSnapshots.create === 'function') {
+    try {
+      const eng = context.engagement || {};
+      const cs2 = await repositories.contractSnapshots.create({
+        systemId:             IDFactory.generate('ContractSnapshotV2'),
+        engagementId,
+        phase:                2,
+        transitionKey,
+        transitionedAt:       auditEntry.timestamp,
+        transitionedByUserId: actor,
+        talentUserId:         eng.talentUserId        || context.talentUserId        || null,
+        organizerUserId:      eng.organizerUserId     || context.organizerUserId     || null,
+        eventId:              eng.eventId             || context.eventId             || null,
+        cachetSigneCents:     eng.cachetSigneCents     ?? context.cachetSigneCents     ?? 0,
+        tauxPpm:              eng.tauxPpm              ?? context.tauxPpm              ?? 0,
+        commissionMrCents:    eng.commissionMrCents    ?? context.commissionMrCents    ?? 0,
+        talentNetCents:       eng.talentNetCents       ?? context.talentNetCents       ?? 0,
+        depositCents:         eng.depositCents         ?? context.depositCents         ?? 0,
+        balanceCents:         eng.balanceCents         ?? context.balanceCents         ?? 0,
+        prixVenduClientCents: eng.prixVenduClientCents ?? context.prixVenduClientCents ?? 0,
+        tpsCents:             eng.tpsCents             ?? context.tpsCents             ?? 0,
+        tvqCents:             eng.tvqCents             ?? context.tvqCents             ?? 0,
+        currency:             eng.currency             || context.currency             || 'cad',
+        immutableAt:          auditEntry.timestamp,
+        createdAt:            auditEntry.timestamp,
+      });
+      result.contractSnapshotPhase2 = cs2;
+    } catch (csErr) {
+      console.error(
+        `[transitionEngagement] CS2_CREATE_FAILED: ContractSnapshot phase 2 non persisté. ` +
+        `EngagementId: ${engagementId}. Erreur: ${csErr.message}`
+      );
+    }
+  }
+
   return result;
 }
 
