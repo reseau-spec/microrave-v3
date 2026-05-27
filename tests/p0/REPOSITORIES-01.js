@@ -76,7 +76,7 @@ global.fetch = async () => {
 // ── Charger les repositories ──────────────────────────────────
 process.env.BASE44_API_KEY = 'sk_test_MOCK_REPOS_01';
 
-import LedgerRepository from '../../src/repositories/LedgerRepository.js';
+import LedgerRepository from '../../src/repositories/LedgerRecordRepository.js';
 import PaymentRepository from '../../src/repositories/PaymentRepository.js';
 import SchedulerRepository from '../../src/repositories/SchedulerRepository.js';
 import SessionPresenceRepository from '../../src/repositories/SessionPresenceRepository.js';

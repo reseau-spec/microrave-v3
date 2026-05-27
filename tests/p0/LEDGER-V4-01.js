@@ -38,7 +38,7 @@
 'use strict';
 
 import svc from '../../src/services/FinancialLedgerService.js';
-import LedgerRepo from '../../src/repositories/LedgerRepository.js';
+import LedgerRepo from '../../src/repositories/LedgerRecordRepository.js';
 // ── Compteurs ─────────────────────────────────────────────────
 let passed = 0;
 let failed = 0;

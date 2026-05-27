@@ -135,22 +135,42 @@ async function run() {
       throw new Error(`Valeur doit être DEBOURS (Doctrine A), est: ${config.value}`);
   });
 
-  // ── Test 5 : connexion database réelle ────────────────────
-  console.log('\n─── Test connexion database ─────────────────────');
+  // ── Test 5 : validateCriticalConfigs avec données pristine ──
+  // PORT-1b (DETTE-PORT-007 résolue) : au lieu d'appeler l'API
+  // Base44 réelle (HTTP 403 dans le sandbox), on charge le CSV
+  // pristine codeBase44_v3/dataBase/PolicyConfig_export.csv via
+  // le mode seed de PolicyConfigAdapter. Les 36 configs réelles
+  // de production sont utilisées — c'est plus fort qu'un mock.
+  console.log('\n─── Test validateCriticalConfigs (mode seed CSV) ─');
 
-  if (!isConnected()) {
-    const manquant = getMissingConfig();
+  const fs   = await import('node:fs');
+  const path = await import('node:path');
+  const url  = await import('node:url');
+  const adapter = await import('../../src/adapters/base44/PolicyConfigAdapter.js');
+  const resolver = await import('../../src/core/policy-config-resolver.js');
+
+  const __filename = url.fileURLToPath(import.meta.url);
+  const __dirname  = path.dirname(__filename);
+  const csvPath = path.join(__dirname, '../../codeBase44_v3/dataBase/PolicyConfig_export.csv');
+
+  if (!fs.existsSync(csvPath)) {
     skip(
-      'validateCriticalConfigs() — connexion database',
-      `Manquant dans .env : ${manquant.join(', ')}.\n` +
-      `   Ajouter BASE44_API_KEY (Base44 → Settings → API → api_key).\n` +
-      `   Les 16 configs sont confirmées en base via seed-policy-config.js.`
+      'validateCriticalConfigs() — CSV pristine introuvable',
+      `Fichier attendu : ${csvPath}`
     );
   } else {
+    const csvText = fs.readFileSync(csvPath, 'utf8');
+    const count = adapter.loadFromCSV(csvText);
+    console.log(`  → ${count} configs chargées depuis le CSV pristine`);
+    resolver.clearCache();  // forcer une re-lecture via le mode seed
+
     await testAsync(
-      'validateCriticalConfigs() — toutes les configs critiques présentes en base',
+      'validateCriticalConfigs() — toutes les configs critiques présentes (CSV pristine)',
       async () => { await validateCriticalConfigs(); }
     );
+
+    adapter.resetLocalStore();  // teardown : restaurer le comportement HTTP normal
+    resolver.clearCache();
   }
 
   // ── Résultat ──────────────────────────────────────────────

@@ -35,7 +35,9 @@ import SchedulerRepository from '../src/repositories/SchedulerRepository.js';
 import AdminRepository from '../src/repositories/AdminRepository.js';
 import PolicyConfigRepository from '../src/repositories/PolicyConfigRepository.js';
 import EngagementRepository from '../src/repositories/EngagementRepository.js';
-import LedgerRepository from '../src/repositories/LedgerRepository.js';
+// PORT-1b : LedgerRepository.js supprimé. Le contenu (validation des codes
+// comptables) vit maintenant sous son vrai nom LedgerCodeMapRepository.
+import LedgerCodeMapRepository from '../src/repositories/LedgerCodeMapRepository.js';
 // ── Instanciation des repositories ───────────────────────────
 // Tous injectes dans SchedulerService — aucun require direct la-bas.
 const repositories = {
@@ -43,7 +45,7 @@ const repositories = {
   admin:        AdminRepository,
   policyConfig: PolicyConfigRepository,
   engagements:  EngagementRepository,
-  ledger:       LedgerRepository,
+  ledger:       LedgerCodeMapRepository,
 };
 
 // ── Execution ─────────────────────────────────────────────────

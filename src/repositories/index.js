@@ -45,7 +45,12 @@
 'use strict';
 
 import EngagementRepository from './EngagementRepository.js';
-import LedgerRepository from './LedgerRepository.js';
+// PORT-1b (DETTE-PORT-006 résolue) : split du fichier mal-nommé LedgerRepository.
+// Avant : un seul fichier qui contenait LedgerCodeMapRepository sous le nom
+// LedgerRepository. Maintenant deux repositories distincts pour deux entités
+// distinctes (LedgerRecord vs LedgerCodeMap).
+import LedgerRecordRepository from './LedgerRecordRepository.js';
+import LedgerCodeMapRepository from './LedgerCodeMapRepository.js';
 import PaymentRepository from './PaymentRepository.js';
 import SchedulerRepository from './SchedulerRepository.js';
 import SessionPresenceRepository from './SessionPresenceRepository.js';
@@ -93,8 +98,12 @@ export default {
   engagements:    EngagementRepository,
 
   // ── Ledger financier (append-only) ─────────────────────────
-  ledger:         LedgerRepository,
-  ledgerRecords:  LedgerRepository,  // alias interface PayoutExecutor D-101
+  // PORT-1b : ledger pointe vers LedgerCodeMap (validation des codes
+  // comptables) tandis que ledgerRecords pointe vers LedgerRecord
+  // (persistance des écritures LDG-*). Auparavant les deux pointaient
+  // vers LedgerCodeMap par confusion de nommage (DETTE-PORT-006).
+  ledger:         LedgerCodeMapRepository,   // validation : isValid, findByCode...
+  ledgerRecords:  LedgerRecordRepository,    // persistance : append, findByEngagementId...
 
   // ── Paiements Stripe ───────────────────────────────────────
   payment:        PaymentRepository,

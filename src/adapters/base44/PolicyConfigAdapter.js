@@ -66,6 +66,16 @@ function getMissingConfig() {
  * @returns {Promise<{id, key, value, value_type, category, description}|null>}
  */
 async function findByKey(key) {
+  // ── Mode seed CSV (PORT-1b, DETTE-PORT-007) ──────────────────
+  // Si un store local a été chargé via loadFromCSV(), on court-circuite
+  // le HTTP — utilisé exclusivement par les tests pour éviter la
+  // dépendance à l'API Base44 réelle. La logique métier (findByKey
+  // retourne le record ou null) est strictement préservée.
+  if (_localStore !== null) {
+    const row = _localStore.get(key);
+    return row || null;
+  }
+
   if (!isConnected()) {
     console.warn(
       `[PolicyConfigAdapter] Mode dégradé pour "${key}". ` +
@@ -182,7 +192,87 @@ async function findByCategory(category) {
   return Array.isArray(json) ? json : (json.data || []);
 }
 
+// ── Mode seed CSV (PORT-1b, DETTE-PORT-007) ──────────────────────
+// Permet aux tests de fournir des données depuis le CSV pristine
+// codeBase44_v3/dataBase/PolicyConfig_export.csv sans toucher au
+// réseau. Pattern : test charge le CSV, appelle loadFromCSV(text),
+// puis tout findByKey() lit dans le store local au lieu de fetch().
+// Important : ce mode N'AFFECTE PAS la logique métier — il remplace
+// uniquement la source de données (DB → mémoire).
+
+let _localStore = null;  // null = mode HTTP, Map = mode seed
+
+/**
+ * Parse minimaliste de CSV avec quoting double-quotes. Suffisant pour
+ * le format export Base44 (pas de cas pathologiques de quote-in-quote).
+ */
+function _parseCSV(csvText) {
+  const lines = csvText.replace(/\r\n/g, '\n').split('\n').filter((l) => l.length > 0);
+  if (lines.length === 0) return [];
+  const headers = _parseCSVRow(lines[0]);
+  return lines.slice(1).map((line) => {
+    const cells = _parseCSVRow(line);
+    const row = {};
+    headers.forEach((h, i) => { row[h] = cells[i]; });
+    return row;
+  });
+}
+
+function _parseCSVRow(line) {
+  const out = [];
+  let cur = '';
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQuote) {
+      if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQuote = false; }
+      else { cur += c; }
+    } else {
+      if (c === '"') { inQuote = true; }
+      else if (c === ',') { out.push(cur); cur = ''; }
+      else { cur += c; }
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+/**
+ * Charge un CSV PolicyConfig dans le store local. Active le mode seed.
+ * Format attendu : colonnes 'key' et 'value' au minimum.
+ * Usage : tests P0 qui ne peuvent pas appeler l'API Base44 réelle.
+ */
+function loadFromCSV(csvText) {
+  const rows = _parseCSV(csvText);
+  _localStore = new Map();
+  for (const row of rows) {
+    if (!row.key) continue;
+    _localStore.set(row.key, {
+      id:          row.id,
+      key:         row.key,
+      value:       row.value,
+      value_type:  row.value_type,
+      category:    row.category,
+      description: row.description,
+    });
+  }
+  return _localStore.size;
+}
+
+/**
+ * Désactive le mode seed et restaure le comportement HTTP normal.
+ * À appeler en teardown des tests.
+ */
+function resetLocalStore() {
+  _localStore = null;
+}
+
 export default {
-findByKey, upsert, findByCategory, isConnected, getMissingConfig 
+  findByKey, upsert, findByCategory, isConnected, getMissingConfig,
+  loadFromCSV, resetLocalStore,
 };
-export { findByKey, upsert, findByCategory, isConnected, getMissingConfig };
+export {
+  findByKey, upsert, findByCategory, isConnected, getMissingConfig,
+  loadFromCSV, resetLocalStore,
+};
