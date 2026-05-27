@@ -249,9 +249,11 @@ function isFundamental(key) {
   return POLICY_CONFIGS_FONDAMENTALES.some(c => c.key === key);
 }
 
-module.exports = {
-  getFoundationalConfigs,
+export default {
+getFoundationalConfigs,
   isFundamental,
   POLICY_CONFIGS_FONDAMENTALES,
   CRITICAL_CONFIG_KEYS,
+
 };
+export { getFoundationalConfigs, isFundamental, POLICY_CONFIGS_FONDAMENTALES, CRITICAL_CONFIG_KEYS };

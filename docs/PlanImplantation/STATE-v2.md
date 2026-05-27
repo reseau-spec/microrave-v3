@@ -547,3 +547,18 @@ Symbole ∥ = en parallèle dans des sessions séparées si possible.
 FIN DU STATE.md V2
 Mise à jour suivante : après PORT-1 DONE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Mise à jour 2026-05-27 12:21 EST
+PHASE 1 — PORTAGE CANONIQUE
+  ✅  PORT-1  Conversion ESM globale (41/44 P0 PASSED · TRANSITION-01 34/34)
+  ❌  PORT-1b DETTE-PORT-006 : LedgerRepository → split LedgerCodeMap + LedgerRecord
+              [NOUVEAU — bloquant PORT-2]
+  ❌  PORT-2  Créer src/repositories/adapters/base44-adapter.ts
+  ❌  PORT-3  Vérifier import dans Base44
+
+DETTES INSCRITES :
+  PORT-003 : require('stripe') via shim — accepté
+  PORT-004 : require lazy intra-bloc converti — acceptable
+  PORT-005 : findByTransactionGroupId — résolu par PORT-1b
+  PORT-006 : LedgerRepository/LedgerCodeMapRepository — PORT-1b immédiat
+  PORT-007 : POLICYCONFIG-FAILCLOSED-01 environment-dépendant — ignoré

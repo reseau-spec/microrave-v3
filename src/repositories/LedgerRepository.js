@@ -292,8 +292,8 @@ async function getStats() {
   };
 }
 
-module.exports = {
-  // Lecture (cache)
+export default {
+// Lecture (cache)
   getValidAccounts,
   getValidSkuCodes,
   getFiscalLiabilityAccounts,
@@ -309,4 +309,5 @@ module.exports = {
   invalidateCache,
   // Accès direct au cache pour les tests
   loadCache,
+
 };
