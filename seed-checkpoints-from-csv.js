@@ -18,7 +18,6 @@
 import fs   from 'node:fs';
 import path from 'node:path';
 import url  from 'node:url';
-import { parse } from 'node:readline';
 import IDFactory from './src/core/IDFactory.js';
 
 const __dirname  = path.dirname(url.fileURLToPath(import.meta.url));
