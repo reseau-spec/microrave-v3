@@ -1,0 +1,50 @@
+{
+  "art": {
+    "slug": "art",
+    "systemId": "DMN-MPOSQ1E9-JFDNHR",
+    "labelFr": "Art",
+    "newId": "6a1795ea8a1d48dee25886ca"
+  },
+  "photo": {
+    "slug": "photo",
+    "systemId": "DMN-MPOSQ1E9-7Q3M52",
+    "labelFr": "Photo",
+    "newId": "6a1795ead6a40bbd3885a455"
+  },
+  "food": {
+    "slug": "food",
+    "systemId": "DMN-MPOSQ1E9-157YZU",
+    "labelFr": "Bouffe",
+    "newId": "6a1795eaa805f5674be191c5"
+  },
+  "responsable": {
+    "slug": "responsable",
+    "systemId": "DMN-MPOSQ1E9-BGMJFM",
+    "labelFr": "Festivité responsable",
+    "newId": "6a1795eb9d60eb0a38994ca7"
+  },
+  "music": {
+    "slug": "music",
+    "systemId": "DMN-MPOSQ1E9-WZJL7G",
+    "labelFr": "Musique",
+    "newId": "6a1795eb1f25e2a62f2a1e6b"
+  },
+  "boisson": {
+    "slug": "boisson",
+    "systemId": "DMN-MPOSQ1E9-AX5222",
+    "labelFr": "Boisson & Service",
+    "newId": "6a1795eb1b499f2d9dbd3cd4"
+  },
+  "humour": {
+    "slug": "humour",
+    "systemId": "DMN-MPOSQ1E9-YK9HN1",
+    "labelFr": "Humour",
+    "newId": "6a1795eb0c8a49706747c445"
+  },
+  "video": {
+    "slug": "video",
+    "systemId": "DMN-MPOSQ1E9-P1TTFP",
+    "labelFr": "Vidéo",
+    "newId": "6a1795ecc2038cbf2ef273d3"
+  }
+}

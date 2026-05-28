@@ -25,6 +25,7 @@ const PREFIXES = {
   Talent:              'TAL',
   Checkpoint:          'CKP',
   EventLocation:       'EVL',
+  Domain:              'DMN',
   LedgerEntry:         'LDG',
   TransactionGroup:    'TXG',  // D-038 — lie les lignes DR+CR d'une même transaction comptable
   PayoutExecution:     'PAY',
