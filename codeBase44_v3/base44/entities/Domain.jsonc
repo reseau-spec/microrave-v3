@@ -1,0 +1,52 @@
+{
+  "name": "Domain",
+  "type": "object",
+  "description": "Source de v\u00e9rit\u00e9 unique des domaines culturels Micro Rave. Entit\u00e9 first-class avec systemId souverain DMN-*. Append-friendly : ajouter un domaine = cr\u00e9er une ligne ici. Retirer un domaine = active: false. Aucune liste hardcod\u00e9e dans le code. Les tables d\u00e9pendantes r\u00e9f\u00e9rencent domainSystemId (pas domainKey).",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory DMN-* \u2014 identifiant souverain immuable. Ex: DMN-M5KQZA-3F9X2B."
+    },
+    "slug": {
+      "type": "string",
+      "description": "Cl\u00e9 courte lisible et immuable (ex: 'music', 'humour', 'boisson'). Usage : affichage, logs, debug. JAMAIS utilis\u00e9 comme cl\u00e9 de jointure \u2014 utiliser systemId. Immuable apr\u00e8s cr\u00e9ation."
+    },
+    "labelFr": {
+      "type": "string",
+      "description": "Label affich\u00e9 en fran\u00e7ais (ex: 'Musique', 'Boisson & Service')."
+    },
+    "labelEn": {
+      "type": "string",
+      "description": "Label affich\u00e9 en anglais (ex: 'Music', 'Beverage & Service')."
+    },
+    "icon": {
+      "type": "string",
+      "description": "Emoji repr\u00e9sentant le domaine (ex: '\ud83c\udfb5', '\ud83c\udf79'). Source de v\u00e9rit\u00e9 UI \u2014 jamais hardcod\u00e9 dans le code."
+    },
+    "color": {
+      "type": "string",
+      "description": "Couleur hex du domaine (ex: '#8B5CF6'). Source de v\u00e9rit\u00e9 pour DOMAIN_COLORS dans le frontend. Fallback : #6366F1 si null."
+    },
+    "sortOrder": {
+      "type": "number",
+      "default": 0,
+      "description": "Ordre d'affichage dans les filtres et les listes. Trier par sortOrder ASC."
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Domaine actif. false = masqu\u00e9 dans l'UI et les filtres. Les donn\u00e9es historiques restent valides."
+    },
+    "contributesToCheckpointDomains": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si true, les sessions de ce domaine influencent CheckpointDomainStats et le domainDominantKey des checkpoints."
+    }
+  },
+  "required": [
+    "systemId",
+    "slug",
+    "labelFr",
+    "active"
+  ]
+}

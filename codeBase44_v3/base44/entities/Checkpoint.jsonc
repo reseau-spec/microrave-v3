@@ -1,0 +1,168 @@
+{
+  "name": "Checkpoint",
+  "type": "object",
+  "description": "Lieu culturel Micro Rave \u2014 Bar, Club, Salle, etc. Entit\u00e9 first-class du r\u00e9seau territorial. systemId = identifiant canonique CKP-* (IDFactory). Immuable apr\u00e8s cr\u00e9ation.",
+  "properties": {
+    "systemId": {
+      "type": "string",
+      "description": "IDFactory CKP-* \u2014 identifiant souverain immuable. Jamais NC-*."
+    },
+    "name": {
+      "type": "string",
+      "description": "Nom affich\u00e9 du lieu (ex: Le Tr\u00e8fle \u2014 Plateau-Mont-Royal)."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "Bar",
+        "Club",
+        "Bistro",
+        "Salle de spectacle",
+        "Salle de r\u00e9ception",
+        "Installation sportive",
+        "Pub",
+        "Microbrasserie",
+        "Karaok\u00e9",
+        "G\u00e9rance d'artistes",
+        "Studio",
+        "Coworking",
+        "Production d'arts et de spectacles",
+        "Radio et t\u00e9l\u00e9vision",
+        "Cabaret",
+        "Autre"
+      ],
+      "default": "Bar",
+      "description": "Type de lieu culturel."
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Checkpoint actif pour s\u00e9lection dans les Engagements et l'UI."
+    },
+    "arrondissement": {
+      "type": "string",
+      "description": "Arrondissement de Montr\u00e9al (ex: Le Plateau-Mont-Royal, Ville-Marie, Le Sud-Ouest)."
+    },
+    "adresse": {
+      "type": "string",
+      "description": "Adresse compl\u00e8te (ex: 1234 rue Saint-Denis)."
+    },
+    "codePostal": {
+      "type": "string",
+      "description": "Code postal canadien (ex: H2X 3A1)."
+    },
+    "province": {
+      "type": "string",
+      "enum": [
+        "QC",
+        "ON"
+      ],
+      "default": "QC"
+    },
+    "pays": {
+      "type": "string",
+      "enum": [
+        "CA",
+        "US"
+      ],
+      "default": "CA"
+    },
+    "geoLat": {
+      "type": "number",
+      "description": "Latitude GPS (ex: 45.5231)."
+    },
+    "geoLng": {
+      "type": "number",
+      "description": "Longitude GPS (ex: -73.5890)."
+    },
+    "radiusKm": {
+      "type": "number",
+      "default": 0.1,
+      "description": "Rayon de couverture GPS en km pour la validation de pr\u00e9sence (SessionPresence)."
+    },
+    "timezone": {
+      "type": "string",
+      "default": "America/Toronto",
+      "description": "Fuseau horaire IANA (ex: America/Toronto)."
+    },
+    "coverImageUrl": {
+      "type": "string",
+      "description": "URL HTTPS de l'image de couverture du lieu."
+    },
+    "iconKey": {
+      "type": "string",
+      "description": "Emoji ou cl\u00e9 d'ic\u00f4ne pour l'UI (ex: \ud83c\udf7b, \ud83c\udfb5, \ud83d\udee2\ufe0f)."
+    },
+    "vibe": {
+      "type": "string",
+      "enum": [
+        "underground",
+        "mainstream",
+        "experimental",
+        "chill",
+        "energetic"
+      ],
+      "description": "Ambiance dominante du lieu."
+    },
+    "difficultyTier": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Niveau de difficult\u00e9 SOTS du lieu (1 = accessible, 5 = elite)."
+    },
+    "domainKey": {
+      "type": "string",
+      "description": "Domaine culturel principal du lieu (ex: music, humour, art). Mis \u00e0 jour par recomputeCheckpointLiveStats."
+    },
+    "domainDominantKey": {
+      "type": "string",
+      "description": "Domaine dominant calcul\u00e9 par EMA sur l'historique des sessions. Mis \u00e0 jour automatiquement."
+    },
+    "domainRanking": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Classement des domaines par poids EMA (ex: [{key:'music',weight:0.74}])."
+    },
+    "styleTags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Liste de styleSystemId associ\u00e9s au lieu pour filtrage fin."
+    },
+    "sotsGlobalScore": {
+      "type": "number",
+      "default": 0,
+      "description": "Score SOTS agr\u00e9g\u00e9 all-time du lieu."
+    },
+    "sotsRecent30Score": {
+      "type": "number",
+      "default": 0,
+      "description": "Score SOTS des 30 derniers jours."
+    },
+    "totalVotes": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total de votes SOTS re\u00e7us sur ce lieu."
+    },
+    "totalEngagements": {
+      "type": "number",
+      "default": 0,
+      "description": "Nombre total d'Engagements completed dans ce lieu."
+    }
+  },
+  "required": [
+    "systemId",
+    "name"
+  ]
+}
