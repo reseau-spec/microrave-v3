@@ -1,5 +1,6 @@
 FICHE D'ÉVALUATION — B. FINANCE ET LEDGER
-Date d'évaluation : 22 mai 2026
+Date d'évaluation : 22 mai 2026 06:44 EST
+Fait par Claude Opus 4.7
 Documents sources : OS V15 (MICRORAVE_V3_OPERATING_SYSTEM_V15.md), EXPORT_BRUT Registres Souverains (D-038, D-039 à D-046, D-049, D-060 à D-070, D-101, D-117), Plan d'Implantation 2026-05-21, code src/core/MoneyMath.js (147 l.), src/core/guards/SealingGuard.js (294 l.), src/core/guards/LedgerInvariantGuard.js (202 l.), src/core/guards/EventPaymentGuard.js (318 l.), src/core/guards/NoShowGuard.js, src/core/guards/CancellationGuard.js, src/core/guards/EngagementAmendmentGuard.js, src/services/PayoutExecutor.js (318 l.), src/services/SignalConsumerService.js (241 l.), src/repositories/LedgerRepository.js (141 l.), src/repositories/PaymentRepository.js, src/repositories/ContractSnapshotRepository.js, config/policy-config-schema.js, scripts/seed-policy-config.js, 10 tests P0 financiers.
 Niveau de confiance : HAUTE sur l'arithmétique (MoneyMath, invariant LEDGER-02 du waterfall) ; PARTIELLE sur le câblage ledger (présence du code, absence de production d'écritures); INFÉRENCE sur les calculs de taxes/Stripe en amont.
 ──────────────────────────────────────────────────

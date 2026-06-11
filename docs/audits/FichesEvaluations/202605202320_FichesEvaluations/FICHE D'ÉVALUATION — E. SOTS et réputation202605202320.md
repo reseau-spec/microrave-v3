@@ -304,4 +304,4 @@ Justification :
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FIN DE LA FICHE — E. SOTS et réputation
-Conserver cette fiche pour le Prompt de Synthèse.
+Conserver cette fiche pour le Prompt de Synthèse

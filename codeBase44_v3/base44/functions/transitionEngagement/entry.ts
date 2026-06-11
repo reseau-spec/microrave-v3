@@ -1,7 +1,14 @@
 /**
- * transitionEngagement — Base44 Function v3
+ * transitionEngagement — Base44 Function v3.2
  * ============================================================
  * Machine d'état Engagement avec guards financiers.
+ *
+ * CHANGEMENTS v3 → v3.2 (27 mai 2026 — D-145 Option A) :
+ *   guardBalancePayment : SoloFounderOverride supprimé.
+ *   Guard bloquant strict aligné sur SealingGuard canonique.
+ *   Catch basculé fail-closed (POLICYCONFIG-FAILCLOSED-01).
+ *   La balance DOIT être encaissée (EPR succeeded) avant scellement.
+ *   Aucune exception sans AdminIncidentRecord P0.
  *
  * CHANGEMENTS v2 → v3 :
  *   WORM_STATES : retrait de event_sealed et settled (états
@@ -200,10 +207,12 @@ async function guardPresenceProof(eng, base44) {
   return { passed: true };
 }
 
-// ── Guard : BalancePaymentGuard v3.1 (deposit_secured → event_sealed) ─
-// Résistant aux EPR fantômes (re-clics après paiement réussi).
-// Cherche N'IMPORTE QUEL EPR balance succeeded/completed pour l'engagement.
-// Les EPR pending fantômes créés par des clics multiples sont ignorés.
+// ── Guard : BalancePaymentGuard v3.2 (deposit_secured → event_sealed) ─
+// D-145 (27 mai 2026) — Option A : guard bloquant strict.
+// SoloFounderOverride supprimé. Aligné sur SealingGuard canonique
+// (src/core/guards/SealingGuard.js §Vérification 4).
+// La balance DOIT être encaissée (EPR succeeded) avant tout scellement.
+// Aucune exception sans AdminIncidentRecord P0.
 async function guardBalancePayment(eng, base44) {
   try {
     const allBalanceEprs = await base44.entities.EventPaymentRequest.filter({
@@ -211,21 +220,12 @@ async function guardBalancePayment(eng, base44) {
       phase:        'balance',
     }, '-created_date', 20);
 
-    if (!allBalanceEprs?.length) {
-      // SoloFounderOverride : non bloquant pour le pilote.
-      console.warn(`[BALANCE_PAYMENT_GUARD] Aucun EPR balance pour ${eng.systemId}. SoloFounderOverride actif.`);
-      return {
-        passed:  true,
-        warning: 'BALANCE_NOT_PAID: SoloFounderOverride — scellement autorisé pilote. À désactiver Event 1.',
-      };
-    }
-
-    const paidEpr = allBalanceEprs.find(e =>
+    const paidEpr = (allBalanceEprs || []).find(e =>
       e.status === 'succeeded' || e.status === 'completed'
     );
 
     if (paidEpr) {
-      const pendingCount = allBalanceEprs.filter(e => e.status === 'pending').length;
+      const pendingCount = (allBalanceEprs || []).filter(e => e.status === 'pending').length;
       return {
         passed: true,
         ...(pendingCount > 0 ? {
@@ -234,14 +234,23 @@ async function guardBalancePayment(eng, base44) {
       };
     }
 
-    const mostRecent = allBalanceEprs[0];
+    // Aucun EPR balance succeeded — bloquant strict (D-145 Option A).
+    const detail = allBalanceEprs?.length
+      ? `EPR le plus récent : ${allBalanceEprs[0].systemId} status="${allBalanceEprs[0].status}". Attendre la confirmation Stripe.`
+      : `Aucun EPR balance trouvé pour ${eng.systemId}. Initier le paiement de la balance avant de sceller.`;
+
     return {
       passed: false,
-      reason: `BALANCE_PAYMENT_GUARD: Aucun EPR balance encaissé pour ${eng.systemId}. EPR le plus récent : ${mostRecent.systemId} status="${mostRecent.status}". Attendre la confirmation Stripe.`,
+      reason: `BALANCE_NOT_PAID: ${detail}`,
     };
 
   } catch (err) {
-    return { passed: true, warning: `BALANCE_PAYMENT_GUARD: Vérification échouée (${err.message}), accepté par défaut.` };
+    // Fail-closed : une erreur de vérification bloque le scellement.
+    // Source : POLICYCONFIG-FAILCLOSED-01, D-145 Option A.
+    return {
+      passed: false,
+      reason: `BALANCE_PAYMENT_GUARD: Vérification échouée (${err.message}). Scellement bloqué par sécurité (fail-closed).`,
+    };
   }
 }
 

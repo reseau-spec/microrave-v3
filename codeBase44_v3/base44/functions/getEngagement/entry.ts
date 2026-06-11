@@ -178,7 +178,7 @@ Deno.serve(async (req) => {
       organizerUserId:      eng.organizerUserId,
       status:               eng.status,
       cachetSigneCents:     eng.cachetSigneCents ?? 0,
-      tauxPpm:              eng.tauxPpm ?? 120000,
+      tauxPpm:              eng.tauxPpm ?? 200000,
       commissionMrCents:    eng.commissionMrCents ?? 0,
       talentNetCents:       eng.talentNetCents ?? 0,
       depositCents:         eng.depositCents ?? 0,

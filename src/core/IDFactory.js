@@ -23,6 +23,8 @@ const PREFIXES = {
   Lobby:               'LBY',
   User:                'USR',
   Talent:              'TAL',
+  MembershipPlan:      'MBP',
+  UserMembership:      'UMB',
   Checkpoint:          'CKP',
   EventLocation:       'EVL',
   Domain:              'DMN',

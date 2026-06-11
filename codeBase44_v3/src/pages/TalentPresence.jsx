@@ -56,6 +56,7 @@ export default function TalentPresence() {
   const [engagement, setEngagement] = useState(null);
   const [error, setError] = useState('');
   const [checkinResult, setCheckinResult] = useState(null);
+  const [checkpointRadiusM, setCheckpointRadiusM] = useState(null); // lu depuis Checkpoint.radiusKm (D-075)
   const watchRef = useRef(null);
 
   useEffect(() => {
@@ -69,16 +70,27 @@ export default function TalentPresence() {
     try {
       const res = await base44.functions.invoke('getEngagement', { engagementId });
       if (res?.data?.ok) {
-        setEngagement(res.data.engagement);
+        const eng = res.data.engagement;
+        setEngagement(eng);
+
         // Si l'engagement est déjà performed (ou après), afficher le panneau de fin
-        if (res.data.engagement?.status === 'performed' ||
-            res.data.engagement?.status === 'event_completed' ||
-            res.data.engagement?.status === 'sots_window_closed' ||
-            res.data.engagement?.status === 'contestation_window' ||
-            res.data.engagement?.status === 'payable' ||
-            res.data.engagement?.status === 'settled' ||
-            res.data.engagement?.status === 'archived') {
+        if (['performed','event_completed','sots_window_closed',
+             'contestation_window','payable','settled','archived'].includes(eng?.status)) {
           setStep('performed');
+        }
+
+        // Charger Checkpoint.radiusKm — source de vérité maxDistancePolicy (D-075 condition 4)
+        // Aucune valeur hardcodée — tout vient de la donnée.
+        if (eng?.eventId) {
+          try {
+            const events = await base44.entities.Event.filter({ systemId: eng.eventId }, '-created_date', 1);
+            const ckpId = events?.[0]?.checkpointId;
+            if (ckpId) {
+              const ckps = await base44.entities.Checkpoint.filter({ systemId: ckpId }, '-created_date', 1);
+              const radiusKm = ckps?.[0]?.radiusKm;
+              if (radiusKm != null) setCheckpointRadiusM(Number(radiusKm) * 1000);
+            }
+          } catch (_) { /* fail-soft — le check-in reste possible sans rayon chargé */ }
         }
       }
     } catch {}
@@ -98,10 +110,12 @@ export default function TalentPresence() {
       (pos) => {
         setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setAccuracy(Math.round(pos.coords.accuracy));
-        if (pos.coords.accuracy <= 50) {
-          setStep('confirming');
-          navigator.geolocation.clearWatch(watchRef.current);
-        }
+        // Dès que le browser a des coordonnées → confirming.
+        // La validation de distance est déléguée à createSessionPresence
+        // via haversine + Checkpoint.radiusKm (D-075 condition 4).
+        // Aucun seuil d'accuracy hardcodé ici.
+        setStep('confirming');
+        navigator.geolocation.clearWatch(watchRef.current);
       },
       (_err) => {
         setError('Accès à la localisation refusé. Vérifiez les permissions de votre appareil.');

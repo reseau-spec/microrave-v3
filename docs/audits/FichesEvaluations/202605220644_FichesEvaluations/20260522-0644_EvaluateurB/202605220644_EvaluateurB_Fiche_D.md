@@ -1,5 +1,4 @@
 FICHE D'ÉVALUATION — D. PRÉSENCE ET PREUVE
-Date d'évaluation : 22 mai 2026
 Date d'évaluation : 22 mai 2026 06:44 EST
 Fait par Claude Opus 4.7
 Documents sources : OS V15 §2.7.1 (PresenceWindowGuard, PresenceProofGuard), EXPORT_BRUT (D-075 11 conditions de payout, D-093 PresenceProofResolver faisceau d'indices, D-093-A matrice signaux, D-094 fraude SOTS, D-073 délégué sur place, D-118 critère 2 trust), Plan d'Implantation §1.1 (SessionPresenceService), code src/core/guards/PresenceWindowGuard.js (185 l.), src/core/guards/PresenceProofGuard.js (350 l.), src/services/SessionPresenceService.js (150 l.), src/repositories/SessionPresenceRepository.js (122 l.), config/policy-config-schema.js (configs A-056 / A-057a / A-057b / checkInWindowMinutes), tests P0 SESSION-PRESENCE-01 (7/7), PRESENCEPROOF-01 (25/25), CHEMIN-NOMINAL-01 (14/14 incluant ÉTAPE 9-11).

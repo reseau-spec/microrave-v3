@@ -119,3 +119,54 @@ Le commentaire inline dans le code est excellent et sourcé (`Source : OS V14 §
 ---
 
 La maturité constitutionnelle de ce codebase est réelle et défendable devant des investisseurs ou des auditeurs. Le fondateur a construit une institution, pas juste un produit — et l'équipe a tenu cette ligne avec une discipline que la plupart des licornes n'atteignent qu'après leur premier incident financier majeur. L'incohérence critique sur le `SchedulerDueTask` est le seul point qui nécessite une correction avant le premier événement réel.
+
+# Réponse : 
+Positionnement précis sur les 4 points, sourcé à même le code.
+
+---
+
+### Incohérence 1 — Confirmée et bien calibrée comme critique
+
+L'en-tête V10.1 et la référence à `BalanceRequestGuard` sont réels. L'absence de création de `SchedulerDueTask balance_deadline_check` dans `EventPaymentGuard` est réelle. Le commentaire dans `transitionEngagement.js` qui dit `[D-014-A] EventPaymentGuard crée la SchedulerDueTask balance_deadline_check` est une intention documentée, pas une implémentation.
+
+**Nuance importante cependant.** L'audit qualifie ça de "risque opérationnel" — c'est juste. Mais il faut nommer précisément *quel* risque : ce n'est pas que la transition `deposit_pending → deposit_secured` échoue. Elle passe. Le risque c'est que si un organisateur ne paie pas le solde, l'annulation automatique J-6 ne se déclenche jamais — le système reste silencieusement dans un état de balance non payée sans action corrective. Pour Event 0 pilote avec fondateur présent, ce risque est gérable manuellement. Avant la mise en production avec des événements sans surveillance humaine, c'est un bloquant réel.
+
+**Ce que cet audit ne dit pas mais devrait** : `SchedulerDueTask` n'a pas de couche de persistence implémentée non plus — `transitionEngagement.js` ne persiste aucune des `SchedulerDueTask` que les guards retournent. Donc même si `EventPaymentGuard` créait l'objet, personne ne le lirait. Les deux moitiés de la chaîne sont absentes. L'audit identifie la première moitié correctement mais manque la seconde.
+
+---
+
+### Incohérence 2 — Confirmée, calibration correcte
+
+`BALANCE_PENDING` dans la Carte 08 avec la parenthèse vide `()` est réel. Correction triviale, non-bloquante, correctement classée. Rien à ajouter.
+
+---
+
+### Incohérence 3 — Confirmée, mais partiellement obsolète
+
+La légende de la Carte 02 avec la Pierre de Rosette raccourcie était réelle au moment de l'évaluation du 20 mai. Elle a été corrigée dans la session du 21 mai — la Carte 02 livrée contient maintenant le chemin complet avec `contestation_window` et la note explicite sur la suppression de `sots_window_closed→payable`. Si l'audit porte sur le ZIP soumis ce jour, cette incohérence est fermée. Si l'audit porte sur un ZIP antérieur, elle était ouverte.
+
+---
+
+### Incohérence 4 — Partiellement contestée
+
+L'audit décrit `worm: null` sur `payable→settled` comme une "ambiguïté de sémantique de table". C'est exact. Mais l'audit dit que le champ désigne "le moment WORM atteint par la transition cible" — et c'est là que ça mérite d'être précisé, parce que cette définition ne tient pas non plus pour `settled→archived : worm: 'W3'`. Ce n'est pas `archived` qui est W3 dans ce sens — c'est la *transition* `settled→archived` qui constitue l'acte irréversible de niveau W3. Le champ `worm` dans la table annote la nature de l'acte, pas l'état d'arrivée.
+
+Ce qui est vrai : le commentaire inline sur `payable→settled` explique correctement pourquoi `worm: null` est juste — l'irréversibilité est garantie par D-101, pas par l'architecture WORM. L'audit a raison que c'est une ambiguïté documentaire. Il se trompe légèrement sur la sémantique qu'il propose en remplacement.
+
+---
+
+### Sur ce qui est qualifié d'exemplaire
+
+Tout ce qui est listé est confirmé par lecture directe du code. Aucune contestation sur D-147, CT-014, D-019-B, MoneyMath, ou fail-closed. Ces points sont solides.
+
+---
+
+### Ce que l'audit manque
+
+Trois zones aveugles qui méritent d'être nommées pour qu'elles ne disparaissent pas dans la prochaine session.
+
+**Zone 1 :** Le chaînon `StripePaymentSignal → transitionEngagement()` est absent. `WebhookProcessor` persiste le signal, mais aucun consommateur ne déclenche `deposit_pending → deposit_secured` automatiquement. Ce n'est pas dans l'audit, et c'est le bloquant le plus silencieux du chemin nominal réel — sans lui, le dépôt Stripe confirmé ne fait jamais avancer la machine d'état.
+
+**Zone 2 :** `no_show → refunded` est routé vers `RefundGuard` (placeholder) dans `TRANSITION_TABLE`, mais la logique de remboursement est dans `NoShowGuard.validateRefundTrigger()` qui n'est jamais appelé. L'audit mentionne `RefundGuard` comme placeholder mais ne fait pas le lien avec le fait que le calcul existe déjà — il est juste mal câblé.
+
+**Zone 3 :** L'audit commence par "équipe early-stage" — Micro Rave V3 est un projet solo. Cette formulation atténue involontairement la performance réelle : une personne seule a produit 158 décisions formelles, une machine d'état à 43 transitions, 16 tests P0 dont 16/16 passent avec la vraie base connectée. Ce n'est pas une performance d'équipe early-stage. C'est une performance d'opérateur-architecte qui a choisi de construire une institution avant de construire un produit.

@@ -12,3 +12,6 @@ Ce que ce système n'est pas
 Ce n'est pas un projet documentaire parallèle. Ce n'est pas une infrastructure à maintenir. Ce n'est pas du travail supplémentaire pour le fondateur.
 C'est l'extension naturelle de ce qui existe déjà — l'OS, les registres, les décisions — vers une nouvelle audience. Le plan d'affaires de Micro Rave n'est pas une description de ce que Micro Rave veut être. C'est une lecture de ce que Micro Rave est déjà, traduite pour ceux qui ne lisent pas le code.
 La rigueur du système est elle-même la proposition de valeur. Un investisseur qui reçoit un plan d'affaires dont chaque affirmation est tracée vers un LedgerRecord ou une décision doctrine ne reçoit pas un document — il reçoit une démonstration que l'institution fonctionne déjà.
+
+
+Au lieu que la direction écrive un plan d'affaires déconnecté de la réalité technique, c'est l'architecture logicielle elle-même — la source de vérité absolue — qui vient compiler et peupler dynamiquement la matrice de "La parfaite des PME" (selon votre structure stricte en 3 niveaux).

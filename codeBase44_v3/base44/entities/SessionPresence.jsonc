@@ -38,10 +38,69 @@
     "createdAt": {
       "type": "string",
       "description": "Timestamp ISO 8601."
+    },
+    "gpsDistanceMeters": {
+      "type": "number",
+      "description": "Distance calcul\u00e9e (haversine) entre GPS talent et Checkpoint en m\u00e8tres. Null si Checkpoint sans coordonn\u00e9es."
+    },
+    "withinRadius": {
+      "type": "boolean",
+      "description": "true si gpsDistanceMeters \u2264 radiusKm \u00d7 1000. Calcul\u00e9 \u00e0 la cr\u00e9ation. null si calcul impossible."
+    },
+    "checkpointId": {
+      "type": "string",
+      "description": "CKP-* du Checkpoint utilis\u00e9 pour le calcul de distance. Trac\u00e9 pour audit."
+    },
+    "radiusMetersUsed": {
+      "type": "number",
+      "description": "Rayon en m\u00e8tres lu depuis Checkpoint.radiusKm au moment du check-in. Grav\u00e9 pour audit \u2014 si radiusKm change apr\u00e8s, l'historique reste coh\u00e9rent."
     }
   },
   "required": [
     "engagementId",
     "talentUserId"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.talentUserId": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.talentUserId": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.talentUserId": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }

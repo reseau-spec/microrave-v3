@@ -11,7 +11,7 @@
  * ============================================================
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   MapPin, Calendar, Music, DollarSign,
-  ArrowRight, Loader2, CheckCircle2, AlertCircle
+  ArrowRight, Loader2, CheckCircle2, AlertCircle, Search, X
 } from 'lucide-react';
 
 // ── Tokens visuels Micro Rave V3 ──────────────────────────────
@@ -182,6 +182,26 @@ const styles = {
     marginTop: '8px',
   },
   ctaDisabled: { opacity: 0.4, cursor: 'not-allowed' },
+  ckpWrapper:  { position: 'relative' },
+  ckpDropdown: {
+    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 100,
+    background: '#0d0d14', border: `1px solid ${MR_ACCENT}`,
+    borderTop: 'none', borderRadius: '0 0 6px 6px',
+    maxHeight: '220px', overflowY: 'auto',
+  },
+  ckpItem: {
+    padding: '10px 14px', cursor: 'pointer', fontSize: '13px',
+    borderBottom: `1px solid ${MR_BORDER}`,
+  },
+  ckpItemName:  { color: MR_TEXT, fontWeight: 600 },
+  ckpItemMeta:  { color: MR_MUTED, fontSize: '11px', marginTop: '2px' },
+  ckpItemMatch: { color: MR_ACCENT },
+  ckpSelected:  {
+    background: '#0d0d14', border: `1px solid ${MR_SUCCESS}`,
+    borderRadius: '6px', padding: '10px 14px', fontSize: '13px',
+    color: MR_TEXT, display: 'flex', alignItems: 'center',
+    justifyContent: 'space-between', gap: '8px',
+  },
   error: {
     background: '#1a0808',
     border: `1px solid ${MR_ERROR}`,
@@ -232,16 +252,70 @@ export default function EngagementForm() {
     talentUserId:   '',
     eventName:      '',
     eventDate:      '',
-    venueAddress:   '',
     cachetSigne:    '',
     description:    '',
+    roleMetier:     '',
   });
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
+  // ── Sélecteur Checkpoint ──────────────────────────────────
+  // Affiche name · stocke systemId en arrière-plan (jamais exposé)
+  const [ckpQuery,    setCkpQuery]    = useState('');      // texte saisi
+  const [ckpResults,  setCkpResults]  = useState([]);      // suggestions
+  const [ckpSelected, setCkpSelected] = useState(null);    // { systemId, name, adresse, arrondissement }
+  const [ckpLoading,  setCkpLoading]  = useState(false);
+  const [ckpOpen,     setCkpOpen]     = useState(false);
+  const ckpRef = useRef(null);
+
+  // Fermer le dropdown si clic hors du composant
+  useEffect(() => {
+    function handleClick(e) {
+      if (ckpRef.current && !ckpRef.current.contains(e.target)) setCkpOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  // Recherche debounce 300ms
+  useEffect(() => {
+    if (ckpQuery.length < 2) { setCkpResults([]); setCkpOpen(false); return; }
+    const t = setTimeout(async () => {
+      setCkpLoading(true);
+      try {
+        // Charger les checkpoints actifs et filtrer côté client
+        // (Base44 .filter() ne supporte pas LIKE — on charge et filtre)
+        const all = await base44.entities.Checkpoint.filter({ active: true }, '-name', 200);
+        const q = ckpQuery.toLowerCase();
+        const filtered = (all || []).filter(c =>
+          (c.name         || '').toLowerCase().includes(q) ||
+          (c.adresse      || '').toLowerCase().includes(q) ||
+          (c.arrondissement || '').toLowerCase().includes(q) ||
+          (c.codePostal   || '').toLowerCase().includes(q)
+        ).slice(0, 8);
+        setCkpResults(filtered);
+        setCkpOpen(filtered.length > 0);
+      } catch (_) { setCkpResults([]); }
+      finally { setCkpLoading(false); }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [ckpQuery]);
+
+  function selectCheckpoint(ckp) {
+    setCkpSelected({ systemId: ckp.systemId, name: ckp.name, adresse: ckp.adresse, arrondissement: ckp.arrondissement });
+    setCkpQuery('');
+    setCkpResults([]);
+    setCkpOpen(false);
+  }
+
+  function clearCheckpoint() {
+    setCkpSelected(null);
+    setCkpQuery('');
+  }
+
   const wf = calcWaterfall(form.cachetSigne);
   const isValid = form.talentUserId && form.eventName && form.eventDate &&
-                  form.venueAddress && form.roleMetier && parseFloat(form.cachetSigne) > 0;
+                  ckpSelected && form.roleMetier && parseFloat(form.cachetSigne) > 0;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -255,7 +329,8 @@ export default function EngagementForm() {
         talentUserId:    form.talentUserId,
         eventName:       form.eventName,
         eventDate:       form.eventDate,
-        venueAddress:    form.venueAddress,
+        venueAddress:    ckpSelected?.adresse || ckpSelected?.name || '',
+        checkpointId:    ckpSelected?.systemId || null,
         cachetSigneCents: wf.cachetCents,
         roleMetier:      form.roleMetier,
         description:     form.description,
@@ -302,7 +377,7 @@ export default function EngagementForm() {
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 style={{ ...styles.cta, width: 'auto', padding: '10px 20px', background: MR_BORDER }}
-                onClick={() => { setCreated(null); setForm({ talentUserId:'',eventName:'',eventDate:'',venueAddress:'',cachetSigne:'',description:'' }); }}
+                onClick={() => { setCreated(null); setForm({ talentUserId:'',eventName:'',eventDate:'',cachetSigne:'',description:'',roleMetier:'' }); setCkpSelected(null); setCkpQuery(''); }}
               >
                 Créer un autre
               </button>
@@ -367,15 +442,53 @@ export default function EngagementForm() {
                 />
               </div>
               <div style={styles.field}>
-                <label style={styles.label}>Adresse du lieu</label>
-                <input
-                  style={inputStyle('venueAddress')}
-                  placeholder="ex: 123 rue Saint-Denis, Mtl"
-                  value={form.venueAddress}
-                  onChange={set('venueAddress')}
-                  onFocus={() => setFocusedField('venueAddress')}
-                  onBlur={() => setFocusedField(null)}
-                />
+                <label style={styles.label}>Lieu — Checkpoint</label>
+                {ckpSelected ? (
+                  <div style={styles.ckpSelected}>
+                    <div>
+                      <div style={{ fontWeight: 600 }}>{ckpSelected.name}</div>
+                      {ckpSelected.adresse && (
+                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                          {ckpSelected.adresse}{ckpSelected.arrondissement ? ` · ${ckpSelected.arrondissement}` : ''}
+                        </div>
+                      )}
+                    </div>
+                    <button type="button" onClick={clearCheckpoint}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '2px' }}>
+                      <X size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div style={styles.ckpWrapper} ref={ckpRef}>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        style={{ ...inputStyle('venue'), paddingLeft: '36px' }}
+                        placeholder="Nom, adresse ou arrondissement…"
+                        value={ckpQuery}
+                        onChange={e => setCkpQuery(e.target.value)}
+                        onFocus={() => { setFocusedField('venue'); if (ckpResults.length) setCkpOpen(true); }}
+                        autoComplete="off"
+                      />
+                      <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', pointerEvents: 'none' }} />
+                      {ckpLoading && <Loader2 size={12} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#a78bfa' }} className="animate-spin" />}
+                    </div>
+                    {ckpOpen && ckpResults.length > 0 && (
+                      <div style={styles.ckpDropdown}>
+                        {ckpResults.map(ckp => (
+                          <div key={ckp.systemId}
+                            style={styles.ckpItem}
+                            onMouseDown={() => selectCheckpoint(ckp)}
+                          >
+                            <div style={styles.ckpItemName}>{ckp.name}</div>
+                            <div style={styles.ckpItemMeta}>
+                              {[ckp.adresse, ckp.arrondissement, ckp.codePostal].filter(Boolean).join(' · ')}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -309,9 +309,14 @@ export default function ActionsSidebar({ engagement, isOrganizer, isTalent, onAc
   // ── Rendu par état ────────────────────────────────────────
 
   const canPayDeposit = ['placed', 'accepted', 'deposit_pending'].includes(status) && isOrganizer;
-  // HOTFIX v2 : ne plus offrir "Payer balance" si balancePaidEpr trouvé
-  const canPayBalance = status === 'deposit_secured' && isOrganizer && balanceCents > 0 && !balancePaidEpr;
-  const canSeal       = status === 'deposit_secured' && isOrganizer;
+  // D-145 Option A (27 mai 2026) : guard bloquant strict.
+  // canPayBalance : bouton visible si balance non encore encaissée.
+  // canSeal : conditionné à la balance encaissée (D-145).
+  //   Si balanceCents === 0 (dépôt couvre 100%), scellement sans EPR balance autorisé.
+  //   Si balanceCheckLoading : canSeal = false pour éviter scellement pendant vérification.
+  const canPayBalance = status === 'deposit_secured' && isOrganizer && balanceCents > 0 && !balancePaidEpr && !balanceCheckLoading;
+  const balanceRequiredAndPaid = balanceCents <= 0 || !!balancePaidEpr;
+  const canSeal       = status === 'deposit_secured' && isOrganizer && balanceRequiredAndPaid && !balanceCheckLoading;
   const canCopyLink   = status === 'event_sealed' && isOrganizer;
   const canMarkPerformed = status === 'event_sealed' && (isTalent || isOrganizer);
   const canGotoCompletion= ['performed', 'event_completed'].includes(status) && isOrganizer;
@@ -389,11 +394,7 @@ export default function ActionsSidebar({ engagement, isOrganizer, isTalent, onAc
               : <><Lock size={14} /> Sceller l'événement</>
             }
           </button>
-          {balanceCents > 0 && !balancePaidEpr && !balanceCheckLoading && (
-            <div style={s.warningLine}>
-              <strong>Mode pilote :</strong> scellement autorisé sans paiement de balance (SoloFounderOverride). En production Event 1, la balance devra être encaissée avant scellement.
-            </div>
-          )}
+          {/* D-145 : message retiré — canSeal conditionne déjà le bouton */}
         </>
       )}
 
@@ -466,10 +467,24 @@ export default function ActionsSidebar({ engagement, isOrganizer, isTalent, onAc
         </div>
       )}
 
-      {status === 'deposit_secured' && !canPayBalance && !canSeal && (
+      {status === 'deposit_secured' && balanceCheckLoading && (
+        <div style={s.notice(T.muted)}>
+          <Lock size={12} />{' '}
+          Vérification du paiement de la balance…
+        </div>
+      )}
+
+      {status === 'deposit_secured' && !balanceCheckLoading && !canPayBalance && !canSeal && balanceCents > 0 && !balancePaidEpr && (
+        <div style={s.notice(T.warning)}>
+          <AlertCircle size={12} />{' '}
+          Balance non encaissée — paiement requis avant scellement (D-145)
+        </div>
+      )}
+
+      {status === 'deposit_secured' && !canPayBalance && !canSeal && (balanceCents <= 0 || !!balancePaidEpr) && (
         <div style={s.notice(T.success)}>
           <Lock size={12} />{' '}
-          Dépôt sécurisé
+          Dépôt sécurisé — balance encaissée
         </div>
       )}
 

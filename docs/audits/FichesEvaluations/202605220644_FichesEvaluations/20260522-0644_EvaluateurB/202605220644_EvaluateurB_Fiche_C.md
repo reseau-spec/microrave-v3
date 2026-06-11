@@ -1,5 +1,4 @@
 FICHE D'ÉVALUATION — C. STRIPE ET PAIEMENTS
-Date d'évaluation : 22 mai 2026
 Date d'évaluation : 22 mai 2026 06:44 EST
 Fait par Claude Opus 4.7
 Documents sources : OS V15 (§2.7.1 transitions financières), EXPORT_BRUT (D-097 secrets Stripe, D-098 fraude, D-101 anti-double payout, D-127 doctrine Base44 rampe, D-129 WEBHOOK-RAWBODY-01, D-130 MigrationTrigger, D-131 discipline, D-132 portability), Plan d'Implantation §0.1 + §1.3, code src/services/StripeAdapter.js (343 l.), src/services/StripeConnectService.js (258 l.), src/services/WebhookProcessor.js (280 l.), src/services/SignalConsumerService.js (241 l.), src/services/PayoutExecutor.js (318 l.), src/repositories/PaymentRepository.js (223 l.), src/repositories/index.js (125 l.), stripe-webhook-proxy/index.js (106 l.), scripts/run-j9-pilot.js, .env, 4 tests P0 (STRIPE-J8-01, WEBHOOK-RAWBODY-01, PAYOUT-SETTLED-01, DEPOSIT-FAIL-01).

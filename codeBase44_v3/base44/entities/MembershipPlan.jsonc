@@ -13,7 +13,7 @@
     },
     "commissionRatePpm": {
       "type": "integer",
-      "description": "Taux commission en PPM. 120000 = 12%."
+      "description": "Taux commission en PPM. 200000 = 20%."
     },
     "description": {
       "type": "string",

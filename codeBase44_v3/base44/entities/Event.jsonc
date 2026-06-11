@@ -30,6 +30,10 @@
     "createdAt": {
       "type": "string",
       "description": "Timestamp ISO 8601."
+    },
+    "checkpointId": {
+      "type": "string",
+      "description": "CKP-* du Checkpoint associ\u00e9 \u00e0 cet \u00e9v\u00e9nement. Source de geoLat/geoLng/radiusKm pour la validation GPS de pr\u00e9sence (D-075)."
     }
   },
   "required": [

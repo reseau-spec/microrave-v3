@@ -210,6 +210,7 @@ async function createEngagementWithLedger({
   base44, organizerUserId, talentUserId,
   eventName, eventDate, venueAddress,
   cachetSigneCents, roleMetier, description,
+  checkpointId,
   tauxPpm, depositRatioPpm,
 }) {
   const commissionMrCents = floorPpm(cachetSigneCents, tauxPpm);
@@ -230,6 +231,7 @@ async function createEngagementWithLedger({
     organizerUserId,
     name:             eventName,
     venue:            venueAddress,
+    ...(checkpointId ? { checkpointId } : {}),
     scheduledStartAt: eventDate,
     status:           'draft',
     createdAt:        now,
@@ -465,6 +467,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { talentUserId, eventName, eventDate, venueAddress,
             cachetSigneCents, roleMetier, description,
+            checkpointId,
             successUrl, cancelUrl } = body;
 
     // ── Validation ────────────────────────────────────────────
@@ -510,6 +513,7 @@ Deno.serve(async (req) => {
         base44, organizerUserId, talentUserId,
         eventName, eventDate, venueAddress,
         cachetSigneCents, roleMetier, description,
+        checkpointId: checkpointId || null,
         tauxPpm, depositRatioPpm,
       });
     } catch (ledgerError) {

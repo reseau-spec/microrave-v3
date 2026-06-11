@@ -3,6 +3,7 @@ FICHE D'ÉVALUATION — E. SOTS ET RÉPUTATION
 (check-in requis, auto-note bloquée, append-only, EMA)
 
 Date d'évaluation : 22 mai 2026 07:17 EST
+Par Claude Sonnet 4.6
 Documents sources :
   • MICRORAVE_V3_OPERATING_SYSTEM_V15.md (OS V15)
   • EXPORT_BRUT—REGISTRES_SOUVERAINS_MICRO_RAVE_V3.md

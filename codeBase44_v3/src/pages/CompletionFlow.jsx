@@ -192,7 +192,7 @@ export default function CompletionFlow() {
   );
 
   const cachetCents = engagement?.cachetSigneCents || 0;
-  const commCents   = engagement?.commissionMrCents || Math.floor(cachetCents * 120000 / 1_000_000);
+  const commCents   = engagement?.commissionMrCents || Math.floor(cachetCents * 200000 / 1_000_000);
   const talentCents = cachetCents - commCents;
 
   const base = {

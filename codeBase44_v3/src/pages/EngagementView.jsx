@@ -65,6 +65,9 @@ export default function EngagementView() {
   const [acting, setActing]         = useState(false);
   const [error, setError]           = useState('');
   const [actionWarning, setActionWarning] = useState('');
+  // D-145 Option A : détecter si balance encaissée avant d'autoriser le scellement
+  const [balancePaidEpr, setBalancePaidEpr]     = useState(null);
+  const [balanceCheckLoading, setBalanceCheckLoading] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -78,6 +81,27 @@ export default function EngagementView() {
   }, []);
 
   useEffect(() => { if (engagementId) loadEngagement(); }, [engagementId]);
+
+  // D-145 : vérifier si un EPR balance succeeded existe pour cet engagement
+  useEffect(() => {
+    let cancelled = false;
+    async function checkBalance() {
+      if (!engagementId || !engagement) return;
+      if (!['deposit_secured'].includes(engagement.status)) return;
+      setBalanceCheckLoading(true);
+      try {
+        const eprs = await base44.entities.EventPaymentRequest.filter(
+          { engagementId, phase: 'balance' }, '-created_date', 20
+        );
+        if (cancelled) return;
+        const paid = (eprs || []).find(e => e.status === 'succeeded' || e.status === 'completed');
+        setBalancePaidEpr(paid || null);
+      } catch (_) {}
+      finally { if (!cancelled) setBalanceCheckLoading(false); }
+    }
+    checkBalance();
+    return () => { cancelled = true; };
+  }, [engagementId, engagement?.status]);
 
   async function loadEngagement() {
     setLoading(true); setError('');
@@ -95,6 +119,24 @@ export default function EngagementView() {
     try {
       const res = await base44.functions.invoke('initiateDepositPayment', { engagementId });
       if (!res?.data?.ok) throw new Error(res?.data?.error);
+      window.location.href = res.data.checkoutUrl;
+    } catch (err) {
+      setError(err.message);
+      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+    } finally { setActing(false); }
+  }
+
+  // Payer la balance → Stripe Checkout (D-145)
+  async function handlePayBalance() {
+    if (acting) return; setActing(true);
+    try {
+      const res = await base44.functions.invoke('initiateBalancePayment', { engagementId });
+      if (!res?.data?.ok) throw new Error(res?.data?.error);
+      if (res.data.alreadyPaid) {
+        toast({ title: '✓ Balance déjà encaissée', description: 'Vous pouvez sceller l\'événement.' });
+        setBalancePaidEpr({ systemId: res.data.eprId });
+        return;
+      }
       window.location.href = res.data.checkoutUrl;
     } catch (err) {
       setError(err.message);
@@ -292,16 +334,26 @@ export default function EngagementView() {
               </button>
             )}
 
+            {/* ── PAYER LA BALANCE (D-145 Option A) ── */}
+            {isOrganizer && engagement.status === 'deposit_secured' && balanceCents > 0 && !balancePaidEpr && !balanceCheckLoading && (
+              <button style={{ ...s.cta, background: T.deposit, color: 'white', ...(acting ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }} onClick={handlePayBalance} disabled={acting}>
+                {acting ? <><Loader2 size={14} className="animate-spin" /> Redirection...</> : <><DollarSign size={14} /> Payer la balance ({(balanceCents/100).toFixed(0)} $)</>}
+              </button>
+            )}
+            {isOrganizer && engagement.status === 'deposit_secured' && balanceCents > 0 && !balancePaidEpr && !balanceCheckLoading && (
+              <div style={{ fontSize: '11px', color: T.warning, marginTop: '6px', padding: '8px', background: `${T.warning}11`, borderRadius: '6px', border: `1px solid ${T.warning}33` }}>
+                ⚠ Balance non encaissée — paiement requis avant scellement (D-145)
+              </div>
+            )}
+            {isOrganizer && engagement.status === 'deposit_secured' && balanceCheckLoading && (
+              <div style={{ fontSize: '11px', color: T.muted, marginTop: '6px' }}>Vérification balance…</div>
+            )}
+
             {/* ── SCELLER L'ÉVÉNEMENT ── */}
-            {isOrganizer && engagement.status === 'deposit_secured' && (
-              <>
-                <button style={{ ...s.cta, background: T.neon, color: '#000', ...(acting ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }} onClick={handleSeal} disabled={acting}>
-                  {acting ? <><Loader2 size={14} className="animate-spin" /> Scellement...</> : <><Lock size={14} /> Sceller l'événement</>}
-                </button>
-                <div style={{ fontSize: '11px', color: T.muted, marginTop: '8px', padding: '8px', background: `${T.warning}11`, borderRadius: '6px', border: `1px solid ${T.warning}22` }}>
-                  ⚠ Mode pilote : le paiement du solde ({(balanceCents/100).toFixed(0)} $) sera confirmé après.
-                </div>
-              </>
+            {isOrganizer && engagement.status === 'deposit_secured' && (balanceCents <= 0 || !!balancePaidEpr) && !balanceCheckLoading && (
+              <button style={{ ...s.cta, background: T.neon, color: '#000', ...(acting ? { opacity: 0.5, cursor: 'not-allowed' } : {}) }} onClick={handleSeal} disabled={acting}>
+                {acting ? <><Loader2 size={14} className="animate-spin" /> Scellement...</> : <><Lock size={14} /> Sceller l'événement</>}
+              </button>
             )}
 
             {/* ── LIEN CHECK-IN TALENT ── */}

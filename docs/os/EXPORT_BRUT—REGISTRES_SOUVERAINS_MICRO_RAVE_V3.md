@@ -6,7 +6,7 @@
 
 ## **0\. Métadonnées de l'export**
 
-**Date de génération :** 13 mai 2026 · **Mise à jour :** 20 mai 2026 **Portée :** BLOCs 0 à 18 — interrogatoire procédural complet **Total des décisions :** 158 décisions validées
+**Date de génération :** 13 mai 2026 · **Mise à jour :** 20 mai 2026 **Portée :** BLOCs 0 à 19 — 20 blocs complets **Total des décisions :** 167 décisions validées
 
 **Liste des décisions principales :** D-001 à D-147 **Liste des décisions amendées :**
 
@@ -20,6 +20,8 @@
 * SC-DEPOSIT-FAIL — Waterfall deposit\_failed → archived
 * SC-08-PARTIEL — Waterfall partially\_settled (deliveryRecognizedRatio)
 * D-147 — EngagementAmendment — extension de plage horaire sur accord mutuel
+* D-148 à D-155 — BLOC 19 — Analytique et états financiers par SKU
+* Amendements V4 : D-011 (engagementSKUTagId), D-038 (cashFlowType NOT NULL), D-060 (dimension analytique SKU sur 7110+), IDFactory (RSK-/SSK-/PSK-/EST-/CAL-)
 * CT-014 — Clarification LOI NO-SHOW-01 multi-talent avec coefficient
 
 **Registres inclus :**
@@ -2255,7 +2257,241 @@ L'amendment est conforme à WORM-APPEND-01 : il ajoute des écritures ledger (de
 
 ---
 
-**FIN DE LA PARTIE 3 / 8**
+
+
+---
+
+## **BLOC 19 — NOUVELLES DÉCISIONS D-148 à D-155**
+### *Analytique et états financiers par SKU*
+
+---
+
+### **D-148 | Calendrier 4-4-5 — Ancrage annuel souverain et structure des trimestres**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19 — Analytique et états financiers par SKU
+
+**Phrase canonique :** *"Des pommes avec des pommes. La semaine 6, vendredi soir, de 2026 est comparable à la semaine 6, vendredi soir, de 2027 — parce que le calendrier 4-4-5 garantit la même position dans le cycle saisonnier. C'est la condition de possibilité de tout benchmarking inter-annuel dans l'événementiel."*
+
+**Règle invariante — LOI CALENDRIER-445-01 :** L'ancre de chaque année est calculée une fois et gravée dans `CalendarAnchorConfig` (table immuable). Elle n'est jamais recalculée à la volée.
+
+**Contenu brut :**
+
+Le calendrier 4-4-5 découpe l'année en 4 trimestres de 13 semaines chacun (52 semaines, 364 jours hors débordement). Structure par trimestre : 3 périodes de 4, 4 et 5 semaines.
+
+**Décisions souveraines fondateur 20 mai 2026 :**
+
+1. Ancrage : premier lundi **strictement** suivant le 1er janvier. Si le 1er janvier est lui-même un lundi, l'ancre est le lundi suivant.
+2. Débordement : les années à 53 semaines voient la semaine excédentaire absorbée dans Q4 (structure 4-4-6 cette année-là). Q1, Q2, Q3 restent identiques toutes les années.
+3. Ancres validées : 2026=05 jan · 2027=04 jan · 2028=03 jan · 2029=08 jan · 2030=07 jan.
+4. Prochains débordements : 2028 (+1 semaine Q4), 2034 (+1 semaine Q4).
+
+**Algorithme canonique :**
+
+```
+fonction get445Anchor(anneeGregorienne):
+  jan1 = date(anneeGregorienne, 1, 1)
+  joursVersLundi = (7 − jan1.jourSemaine) % 7
+  si joursVersLundi == 0 : joursVersLundi = 7
+  retourner jan1 + joursVersLundi jours
+```
+
+**Objet `CalendarAnchorConfig` champs minimaux :** systemId (CAL-), gregorianYear, anchorDate, totalWeeks, overflowWeeks, q4WeekCount, createdAt [immuable]
+
+**Test P0 à créer :** CALENDAR445-01 — vérifier l'ancrage 2026–2034, le débordement 2028, la génération des clés PSK-
+
+---
+
+### **D-149 | PlageHoraireSKU — Format de clé, 6 blocs de 4 heures, univers analytique**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19
+
+**Phrase canonique :** *"2 184 créneaux par an. Assez pour piloter. Pas assez pour noyer."*
+
+**Règle invariante :** La granularité des PlageHoraireSKU est fixée à 4 heures. Les atomes de 5 et 15 minutes appartiennent exclusivement à la couche de preuve (SessionPresence) — jamais à la couche analytique.
+
+**Contenu brut :**
+
+6 blocs de 4 heures par jour :
+
+| Bloc | Plage | Label |
+|------|-------|-------|
+| B1 | 00h–04h | NUIT_PROFONDE |
+| B2 | 04h–08h | AUBE |
+| B3 | 08h–12h | MATIN |
+| B4 | 12h–16h | APRES_MIDI |
+| B5 | 16h–20h | FIN_APRES_MIDI |
+| B6 | 20h–00h | SOIREE |
+
+Format de clé : `{ANNEE}Q{Q}W{WW}{J}B{B}` — ex. `2026Q1W065B6` = vendredi W06 2026, soirée.
+
+Règle de chevauchement : un événement qui chevauche deux blocs génère deux PlageHoraireSKU distincts.
+
+Univers : 52 semaines × 7 jours × 6 blocs = **2 184 SKUs/an**.
+
+**Objet `PlageHoraireSKU` champs minimaux :** systemId (PSK-), code, annee445, trimestre, semaine, jourSemaine (1=lundi), bloc (1–6), heureDebut, heureFin, labelAnalytique, profilRisque (PEAK|STANDARD|OFF_PEAK), activeFrom, activeTo
+
+---
+
+### **D-150 | RoleSKU — Taxonomie des rôles métier**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19
+
+**Règle invariante :** Les codes RoleSKU sont définis en database — jamais hardcodés. Tout nouveau rôle est ajouté via PolicyConfigChangeRecord + AdminAction + fondateur. Le code est WORM de nomenclature — immuable une fois créé.
+
+**Contenu brut :**
+
+Un RoleSKU définit **qui** est engagé. Un rôle dit **qui**. Indépendant du style et de la plage. Exemples de codes initiaux : DJ, HUMORISTE, MC, SOUNDTECH, VJ, PHOTOGRAPHE, ANIMATEUR, MUSICIEN.
+
+**Objet `RoleSKU` champs minimaux :** systemId (RSK-), code, labelFr, labelEn, activeFrom, activeTo
+
+---
+
+### **D-151 | StyleSKU — Taxonomie des styles, relation N:M avec les rôles**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19
+
+**Règle invariante — LOI SKU-STYLE-01 :** La relation StyleSKU ↔ RoleSKU est N:M. Un StyleSKU sans RoleSKU compatible est rejeté à la création (fail-closed). Un style peut appartenir à plusieurs rôles. Un rôle peut avoir plusieurs styles.
+
+**Contenu brut :**
+
+Un StyleSKU définit **comment** la prestation est exécutée. Un style dit **comment**. Indépendant du rôle et de la plage. Exemples : HOUSE, TECHNO, DISCO (rôle DJ) ; STAND_UP, IMPROVISATION (rôles HUMORISTE, MC, ANIMATEUR) ; JAZZ (rôles DJ, MUSICIEN).
+
+**Objet `StyleSKU` champs minimaux :** systemId (SSK-), code, labelFr, labelEn, roleSKUCodes (liste N:M), activeFrom, activeTo
+
+---
+
+### **D-152 | EngagementSKUTag — Jointure analytique WORM gravée à `accepted`**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19
+**Amende :** D-011 (Engagement — ajout du champ `engagementSKUTagId`)
+
+**Phrase canonique :** *"Un rôle dit qui. Un style dit comment. Une plage dit quand."*
+
+**Règle invariante :** EngagementSKUTag est créé simultanément au ContractSnapshot phase 1 dans MissionConversionGuard. Si le tag ne peut pas être créé, la transition proposed→accepted est bloquée. Fail-closed. Le tag est WORM — aucune modification après capturedAt.
+
+**Contenu brut :**
+
+EngagementSKUTag grave les trois dimensions analytiques sur chaque Engagement au moment de accepted. Il capture également le membershipTier snapshot pour permettre la corrélation SaaS↔courtage dans le tableau de bord stratégique (jamais dans la comptabilité).
+
+Un Engagement qui chevauche deux blocs de 4 heures génère deux PlageHoraireSKU dans le tag.
+
+**Objet `EngagementSKUTag` champs minimaux :** systemId (EST-), engagementId, roleSKUCode, styleSKUCode, plageHoraireSKUs (liste — 1 ou 2 codes), membershipTier (snapshot), capturedAt [immuable]
+
+**Test P0 à créer :** ENGAGEMENTSKULOG-01
+
+---
+
+### **D-153 | LOI SKU-MOTEUR-01 — Non-contamination des moteurs économiques**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19
+
+**Phrase canonique :** *"La corrélation entre abonnement et GMV événementiel est une question de stratégie produit, pas une ligne de compte de résultat."*
+
+**Règle invariante :** Toute requête qui agrège des revenus de moteurs différents (7110 + 7210 par exemple) doit porter une étiquette explicite `labelInterMoteur`. Cette étiquette est obligatoire dans tout tableau de bord et tout rapport investisseur. LedgerReportingService rejette les agrégations inter-moteurs sans étiquette.
+
+**Contenu brut :**
+
+Micro Rave opère quatre horloges économiques fondamentalement différentes :
+
+| Moteur | Unité | Revenu reconnu | Comptes |
+|--------|-------|----------------|---------|
+| Courtage | Transaction (Engagement archivé) | À l'archivage (LOI LEDGER-01) | 7110–7190 |
+| SaaS | Période (mois/année) | Pro-rata quotidien (D-050) | 7210–7290 |
+| Billetterie | Billet émis | Post-MVP | 7410–7490 |
+| Commandites | Période contractuelle | Post-MVP | 7510–7590 |
+
+La corrélation inter-moteurs est une analyse de cohorte (tableau de bord stratégique) — jamais une agrégation comptable.
+
+---
+
+### **D-154 | Classification des LedgerEntry par type de flux de trésorerie**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19
+**Amende :** D-038 (FinancialLedger — ajout champ `cashFlowType`) · D-060 (LedgerCodeMap — note de classification)
+
+**Règle invariante :** Le champ `cashFlowType` est NOT NULL dans FinancialLedger. Toute écriture sans classification est rejetée. La classification est renseignée par le guard ou le service qui crée l'écriture — jamais par classification a posteriori.
+
+**Contenu brut :**
+
+Classification par compte :
+- 5200 DR (encaissement) → EXPLOITATION
+- 5100 CR (décaissement talent) → EXPLOITATION
+- 4325/4326 DR (taxes remises) → EXPLOITATION
+- 4190 DR/CR (débours Stripe) → EXPLOITATION
+- 2xxx (immobilisations) → INVESTISSEMENT (post-MVP)
+- 1xxx (capitaux, dettes LT) → FINANCEMENT
+
+**Note ASPE/IFRS 15 :** Les revenus différés in-flight (Engagements entre accepted et archived) apparaissent au bilan en 4530 — pas dans l'état des résultats. Cette doctrine doit être documentée dans les notes aux états financiers à chaque clôture.
+
+---
+
+### **D-155 | LedgerReportingService — Couche de requêtes états financiers**
+
+**Statut :** VALIDÉ — 20 mai 2026 **Bloc :** BLOC 19
+
+**Règle invariante :** LedgerReportingService est read-only. Il ne peut pas créer, modifier ou supprimer des LedgerEntry. Il est un Repository au sens de l'architecture Micro Rave (BLOC 16 — 11 interfaces Repository).
+
+**Contenu brut :**
+
+LedgerReportingService produit :
+1. **Bilan** (à une date) — soldes par compte, ségrégués par moteur
+2. **État des résultats** (pour une période) — comptes 6xxx (charges) et 7xxx (produits)
+3. **État des flux de trésorerie** (pour une période) — filtré par `cashFlowType`
+4. **Rentabilité par SKU** — join FinancialLedger(7110) × EngagementSKUTag
+
+Paramètres communs : `dateDebut`, `dateFin`, `moteur?` (COURTAGE|SAAS|BILLETTERIE|COMMANDITES), `skuCode?`
+
+**Vue MR :** revenus, marges, risques, liquidité réseau
+**Vue talent :** revenus générés, taux de remplissage, valeur horaire, stabilité, performance par SKU
+**Vue organisateur :** dépenses, fiabilité, efficacité du booking, SKUs les plus bookés
+
+Toutes les agrégations inter-moteurs sans paramètre `labelInterMoteur` explicite sont rejetées (LOI SKU-MOTEUR-01).
+
+**Test P0 à créer :** LEDGER-REPORTING-01
+
+---
+
+### **Amendement D-011 | Engagement — Ajout champ engagementSKUTagId** *(V4)*
+
+Ajouter dans l'objet Engagement (champs minimaux) :
+```
+engagementSKUTagId   EST-...   // null jusqu'à accepted, gravé simultanément au ContractSnapshot phase 1
+```
+
+---
+
+### **Amendement D-038 | FinancialLedger — Ajout champ cashFlowType** *(V4)*
+
+Ajouter dans l'objet FinancialLedger (champs minimaux) :
+```
+cashFlowType   ENUM(EXPLOITATION, INVESTISSEMENT, FINANCEMENT)   NOT NULL
+```
+**Règle invariante :** Toute écriture sans classification est rejetée. La classification est renseignée par le guard ou le service qui crée l'écriture — jamais par classification a posteriori.
+
+---
+
+### **Amendement D-060 | LedgerCodeMap V3 — Dimension analytique SKU** *(V4)*
+
+Ajouter dans D-060 :
+
+Les écritures sur les comptes 7110–7190 (revenus courtage) portent un champ optionnel `engagementSKUTagId` (référence vers EngagementSKUTag). Ce champ est **obligatoire** pour tout mouvement issu d'un Engagement archivé passant par ArchiveWORMGuard — null uniquement pour les écritures de correction ou d'ajustement.
+
+---
+
+### **Amendement IDFactory | Ajout préfixes V4** *(V4)*
+
+Ajouter dans la table des préfixes IDFactory :
+```
+RoleSKU          → RSK-
+StyleSKU         → SSK-
+PlageHoraireSKU  → PSK-
+EngagementSKUTag → EST-
+CalendarAnchor   → CAL-
+```
+
+---
+
+**FIN DE LA PARTIE 3 / 8 (V4 — BLOC 19 inclus)**
 
 ---
 
@@ -2540,6 +2776,11 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 | SchedulerCreditBudget | OPÉRATIONNEL | FOUNDER \+ OPS\_ADMIN | Non | AdminAction \+ log | D-104 | MVP |
 | SpoofingDetectionPolicyConfig | OPÉRATIONNEL | FOUNDER \+ PRIVACY\_SECURITY\_ADMIN | Non | idem | D-093 | MVP |
 | SOTSCalculationPolicyConfig | OPÉRATIONNEL | FOUNDER \+ FINANCE\_ADMIN | Non | idem | D-081 | MVP |
+| CalendarAnchorConfig | OPÉRATIONNEL | FOUNDER \+ OPS\_ADMIN | Non | AdminAction \+ log | D-148 | MVP |
+| RoleSKUConfig | STANDARD | FOUNDER \+ OPS\_ADMIN | Non | AdminAction \+ DataAccessLedger | D-150 | MVP |
+| StyleSKUConfig | STANDARD | FOUNDER \+ OPS\_ADMIN | Non | AdminAction \+ DataAccessLedger | D-151 | MVP |
+| PlageHoraireSKUConfig | STANDARD | FOUNDER \+ OPS\_ADMIN | Non | AdminAction \+ DataAccessLedger | D-149 | MVP |
+| LedgerReportingPolicyConfig | STANDARD | FOUNDER \+ FINANCE\_ADMIN | Non | AdminAction \+ DataAccessLedger | D-155 | MVP |
 | RoundingPolicyConfig | STANDARD | FOUNDER \+ FINANCE\_ADMIN | Non | AdminAction \+ DataAccessLedger | D-063 | MVP |
 | SOTSDimensionConfig | STANDARD | FOUNDER \+ FINANCE\_ADMIN | Non | idem | D-079 | MVP |
 | SOTSFraudDetectionPolicyConfig | STANDARD | FOUNDER \+ PRIVACY\_SECURITY\_ADMIN | Non | idem | D-094 | MVP |
@@ -2564,11 +2805,11 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 | MissionSlot | Besoin exprimé par l'organisateur | Définir un rôle à remplir | id, eventId, roleMetier, plageHoraire, statut | D-113 | MVP |
 | MissionApplication | Candidature d'un talent à un MissionSlot | Lier talent et slot | id, slotId, talentId, proposalId, status | D-113 | MVP |
 | MissionProposal | Proposition de prix et conditions | Négociation | id, applicationId, priceCents, conditions, round, status | D-113 | MVP |
-| Engagement | Objet atomique central | Fil rouge de tout le cycle | id, systemId, eventId, lineupId, talentId, roleMetier, plageHoraire, signed\_price\_cents, final\_price\_cents, status, contractSnapshotId | D-011, D-019 | MVP |
+| Engagement | Objet atomique central | Fil rouge de tout le cycle | id, systemId, eventId, lineupId, talentId, roleMetier, plageHoraire, signed\_price\_cents, final\_price\_cents, status, contractSnapshotId, engagementSKUTagId | D-011, D-019 | MVP |
 | EngagementCollectif | Noyau indivisible QuickPlay | Lot d'Engagements | id, lobbyId, eventId, members\[\], totalPriceCents, status | D-021, D-114 | MVP |
 | ContractSnapshot | Document immuable de l'accord | WORM financier | id, engagementId, phase (1/2), signed\_price\_cents, talent\_platform\_commission\_rate\_snapshot, sots\_snapshot, membership\_tier\_snapshot, commission\_estimated\_cents, \[phase 2 : coefficient, final\_price\_cents, commission\_final\_cents, tax\_snapshot, stripe\_fee\_snapshot\] | D-035 | MVP |
 | EventPaymentRequest | Demande de paiement | Instrument financier | id, eventId, payerUserId, organizerUserId, type (dépôt/balance), gross\_amount\_cents, status, stripePaymentIntentId | D-048 | MVP |
-| FinancialLedger | Registre comptable append-only | Source de vérité financière | id, transactionGroupId, accountCode, debitCents, creditCents, description, createdAt, \[immuable\] | D-038, D-060 | MVP |
+| FinancialLedger | Registre comptable append-only | Source de vérité financière | id, transactionGroupId, accountCode, debitCents, creditCents, description, createdAt, cashFlowType ENUM(EXPLOITATION/INVESTISSEMENT/FINANCEMENT) NOT NULL, \[immuable\] | D-038, D-060 | MVP |
 | SettlementInstruction | Instruction de règlement | Déclencheur de payout | id, engagementId, decisionRecordId, allocatedCents, consumedAt, status | D-047, D-101 | MVP |
 | PayoutExecutionRecord | Preuve d'exécution du payout | Verrou anti-double | id, engagementId, executedAt, stripeTransferId, amountCents, status | D-101 | MVP |
 | PayoutBlockReason | Code de blocage de payout | Traçabilité institutionnelle | id, engagementId, reasonCode, createdAt, resolvedAt | D-101 | MVP |
@@ -2610,6 +2851,12 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 | DataSubjectRequestRecord | Demande d'accès/effacement | Loi 25 | id, userId, requestType, receivedAt, resolvedAt, decisionSummary | D-096 | MVP |
 | ConflictOfInterestRecord | Conflit d'intérêt arbitre | Indépendance dispute | id, disputeRecordId, adminUserId, conflictType, declaredAt, recusalRequired, replacementAdminId | D-110 | MVP |
 | EngagementAmendment | Extension de plage horaire d'un Engagement en état performed | Amendment post-scellement avec consentement | id, systemId (AMD-), engagementId, amendmentType, originalDurationMinutes, newDurationMinutes, originalCachetBrutFinalCents, newCachetBrutFinalCents, deltaCachetCents, deltaCommissionMrCents, deltaTalentNetCents, talentConsentAt, organizerConsentAt, adminActionId, reasonCode, createdAt | D-147 | MVP |
+
+| CalendarAnchorConfig | Configuration immuable ancre annuelle 4-4-5 | Référence temporelle souveraine pour PlageHoraireSKU | systemId (CAL-), gregorianYear, anchorDate, totalWeeks, overflowWeeks, q4WeekCount, createdAt [immuable] | D-148 | MVP |
+| RoleSKU | SKU analytique rôle métier | Dimension "qui" de l'Engagement | systemId (RSK-), code, labelFr, labelEn, activeFrom, activeTo | D-150 | MVP |
+| StyleSKU | SKU analytique style de prestation | Dimension "comment" — relation N:M avec rôles | systemId (SSK-), code, labelFr, labelEn, roleSKUCodes (liste N:M), activeFrom, activeTo | D-151 | MVP |
+| PlageHoraireSKU | SKU analytique créneau horaire 4h | Dimension "quand" — stock périssable | systemId (PSK-), code, annee445, trimestre, semaine, jourSemaine (1=lundi), bloc (1–6), heureDebut, heureFin, labelAnalytique, profilRisque (PEAK/STANDARD/OFF_PEAK), activeFrom, activeTo | D-149 | MVP |
+| EngagementSKUTag | Jointure analytique WORM 3 dimensions SKU | Attribution analytique irréversible à accepted | systemId (EST-), engagementId, roleSKUCode, styleSKUCode, plageHoraireSKUs (liste 1 ou 2), membershipTier (snapshot), capturedAt [immuable] | D-152 | MVP |
 
 ---
 
@@ -2750,6 +2997,18 @@ MONEY \= cents / RATE \= ppm / RATIO \= n/d / SCORE \= units / DISPLAY \= derive
 
 ---
 
+### **Catégorie 9 — Analytique SKU et états financiers** *(V4)*
+
+| testCode | P0 | Trigger | requiredBeforeEvent | Décision | Ce qu'il vérifie |
+|----------|----|---------|---------------------|----------|------------------|
+| CALENDAR445-01 | Global | Toujours | 0A | D-148 | Ancrage 2026–2034 correct, débordement 2028, génération clés PSK- |
+| ENGAGEMENTSKULOG-01 | Global | Toujours | 0A | D-152 | EngagementSKUTag créé simultanément au ContractSnapshot phase 1 — fail-closed si absent |
+| LEDGER-REPORTING-01 | Global | Toujours | 1 | D-155 | LedgerReportingService read-only — bilan, résultats, flux, rentabilité par SKU |
+| SKU-MOTEUR-01 | Global | Toujours | 1 | D-153 | Agrégation inter-moteurs sans labelInterMoteur rejetée |
+| CASHFLOW-TYPE-01 | Global | Toujours | 0B | D-154 | cashFlowType NOT NULL sur toute écriture FinancialLedger |
+
+---
+
 ## **9\. ECONOMIC\_SCENARIO\_REGISTER — Export complet**
 
 ---
@@ -2874,7 +3133,7 @@ INCLUS MVP : format universel 5 éléments par état (D-084), "fonds protégés"
 ---
 
 ### **IDFactory**
-
+ Préfixes V4 ajoutés : RoleSKU (RSK-), StyleSKU (SSK-), PlageHoraireSKU (PSK-), EngagementSKUTag (EST-), CalendarAnchor (CAL-).
 INCLUS MVP : systemId portable souverain sur tous les objets critiques (D-127). Base44 Auth user id ≠ systemId métier (D-127).
 
 ---
@@ -3221,6 +3480,14 @@ Note : GPS spoofing seul \= HOLD \+ admin review (pas abort si faisceau alternat
 | **PresenceProofResolver** | Logique de résolution de la présence par faisceau d'indices pondérés. GPS n'est pas obligatoire. Résultat : présence confirmée / présence probable / admin review / absence présumée. (D-093, D-093-A) |
 | **AbortProtocol** | Procédure d'arrêt immédiat en 8 étapes si un event pilote rencontre une condition bloquante. "Un event pilote peut échouer. Il ne doit jamais échouer silencieusement." (D-145) |
 | **EngagementAmendment** | Extension de la plage horaire d'un Engagement existant sur accord mutuel talent + organisateur, depuis l'état `performed`. Le taux contractuel (ContractSnapshot phase 2, WORM W2) est invariant — seule la durée change. Distinct du transfert (changement de talent) et du no-show (absence). (D-147) |
+| **CalendarAnchorConfig** | Configuration immuable de l'ancre annuelle 4-4-5. Gravée une fois par année grégorienne, jamais recalculée à la volée. Premier lundi strictement suivant le 1er janvier. Débordement absorbé dans Q4. Préfixe CAL-. (D-148) |
+| **PlageHoraireSKU** | SKU analytique d'un créneau horaire. Format : {ANNEE}Q{Q}W{WW}{J}B{B}. 6 blocs de 4 heures par jour. Univers de 2 184 SKUs par an. Préfixe PSK-. Distinct de SessionPresence (couche de preuve). La granularité 4h est fixe — jamais 5 ou 15 minutes dans la couche analytique. (D-149) |
+| **RoleSKU** | SKU analytique d'un rôle métier (DJ, humoriste, soundtech, etc.). Préfixe RSK-. Codes définis en database — jamais hardcodés. WORM de nomenclature une fois créé. Un rôle dit **qui**. (D-150) |
+| **StyleSKU** | SKU analytique d'un style de prestation. Relation N:M avec les rôles. Préfixe SSK-. Un style sans rôle compatible est rejeté à la création. Un style dit **comment**. (D-151) |
+| **EngagementSKUTag** | Jointure analytique WORM gravant les trois dimensions SKU (rôle, style, plage) sur un Engagement au moment de accepted. Préfixe EST-. Créé simultanément au ContractSnapshot phase 1. Immuable après capturedAt. Inclut membershipTier snapshot pour corrélation analytique (jamais comptable). (D-152) |
+| **LOI SKU-MOTEUR-01** | Non-contamination des moteurs économiques. Toute agrégation inter-moteurs requiert un `labelInterMoteur` explicite. La corrélation abonnement↔GMV est analytique, pas comptable. (D-153) |
+| **cashFlowType** | Classification obligatoire de toute écriture FinancialLedger. ENUM(EXPLOITATION, INVESTISSEMENT, FINANCEMENT). NOT NULL. Renseigné à la création, jamais a posteriori. Condition de production de l'état des flux de trésorerie. (D-154) |
+| **LedgerReportingService** | Service read-only de reporting financier. Produit : bilan, état des résultats, flux de trésorerie, rentabilité par SKU. Ne peut pas créer, modifier ou supprimer des LedgerEntry. Rejette les agrégations inter-moteurs sans labelInterMoteur. (D-155) |
 | **deliveryRecognizedRatio** | Ratio de livraison reconnue dans une dispute partielle. DecisionRecord.recognizedAmount / initialAmount. Gouverne la distribution prorata talent/payeur/MR/vendeur. (D-045) |
 
 ---
@@ -3307,9 +3574,13 @@ Note : GPS spoofing seul \= HOLD \+ admin review (pas abort si faisceau alternat
 
 ---
 
+**BLOC 19 — Analytique et états financiers par SKU** Décisions : D-148 à D-155 + amendements D-011, D-038, D-060, IDFactory. Questions posées : conversation fondateur 20 mai 2026. Phrases canoniques : *"Des pommes avec des pommes"*, *"2 184 créneaux par an — assez pour piloter, pas assez pour noyer"*, *"La corrélation entre abonnement et GMV événementiel est une question de stratégie produit, pas une ligne de compte de résultat"*, *"Un rôle dit qui. Un style dit comment. Une plage dit quand."* Points clés : calendrier 4-4-5 ancré au premier lundi suivant le 1er janvier · débordement Q4 · PlageHoraireSKU 6 blocs 4h · RoleSKU + StyleSKU indépendants et séparés · EngagementSKUTag WORM à accepted · LOI SKU-MOTEUR-01 — non-contamination des moteurs économiques · LedgerReportingService read-only · cashFlowType NOT NULL dans FinancialLedger.
+
+---
+
 ## **Clôture de l'export**
 
-**Export brut — Registres Souverains Micro Rave V3** **Date :** 13 mai 2026 · **Mise à jour :** 20 mai 2026 **Total décisions :** 158 (D-001 à D-147 \+ D-060-A \+ D-093-A \+ D-096-A \+ D-120-A \+ D-019-A \+ D-019-B \+ D-014-A \+ D-014-B \+ CT-014) **BLOCs couverts :** 0 à 18 (19 blocs complets) **Registres exportés :** 16
+**Export brut — Registres Souverains Micro Rave V3** **Date :** 13 mai 2026 · **Mise à jour :** 20 mai 2026 **Total décisions :** 167 (D-001 à D-155 \+ D-060-A \+ D-093-A \+ D-096-A \+ D-120-A \+ D-019-A \+ D-019-B \+ D-014-A \+ D-014-B \+ CT-014 \+ 5 amendements V4) **BLOCs couverts :** 0 à 19 (20 blocs complets) **Mise à jour :** 20 mai 2026 (V4 — ajout BLOC 19) **Registres exportés :** 16
 
 **Phrase de clôture :** *"Une capacité culturelle locale devient un engagement de prestation vérifiable, puis un règlement économique, puis une mémoire territoriale."*
 
